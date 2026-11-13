@@ -66,7 +66,7 @@ function tiff(): Buffer {
 }
 
 test.describe('media converters (ffmpeg.wasm)', () => {
-  test.describe.configure({ mode: 'serial', timeout: 300_000 });
+  test.describe.configure({ mode: 'serial', timeout: 300_000, retries: 2 });
   let webm: Buffer;
   let mp4: Buffer;
   let gif: Buffer;

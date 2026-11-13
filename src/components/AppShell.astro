@@ -15,10 +15,8 @@ interface Props {
   noindex?: boolean;
   /** Structured data objects (schema.org), written as JSON-LD in the head. */
   jsonLd?: unknown[];
-  /** The start page is always light, whatever the system or a saved choice says. */
-  forceLight?: boolean;
 }
-const { title, description, noindex = false, jsonLd = [], forceLight = false } = Astro.props;
+const { title, description, noindex = false, jsonLd = [] } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
 const path = Astro.url.pathname.endsWith('/') ? Astro.url.pathname : `${Astro.url.pathname}/`;
 const isHome = path === '/';
@@ -27,12 +25,12 @@ const openGroup = toolForPath(path)?.group ?? TOOL_GROUPS[0];
 ---
 
 <!doctype html>
-<html lang="en-US" data-theme={forceLight ? 'light' : undefined} data-force-light={forceLight ? 'true' : undefined}>
+<html lang="en-US" data-theme="light">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="color-scheme" content={forceLight ? 'light' : 'light dark'} />
-    {!forceLight && <meta name="theme-color" content="#121212" media="(prefers-color-scheme: dark)" />}
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#121212" media="(prefers-color-scheme: dark)" />
     <meta name="theme-color" content="#fffdf5" media="(prefers-color-scheme: light)" />
     <title>{title}</title>
     <meta name="description" content={description} />
@@ -54,13 +52,15 @@ const openGroup = toolForPath(path)?.group ?? TOOL_GROUPS[0];
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={OG_IMAGE} />
     {jsonLd.map((item) => <script type="application/ld+json" set:html={serialize(item)} />)}
-    <!-- Runs before first paint, so a visitor who chose dark mode never sees a flash of light. -->
-    <script is:inline define:vars={{ key: THEME_STORAGE_KEY, forceLight }}>
+    <!-- Runs before first paint, so a visitor who chose dark mode never sees a flash of light. The default (nothing chosen) is light on every page; a choice made with the toggle is kept on every page until it is changed. -->
+    <script is:inline define:vars={{ key: THEME_STORAGE_KEY }}>
       try {
-        const saved = forceLight ? 'light' : localStorage.getItem(key);
-        if (saved === 'dark' || saved === 'light') document.documentElement.setAttribute('data-theme', saved);
+        const saved = localStorage.getItem(key);
+        if (saved === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+        else if (saved === 'system') document.documentElement.removeAttribute('data-theme');
+        else document.documentElement.setAttribute('data-theme', 'light');
       } catch {
-        // Storage can be blocked (private mode); the system setting then applies.
+        // Storage can be blocked (private mode); the default (light) stays.
       }
     </script>
   </head>
@@ -175,12 +175,10 @@ const openGroup = toolForPath(path)?.group ?? TOOL_GROUPS[0];
               <span aria-hidden="true">🔍</span>
               <span class="hidden sm:inline">Search</span>
             </button>
-            {!forceLight && (
-              <button type="button" class="btn btn-sm" id="theme-toggle" aria-label="Switch between light and dark" aria-pressed="false">
-                <span data-theme-icon="moon" aria-hidden="true">🌙</span>
-                <span data-theme-icon="sun" aria-hidden="true">☀️</span>
-              </button>
-            )}
+            <button type="button" class="btn btn-sm" id="theme-toggle" aria-label="Switch between light and dark" aria-pressed="false">
+              <span data-theme-icon="moon" aria-hidden="true">🌙</span>
+              <span data-theme-icon="sun" aria-hidden="true">☀️</span>
+            </button>
             <a href="/donate/" class="btn btn-sm btn-primary" aria-label="Donate">
               <span aria-hidden="true">💛</span>
               <span class="hidden min-[520px]:inline">Support</span>
@@ -231,12 +229,6 @@ const openGroup = toolForPath(path)?.group ?? TOOL_GROUPS[0];
       const body = document.body;
 
       // ---- light / dark ----
-      // The start page is always light: if anything (the search window's theme action, another tab) changes it, put it back.
-      if (root.hasAttribute('data-force-light')) {
-        new MutationObserver(() => {
-          if (root.getAttribute('data-theme') !== 'light') root.setAttribute('data-theme', 'light');
-        }).observe(root, { attributes: true, attributeFilter: ['data-theme'] });
-      }
       const toggle = document.getElementById('theme-toggle');
       const isDark = () =>
         root.getAttribute('data-theme') === 'dark' ||
