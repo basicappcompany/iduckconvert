@@ -241,7 +241,7 @@ export function respond(message: string, ctx?: HelperContext, focus?: string): H
   }
 
   if (has(q, 'safe', 'private', 'privacy', 'upload', 'uploaded', 'secure')) {
-    return reply('Every converter runs in your browser, so your files are not uploaded. The audio and video engine is downloaded once from a public CDN, but your files are not part of that.', { links: [{ href: '/privacy/', label: 'Privacy policy' }, { href: '/about/', label: 'About' }] });
+    return reply('Every converter runs in your browser, so your files are not uploaded. The audio and video engine is downloaded once from jsDelivr (cdn.jsdelivr.net) and checked against a fixed fingerprint, but your files are not part of that.', { links: [{ href: '/privacy/', label: 'Privacy policy' }, { href: '/about/', label: 'About' }] });
   }
   if (has(q, 'feedback', 'bug', 'broken', 'problem', 'report')) return reply('Sorry something went wrong. A short note helps most: say which converter and what you expected.', { links: [{ href: '/feedback/', label: 'Send feedback' }] });
   if (has(q, 'request', 'suggest', 'idea', 'missing', 'wish')) return reply('Tell us what you wish existed. Requests decide what gets built next.', { links: [{ href: '/request/', label: 'Request a feature' }, { href: '/roadmap/', label: 'Roadmap' }] });

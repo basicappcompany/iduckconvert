@@ -41,7 +41,7 @@ const PRIVATE_FAQ = (what: string): Faq => ({
 
 const ENGINE_FAQ: Faq = {
   q: 'Why was the first conversion slow to start?',
-  a: 'The first time you convert audio or video, your browser downloads the conversion engine (ffmpeg, about 30 MB) from a public CDN. After that it is cached, so the next ones start straight away. Your files are not part of that download.',
+  a: 'The first time you convert audio or video, your browser downloads the conversion engine (ffmpeg, about 30 MB) from jsDelivr (cdn.jsdelivr.net), a public file host, and checks it against a fixed fingerprint before using it. After that it is cached, so the next ones start straight away. Your files are not part of that download.',
 };
 
 const BATCH_FAQ: Faq = {

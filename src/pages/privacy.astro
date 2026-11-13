@@ -14,7 +14,7 @@ import { CONTACT_EMAIL, FEEDBACK_EMAIL } from '../lib/contact';
     <h2 id="files" class="text-2xl font-black tracking-tight">Your files</h2>
     <p class="mt-2 leading-relaxed">
       Every iDuckConvert tool opens, changes and saves your files inside your own browser. Your files are not uploaded to our
-      servers, and we cannot see them or keep a copy. The one thing fetched from elsewhere is the ffmpeg engine for audio and video, a public code file that is downloaded from the jsDelivr CDN the first time you convert media; your file is not part of that request. When you close the tab they are gone from the page.
+      servers, and we cannot see them or keep a copy. The only thing fetched from another host is the ffmpeg engine for audio and video: the jsDelivr content delivery network (cdn.jsdelivr.net), which serves one file, the 32 MB ffmpeg engine; your browser checks that file against a fixed fingerprint (SHA-384) and refuses it if it does not match. Like any website host, jsDelivr can see your IP address and browser type when that file is requested, but it never receives your files. It is downloaded the first time you convert media. When you close the tab they are gone from the page.
     </p>
   </section>
 

@@ -1,12 +1,27 @@
 /**
- * ffmpeg.wasm, loaded on demand. The small JS wrapper is bundled with the site; the big engine
- * (the .wasm file, about 30 MB) comes from a pinned version on a CDN, and is cached by the browser
- * after the first use. This is the single-thread core, so the site needs no special server headers.
+ * ffmpeg.wasm, loaded only when someone presses Convert with a file chosen (never on page load).
+ * - The JS wrapper and the 112 KB core loader are served from our own domain (public/vendor/ffmpeg).
+ * - The 32 MB engine (.wasm) is too big to host on Cloudflare Pages (25 MB file limit), so it comes from one
+ *   pinned version on jsDelivr and is checked against a SHA-384 hash before it is used: a changed or tampered
+ *   file is refused. The hash is also checked by a unit test against the version in package.json.
+ * This is the single-thread core, so the site needs no special server headers beyond the security ones.
  */
 import { AbortError } from '../engine/types';
 
 export const FFMPEG_CORE_VERSION = '0.12.10';
-const CORE_BASE = `https://cdn.jsdelivr.net/npm/@ffmpeg/core@${FFMPEG_CORE_VERSION}/dist/esm`;
+/** Same-origin copy of ffmpeg-core.js (hash recorded in tests/unit/security.test.ts). */
+export const CORE_JS_URL = `/vendor/ffmpeg/ffmpeg-core-${FFMPEG_CORE_VERSION}.js`;
+export const WASM_CDN_HOST = 'https://cdn.jsdelivr.net';
+export const WASM_URL = `${WASM_CDN_HOST}/npm/@ffmpeg/core@${FFMPEG_CORE_VERSION}/dist/esm/ffmpeg-core.wasm`;
+/** SHA-384 of ffmpeg-core.wasm for the pinned version. Change it only together with the version. */
+export const WASM_SHA384 = 'sha384-U1VDhkPYrM3wTCT4/vjSpSsKqG/UjljYrYCI4hBSJ02svbCkxuCi6U6u/peg5vpW';
+
+/** Fetch the engine and let the browser refuse it if its hash is not the expected one. */
+async function verifiedWasmUrl(): Promise<string> {
+  const response = await fetch(WASM_URL, { integrity: WASM_SHA384, mode: 'cors', credentials: 'omit', referrerPolicy: 'no-referrer' });
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  return URL.createObjectURL(new Blob([await response.arrayBuffer()], { type: 'application/wasm' }));
+}
 
 /** Suggested limits: bigger files can run out of memory in a browser tab. */
 export const LIMIT_DESKTOP_MB = 500;
@@ -25,13 +40,13 @@ let onLog: ((line: string) => void) | null = null;
 async function load(): Promise<FFmpegInstance> {
   if (instance) return instance;
   loading ??= (async () => {
-    const [{ FFmpeg }, { toBlobURL }] = await Promise.all([import('@ffmpeg/ffmpeg'), import('@ffmpeg/util')]);
+    const { FFmpeg } = await import('@ffmpeg/ffmpeg');
     const ff = new FFmpeg();
     ff.on('progress', ({ progress }) => onProgress?.(Math.min(1, Math.max(0, progress))));
     ff.on('log', ({ message }) => onLog?.(message));
     await ff.load({
-      coreURL: await toBlobURL(`${CORE_BASE}/ffmpeg-core.js`, 'text/javascript'),
-      wasmURL: await toBlobURL(`${CORE_BASE}/ffmpeg-core.wasm`, 'application/wasm'),
+      coreURL: CORE_JS_URL,
+      wasmURL: await verifiedWasmUrl(),
     });
     instance = ff;
     return ff;
@@ -40,7 +55,9 @@ async function load(): Promise<FFmpegInstance> {
     return await loading;
   } catch (error) {
     loading = null;
-    throw new Error(`The converter engine could not load (${error instanceof Error ? error.message : 'network error'}). Check your connection and try again.`);
+    const reason = error instanceof Error ? error.message : 'network error';
+    if (/integrity|digest|hash/i.test(reason)) throw new Error('The converter engine did not pass its safety check (its fingerprint did not match), so it was not used. Please try again later.');
+    throw new Error(`The converter engine could not load (${reason}). Check your connection and try again.`);
   }
 }
 
