@@ -1,9 +1,12 @@
 ---
 import AppShell from '../../components/AppShell.astro';
-import { GUIDES, guidePath } from '../../lib/guides';
+import { GUIDES, GUIDE_CATEGORIES, guidePath } from '../../lib/guides';
+import { GROUP_EMOJI } from '../../lib/tools';
 import { breadcrumbLd, collectionLd } from '../../lib/seo';
 
-const description = 'Short how-to guides for converting audio, video, spreadsheets, pictures and units without mistakes. Each gives the answer first.';
+const description = `${GUIDES.length} short how-to guides for converting audio, video, spreadsheets, pictures and units without mistakes. Each gives the answer first.`;
+const slug = (c: string) => c.replace(/\W+/g, '-').toLowerCase();
+const groups = GUIDE_CATEGORIES.map((category) => ({ category, guides: GUIDES.filter((g) => g.category === category) })).filter((g) => g.guides.length > 0);
 ---
 
 <AppShell
@@ -16,16 +19,24 @@ const description = 'Short how-to guides for converting audio, video, spreadshee
 >
   <h1 class="display text-4xl sm:text-5xl">How-to <span class="mark">guides</span></h1>
   <p class="mt-3 max-w-2xl text-lg text-muted">{description}</p>
-  <ul class="card-grid mt-6">
-    {
-      GUIDES.map((g) => (
-        <li>
-          <a href={guidePath(g.slug)} class="card card-link h-full p-4">
-            <span class="block text-[17px] font-black">{g.title}</span>
-            <span class="mt-1 block text-sm leading-[19px] text-muted">{g.description}</span>
-          </a>
-        </li>
-      ))
-    }
-  </ul>
+  <nav aria-label="Topics" class="mt-4 flex flex-wrap gap-2">
+    {groups.map((g) => <a class="chip" href={`#${slug(g.category)}`}>{GROUP_EMOJI[g.category]} {g.category} ({g.guides.length})</a>)}
+  </nav>
+  {
+    groups.map((g) => (
+      <section class="mt-10" aria-labelledby={slug(g.category)}>
+        <h2 id={slug(g.category)} class="text-2xl font-black tracking-tight">{GROUP_EMOJI[g.category]} {g.category}</h2>
+        <ul class="card-grid mt-3">
+          {g.guides.map((guide) => (
+            <li>
+              <a href={guidePath(guide.slug)} class="card card-link h-full p-4">
+                <span class="block text-[17px] font-black">{guide.title}</span>
+                <span class="mt-1 block text-sm leading-[19px] text-muted">{guide.description}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))
+  }
 </AppShell>

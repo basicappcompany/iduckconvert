@@ -9,7 +9,8 @@ export function getStaticPaths() {
 }
 const { guide } = Astro.props;
 const tools = guide.tools.map((s) => toolBySlug(s)!).filter(Boolean);
-const others = GUIDES.filter((g) => g.slug !== guide.slug).slice(0, 3);
+const rest = GUIDES.filter((g) => g.slug !== guide.slug);
+const others = [...rest.filter((g) => g.category === guide.category), ...rest.filter((g) => g.category !== guide.category)].slice(0, 3);
 const path = guidePath(guide.slug);
 ---
 

@@ -154,7 +154,7 @@ const why = [
     <p class="mt-1 text-muted">Short walkthroughs for the jobs people search for most. Each gives the answer first.</p>
     <ul class="card-grid mt-3">
       {
-        GUIDES.map((g) => (
+        GUIDES.slice(0, 6).map((g) => (
           <li>
             <a href={guidePath(g.slug)} class="card card-link h-full p-4">
               <span class="block text-[17px] font-black">{g.title}</span>
