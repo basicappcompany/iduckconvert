@@ -20,6 +20,9 @@ Free converters that run in the browser: audio, video, spreadsheets and data, un
 - `src/engine`, `FileDropzone`, `DownloadPanel`, `SimpleToolShell`: the shared file flow, inherited from iDuckImg (input files, options, job, outputs, ZIP).
 - Design system: neo-brutalist duck theme from iDuckImg/iDuckPDF (`src/styles/global.css`, `src/lib/theme.ts`; dark theme colour #121212). Use the shared classes (`card`, `btn`, `pill`, `chip`, `prose`...).
 
+## Guides
+- Guides live in `src/lib/guides.ts` (the first four), `guides-media.ts`, `guides-data.ts` and `guides-more.ts`, each with a `category`. A unit test enforces unique slug and title, title at most 60 characters, description 70 to 160, at least 250 words (intro, steps, sections and questions) and that every linked converter exists. Write one guide per real job and give each its own facts; never paste one paragraph into many guides. The tool page links the first guide whose main (first) tool it is.
+
 ## Ask the helper and the start page
 - `/chat/` is a full-height chat (`ChatHelper.tsx`, `src/lib/helper.ts`). It is still a keyword matcher, not an AI, but it does small jobs itself (units, number to words, Roman numerals, bases), remembers the converter it just suggested and answers follow-ups from that converter's own steps and questions. Keep the footnote honest if this changes. A unit test checks that every starter and follow-up button gets an answer.
 - The home page is always light (`forceLight` on `AppShell`, no theme toggle there, a MutationObserver puts `data-theme=light` back). Other pages follow the saved or system theme.

@@ -1,8 +1,16 @@
+import { DATA_GUIDES } from './guides-data';
+import { MEDIA_GUIDES } from './guides-media';
+import { MORE_GUIDES } from './guides-more';
+
+export const GUIDE_CATEGORIES = ['Audio', 'Video', 'Images', 'Data & documents', 'Units', 'Numbers & text', 'Time & money'] as const;
+export type GuideCategory = (typeof GUIDE_CATEGORIES)[number];
+
 /** How-to guides. Each starts with the answer, then steps, then a little depth and questions. Keep `updated` honest. */
 export interface Guide {
   slug: string;
   title: string;
   description: string;
+  category: GuideCategory;
   intro: string;
   steps: string[];
   sections: { heading: string; paragraphs: string[] }[];
@@ -13,9 +21,10 @@ export interface Guide {
   updated: string;
 }
 
-export const GUIDES: readonly Guide[] = [
+const BASE_GUIDES: readonly Guide[] = [
   {
     slug: 'how-to-extract-audio-from-a-video',
+    category: 'Audio',
     title: 'How to extract audio from a video',
     description: 'Save the sound of any video as an MP3 in your browser, with no upload, no software to install and no watermark.',
     intro:
@@ -60,6 +69,7 @@ export const GUIDES: readonly Guide[] = [
   },
   {
     slug: 'heic-vs-jpg',
+    category: 'Images',
     title: 'HEIC vs JPG: which should you use?',
     description: 'What HEIC is, how it differs from JPG, why iPhone photos will not open elsewhere, and how to convert them.',
     intro:
@@ -101,6 +111,7 @@ export const GUIDES: readonly Guide[] = [
   },
   {
     slug: 'how-to-open-a-csv-in-excel-correctly',
+    category: 'Data & documents',
     title: 'How to open a CSV in Excel correctly',
     description: 'Stop Excel dropping leading zeros, mangling long numbers and breaking accents when you open a CSV file.',
     intro:
@@ -144,6 +155,7 @@ export const GUIDES: readonly Guide[] = [
   },
   {
     slug: 'how-to-convert-units-without-mistakes',
+    category: 'Units',
     title: 'How to convert units without mistakes',
     description: 'The traps that cause wrong answers when you convert units: US and UK gallons, 1000 vs 1024, tonnes, temperature and Indian land units.',
     intro:
@@ -191,7 +203,10 @@ export const GUIDES: readonly Guide[] = [
   },
 ];
 
+/** Every guide, the original four first. */
+export const GUIDES: readonly Guide[] = [...BASE_GUIDES, ...MEDIA_GUIDES, ...DATA_GUIDES, ...MORE_GUIDES];
+
 export const guidePath = (slug: string): string => `/guides/${slug}/`;
 export const guideBySlug = (slug: string): Guide | undefined => GUIDES.find((g) => g.slug === slug);
 /** The first guide that features this tool, for the link on the tool page. */
-export const guideForTool = (slug: string): Guide | undefined => GUIDES.find((g) => g.tools.includes(slug));
+export const guideForTool = (slug: string): Guide | undefined => GUIDES.find((g) => g.tools[0] === slug) ?? GUIDES.find((g) => g.tools.includes(slug));
