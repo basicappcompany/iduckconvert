@@ -20,5 +20,5 @@ Resume here in a new session. The full picture is `docs/status.html`. Base = iDu
 - [x] Site pages, 4 guides, sitemap, robots, canonical, OG/Twitter, og.png, favicon
 - [x] Unit tests (42) and browser tests (26)
 - [ ] Turkish (language switch)
-- [ ] Cloudflare Pages project, domain, Email Routing (owner)
+- [x] Cloudflare Pages project, domain, Email Routing (done 13 Nov; send a real test email to hello@ still to do)
 - [ ] Phone check of video limits (owner)

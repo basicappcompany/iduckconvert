@@ -254,7 +254,7 @@
    DATA. Edit here. States: done | progress | todo | waiting | later.  Owners: me | you | both | external | none.
    "me" = I can do it with no input. "you" = only you can. "both" = I do the mechanics, you sign in / approve / supply a secret.
    =================================================================================================================== */
-const VERIFIED = "13 Nov 2026 (measured on the build-shell branch before merge: type check 0 errors, lint clean, 42 unit tests in 2 files, 26 browser tests pass in 1 file including real ffmpeg conversions; 74 pages built; live site not deployed yet)";
+const VERIFIED = "13 Nov 2026 (type check 0 errors, lint clean, 42 unit tests, 26 browser tests; CI green on PR #1; live on https://iduckconvert.com checked with curl: home, converter, guide, sitemap, robots, og.png return 200, unknown address 404, www works, MX and SPF resolve; no test email sent yet; no phone test; no Lighthouse run)";
 const REPO = "https://github.com/basicappcompany/iduckconvert";
 
 /* Tools. A row is "ready" only if its page exists on main and answers on https://iduckconvert.com. Move a planned row to "ready" in the same PR that ships it.
@@ -359,9 +359,9 @@ const PHASES = [
   { num: 10, name: "Quality and launch", summary: "Tests, then going live.", items: [
     I("10.1", "Test every converter with a small sample file", "done", "none", { when: "13 Nov", prio: 2 }),
     I("10.2", "Dark and light, phone width, Ctrl K, language switch, no broken links, no console errors", "todo", "me"),
-    I("10.3", "Create the Cloudflare Pages project and connect the repo", "todo", "you", { prio: 1, note: "Needs your Cloudflare sign-in. Build settings will be listed here once the Astro project exists (iDuckImg: build command `pnpm build`, output `dist`, Node 22)." }),
-    I("10.4", "Point iduckconvert.com at Cloudflare", "todo", "you", { note: "Needs the domain registrar or Cloudflare DNS. Not checked whether the domain is registered yet." }),
-    I("10.6", "Email Routing for hello@ and feedback@iduckconvert.com", "todo", "you", { note: "Same pattern as iDuckImg: receive-only Cloudflare Email Routing addresses that forward to the business inbox, no catch-all. Needs the domain on Cloudflare and your sign-in. The site will use `hello@` for general questions and `feedback@` for the feedback and request forms." }),
+    I("10.3", "Create the Cloudflare Pages project and connect the repo", "done", "none", { when: "13 Nov", note: "Cloudflare Pages project `iduckconvert` (account the business mailbox) built from the GitHub repo, production branch main. Settings: framework preset None, build command `pnpm build`, output directory `dist`, environment variable NODE_VERSION=22.23.4. Deploys on every merge to main; PRs get preview URLs on pages.dev. Live check 13 Nov: 200 on home, converter, guide, sitemap, robots, og.png; unknown address 404." }),
+    I("10.4", "Point iduckconvert.com at Cloudflare", "done", "none", { when: "13 Nov", note: "iduckconvert.com is registered at GoDaddy; the nameservers now point to Cloudflare (bob.ns.cloudflare.com, deb.ns.cloudflare.com), zone on the Free plan. The apex and www are custom domains of the Pages project (the old GoDaddy parking A records were replaced by a CNAME to iduckconvert.pages.dev). HTTPS works." }),
+    I("10.6", "Email Routing for hello@ and feedback@iduckconvert.com", "done", "none", { when: "13 Nov", note: "Cloudflare Email Routing is on for iduckconvert.com with MX, SPF and DKIM records. hello@ and feedback@ forward to the business mailbox; the catch-all drops everything else. The records resolve, but a real test email has not been sent and received yet." }),
     I("10.5", "Read the Turkish text", "later", "you", { note: "A person who reads Turkish should check it before it is marked reviewed." }),
   ]},
 ];
@@ -374,6 +374,7 @@ const DECISIONS = [
   ["Overlap", "Never rebuild a tool a sister site has. Add a card that links to it. All PDF conversions belong to iDuckPDF.", "13 Nov"],
   ["Video engine", "ffmpeg.wasm from a pinned CDN version, single-thread core, so no cross-origin isolation headers are needed.", "13 Nov"],
   ["Languages", "EN-US and TR only.", "13 Nov"],
+  ["Hosting", "Cloudflare Pages (Free plan) with DNS on Cloudflare; the domain stays registered at GoDaddy.", "13 Nov"],
   ["Contact addresses", "hello@iduckconvert.com for general questions and feedback@iduckconvert.com for the feedback and request forms (given by the owner).", "13 Nov"],
 ];
 
@@ -381,13 +382,15 @@ const TIMELINE = [
   ["13 Nov 2026", "Account checked, sister repos read", "Signed in as basicappcompany with the right primary email; iduckpdf and iDuckImg read for conventions."],
   ["13 Nov 2026", "Repo created", "Private `basicappcompany/iduckconvert` with `PROGRESS.md`."],
   ["13 Nov 2026", "Status page created", "This file."],
+  ["13 Nov 2026", "Site built and merged (PR #1)", "Shell, 57 converters, 6 link cards, 4 guides, tests; CI green."],
+  ["13 Nov 2026", "Live on iduckconvert.com", "Cloudflare Pages project, GoDaddy nameservers moved to Cloudflare, apex and www attached, Email Routing for hello@ and feedback@."],
 ];
 
 const SCORECARD = [
   { k: "Unit tests", v: "42", d: "In 2 files: CSV, JSON, XML, YAML and Markdown conversion, number bases, number to words, Roman numerals, text case, colour codes, every unit table, time zones with daylight saving, date formats, the tool registry, page content, guides, ffmpeg arguments and the helper. All pass locally." },
   { k: "Browser tests", v: "26", d: "Playwright in Chrome against the production build. Real files in, real files out: WAV to MP3 and FLAC, WEBM to MP4, MP4 to MP3, video to GIF and back to MP4, compress and trim, CSV to Excel and back, TIFF to JPG, WEBP to GIF, the encoding fixer, every calculator, a broken file, a ZIP batch, search, theme and the 404 page. MOV, MKV and AVI inputs share the same code as WEBM to MP4 and are not each tested with a real file of that type." },
-  { k: "Tools", v: "57 built of 57", d: "57 converters are built plus 6 link cards to iDuckIMG (63 rows in the Tools table). None is live on the internet until Cloudflare Pages is connected (10.3)." },
-  { k: "Live site", v: "Not deployed", d: "No Cloudflare project yet (10.3). Runs locally with pnpm preview." },
+  { k: "Tools", v: "57 built of 57", d: "57 converters are built plus 6 link cards to iDuckIMG (63 rows in the Tools table). All are live at iduckconvert.com." },
+  { k: "Live site", v: "Live", d: "https://iduckconvert.com on Cloudflare Pages (also https://iduckconvert.pages.dev, which is noindex). Performance was not measured." },
 ];
 
 const STATE_LABEL = { done: "Done", progress: "In progress", todo: "To do", waiting: "Waiting", later: "Later" };

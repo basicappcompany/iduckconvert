@@ -20,6 +20,9 @@ Free converters that run in the browser: audio, video, spreadsheets and data, un
 - `src/engine`, `FileDropzone`, `DownloadPanel`, `SimpleToolShell`: the shared file flow, inherited from iDuckImg (input files, options, job, outputs, ZIP).
 - Design system: neo-brutalist duck theme from iDuckImg/iDuckPDF (`src/styles/global.css`, `src/lib/theme.ts`; dark theme colour #121212). Use the shared classes (`card`, `btn`, `pill`, `chip`, `prose`...).
 
+## Hosting
+- Cloudflare Pages project `iduckconvert` (build `pnpm build`, output `dist`, NODE_VERSION=22.23.4), deploys on merge to main. DNS is on Cloudflare (Free plan); the domain is registered at GoDaddy with Cloudflare nameservers. Email Routing forwards hello@ and feedback@ to the business mailbox; the catch-all drops.
+
 ## Gotchas
 - Cloudflare Pages returns the home page with status 200 for unknown URLs unless there is a 404 page. Keep `src/pages/404.astro`, and keep `public/_headers` limited to the `*.pages.dev` hosts (a bare `/*` rule would noindex the real site).
 - Browser components must not touch `window`/`document` while rendering (the build prerenders them).
