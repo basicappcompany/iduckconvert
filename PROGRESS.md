@@ -21,4 +21,5 @@ Resume here in a new session. The full picture is `docs/status.html`. Base = iDu
 - [x] Unit tests (42) and browser tests (26)
 - [ ] Turkish (language switch)
 - [x] Cloudflare Pages project, domain, Email Routing (done 13 Nov; send a real test email to hello@ still to do)
+- [x] Lighthouse on the live site (mobile): 98 / 96 / 100 / 100
 - [ ] Phone check of video limits (owner)
