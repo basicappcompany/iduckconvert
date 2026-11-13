@@ -177,7 +177,7 @@ function romanAnswer(q: string): HelperReply | null {
 function followUp(q: string, tool: ToolLink): HelperReply | null {
   const content = contentFor(tool);
   if (/\b(big|size|large|limit|mb|gb|megabytes|gigabytes|maximum)\b/.test(q)) {
-    const faq = content.faqs.find((f) => /^how big/i.test(f.q));
+    const faq = content.faqs.find((f) => /^how big a file/i.test(f.q));
     if (faq) return reply(faq.a, { tools: [card(tool)], focus: tool.slug, followups: ['How do I use it?'] });
   }
   if (/\b(how|steps|use|start|work)\b/.test(q) && /\b(how|steps|use|do i|works?)\b/.test(q)) {
@@ -193,7 +193,7 @@ function followUp(q: string, tool: ToolLink): HelperReply | null {
   const asked = new Set(words(q));
   if (asked.size === 0) return null;
   let best: { score: number; faq: { q: string; a: string } } | null = null;
-  for (const faq of content.faqs) {
+  for (const faq of [...content.faqs, ...content.sections.map((s) => ({ q: s.h, a: s.p }))]) {
     const hay = new Set(words(`${faq.q} ${faq.a}`));
     const hit = [...asked].filter((w) => hay.has(w)).length;
     if (hit > 0 && (!best || hit > best.score)) best = { score: hit, faq };

@@ -127,6 +127,14 @@ export const UNIT_SETS: Record<string, UnitSet> = {
       u('bigha-up', 'Bigha (Uttar Pradesh)', 'bigha UP', 27000), u('bigha-raj', 'Bigha (Rajasthan, pucca)', 'bigha Raj', 27225), u('bigha-gj', 'Bigha (Gujarat)', 'bigha GJ', 17424), u('bigha-wb', 'Bigha (West Bengal)', 'bigha WB', 14400), u('bigha-as', 'Bigha (Assam)', 'bigha AS', 14400),
     ],
   },
+  'number-scale': {
+    title: 'Number scales',
+    base: 'one',
+    defaultFrom: 'lakh',
+    defaultTo: 'million',
+    note: 'Lakh and crore are the Indian system; million and billion are the international one.',
+    units: [u('thousand', 'Thousand', 'thousand', 1e3), u('lakh', 'Lakh', 'lakh', 1e5), u('million', 'Million', 'million', 1e6), u('crore', 'Crore', 'crore', 1e7), u('billion', 'Billion', 'billion', 1e9)],
+  },
 };
 
 /** Convert a value; returns NaN when the input is not a finite number. */

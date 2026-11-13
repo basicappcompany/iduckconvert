@@ -14,6 +14,7 @@ https://:version.:project.pages.dev/*
 # Security headers for every page and file.
 # __SCRIPT_HASHES__ is replaced after the build (scripts/finalize-headers.mjs) with the SHA-256 hashes of the few
 # inline scripts Astro writes into the pages, so scripts can stay free of 'unsafe-inline' and 'unsafe-eval'.
+# Cache-Control no-transform stops Cloudflare rewriting our pages (it would otherwise inject an analytics script, which the policy blocks).
 # connect-src has blob: because the checked ffmpeg engine is handed to the converter as a blob URL; the only outside
 # host is cdn.jsdelivr.net, which serves that one engine file (its hash is verified before use).
 /*
@@ -24,3 +25,4 @@ https://:version.:project.pages.dev/*
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
   Cross-Origin-Opener-Policy: same-origin
+  Cache-Control: public, max-age=0, must-revalidate, no-transform

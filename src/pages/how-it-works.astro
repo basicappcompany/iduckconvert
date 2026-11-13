@@ -1,0 +1,88 @@
+---
+import CommunityLayout from '../components/CommunityLayout.astro';
+import pkg from '../../package.json';
+import { FFMPEG_CORE_VERSION, WASM_CDN_HOST, WASM_SHA384 } from '../tools/ffmpeg';
+import { LAST_REVIEWED_TEXT } from '../lib/site';
+import { breadcrumbLd } from '../lib/seo';
+
+const deps = pkg.dependencies as Record<string, string>;
+const host = WASM_CDN_HOST.replace('https://', '');
+const engines: { what: string; lib: string; version: string; where: string }[] = [
+  { what: 'Audio and video', lib: 'ffmpeg.wasm (ffmpeg compiled to WebAssembly)', version: `${deps['@ffmpeg/ffmpeg']} wrapper, ${FFMPEG_CORE_VERSION} engine`, where: `Wrapper and loader from our domain; the 32 MB engine file from ${host}, checked against a SHA-384 fingerprint` },
+  { what: 'Excel and CSV files', lib: 'SheetJS (xlsx)', version: '0.20.3 from the official SheetJS CDN', where: 'Bundled into our own files' },
+  { what: 'YAML', lib: 'js-yaml', version: deps['js-yaml']!, where: 'Bundled into our own files' },
+  { what: 'Markdown to HTML', lib: 'marked', version: deps['marked']!, where: 'Bundled into our own files' },
+  { what: 'HTML to Markdown', lib: 'Turndown', version: deps['turndown']!, where: 'Bundled into our own files' },
+  { what: 'XML', lib: 'fast-xml-parser', version: deps['fast-xml-parser']!, where: 'Bundled into our own files' },
+  { what: 'TIFF pictures', lib: 'UTIF2', version: deps['utif2']!, where: 'Bundled into our own files' },
+  { what: 'GIF files', lib: 'gifenc', version: deps['gifenc']!, where: 'Bundled into our own files' },
+  { what: 'ZIP downloads', lib: 'JSZip', version: deps['jszip']!, where: 'Bundled into our own files' },
+];
+const description = 'How iDuckConvert works: every converter runs in your browser, which open-source engines and exact versions we use, and the one file loaded from outside our domain.';
+---
+
+<CommunityLayout
+  title="How our converters work in your browser | iDuckConvert"
+  description={description}
+  before="How it"
+  mark="works"
+  intro="Every converter runs inside your browser tab. Here is exactly what runs, which open-source engines we use, and what is loaded from where."
+  jsonLd={[breadcrumbLd([{ name: 'Home', path: '/' }, { name: 'How it works', path: '/how-it-works/' }])]}
+>
+  <section class="card p-5" aria-labelledby="browser">
+    <h2 id="browser" class="text-2xl font-black tracking-tight">Do my files leave my device?</h2>
+    <p class="mt-2 leading-relaxed">
+      No. When you drop a file in, your browser reads it and a converter written in JavaScript or WebAssembly works on it in memory. The result is made in
+      your browser and saved with a normal download. Nothing is sent to our servers, and there is no account, no watermark and no ads. You can check it
+      yourself: open your browser's developer tools, choose the Network tab and convert a file; you will see no upload.
+    </p>
+  </section>
+
+  <section class="card p-5" aria-labelledby="engines">
+    <h2 id="engines" class="text-2xl font-black tracking-tight">Which engines do the converting?</h2>
+    <p class="mt-2 text-sm text-muted">Exact versions, taken from this site's own package list when it was built.</p>
+    <div class="mt-3 overflow-x-auto">
+      <table class="w-full min-w-[34rem] text-left text-sm">
+        <thead><tr class="text-muted"><th scope="col" class="pb-2">Job</th><th scope="col" class="pb-2">Engine</th><th scope="col" class="pb-2">Version</th><th scope="col" class="pb-2">Loaded from</th></tr></thead>
+        <tbody>
+          {engines.map((e) => <tr class="border-t border-line/20 align-top"><th scope="row" class="py-2 pr-3 font-bold">{e.what}</th><td class="py-2 pr-3">{e.lib}</td><td class="py-2 pr-3 tabular-nums">{e.version}</td><td class="py-2">{e.where}</td></tr>)}
+        </tbody>
+      </table>
+    </div>
+    <p class="mt-3 text-sm text-muted">Units, number words, Roman numerals, bases, colours, time zones and dates are calculated by small functions written for this site. Time zones use your browser's built-in time zone database.</p>
+  </section>
+
+  <section class="card p-5" aria-labelledby="outside">
+    <h2 id="outside" class="text-2xl font-black tracking-tight">What is loaded from outside this site?</h2>
+    <p class="mt-2 leading-relaxed">
+      One file. The audio and video engine, <code>ffmpeg-core.wasm</code>, is 32 MB, too large for our host to serve, so it comes from
+      <strong>{host}</strong> (jsDelivr) at one fixed version, {FFMPEG_CORE_VERSION}. Your browser checks it against the fingerprint
+      <code class="break-all">{WASM_SHA384}</code> and refuses it if even one byte differs. It is downloaded only when you press Convert on an audio or
+      video converter, and your browser keeps it for next time. Your files are never part of that request. Like any website host, jsDelivr can see an IP
+      address and browser type when it serves the file.
+    </p>
+    <p class="mt-2 leading-relaxed">
+      Everything else, including all scripts, styles, the ffmpeg loader and the other libraries above, is served from iduckconvert.com. A strict
+      Content-Security-Policy tells your browser to refuse scripts from anywhere else.
+    </p>
+  </section>
+
+  <section class="card p-5" aria-labelledby="limits">
+    <h2 id="limits" class="text-2xl font-black tracking-tight">What are the limits?</h2>
+    <p class="mt-2 leading-relaxed">
+      Because your device does the work, the limit is your device. We suggest audio and video files under 500 MB on a computer and 100 MB on a phone, and we
+      refuse files over 1.9 GB. Spreadsheets are limited to 50 MB, TIFF pictures to 150 MB, WEBP pictures to 50 MB and text files to 20 to 50 MB, with a clear
+      message when a file is too big. A computer is many times faster than a phone for video.
+    </p>
+  </section>
+
+  <section class="card p-5" aria-labelledby="sources">
+    <h2 id="sources" class="text-2xl font-black tracking-tight">Where do the numbers come from?</h2>
+    <p class="mt-2 leading-relaxed">
+      Unit factors follow the definitions in NIST Special Publication 811 and the BIPM SI Brochure, and each unit page names its source and says whether a
+      factor is exact. Local Indian land units such as the bigha vary by state; they are commonly cited figures that we have not verified against each
+      state's official land record, and the pages say so.
+    </p>
+    <p class="mt-3 text-sm text-muted">Last reviewed: {LAST_REVIEWED_TEXT}. Operated by Basic App Company. Questions? <a class="link" href="/feedback/">Send feedback</a> or write to hello@iduckconvert.com.</p>
+  </section>
+</CommunityLayout>

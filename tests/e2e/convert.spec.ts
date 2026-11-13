@@ -220,9 +220,9 @@ test.describe('calculators', () => {
   test('length converter', async ({ page }) => {
     await page.goto('/length-converter/');
     await page.waitForFunction(() => document.querySelector('astro-island[client="load"]:not([ssr])') !== null);
-    await page.getByLabel('Value').fill('1');
-    await page.getByLabel('From').selectOption('km');
-    await page.getByLabel('To').selectOption('mi');
+    await page.locator('#u-value').fill('1');
+    await page.locator('#u-from').selectOption('km');
+    await page.locator('#u-to').selectOption('mi');
     await expect(page.locator('#u-result')).toHaveText('0.6213711922');
   });
 

@@ -20,7 +20,7 @@ function globalHeaders() {
   let inBlock = false;
   for (const line of lines) {
     if (/^\S/.test(line) && !line.startsWith('#')) inBlock = line.trim() === '/*';
-    else if (inBlock && /^\s+\S/.test(line)) {
+    else if (inBlock && /^\s+[^\s#]/.test(line)) {
       const i = line.indexOf(':');
       out[line.slice(0, i).trim()] = line.slice(i + 1).trim();
     }
