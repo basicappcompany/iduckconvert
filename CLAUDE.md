@@ -27,6 +27,6 @@ Free converters that run in the browser: audio, video, spreadsheets and data, un
 - Cloudflare Pages returns the home page with status 200 for unknown URLs unless there is a 404 page. Keep `src/pages/404.astro`, and keep `public/_headers` limited to the `*.pages.dev` hosts (a bare `/*` rule would noindex the real site).
 - Browser components must not touch `window`/`document` while rendering (the build prerenders them).
 - Languages: English (US) only so far. Turkish is planned (status item 1.4); do not add a language switch that leads to missing pages.
-- iduckcalculator.com is a parked domain at the time of writing (redirects to a registrar page), so there is no cross-link to iDuckCalculator yet.
+- iDuckCalculator (iduckcalculator.com) is live and linked in the sidebar, footer and About page. A stale local DNS cache once showed its old GoDaddy parking page: check with DNS-over-HTTPS or `curl --resolve`, not the local resolver.
 - Indian land units: a bigha differs by state. Only values we could justify are listed; keep the warning note.
 - Currency is intentionally not built: no free keyless rate source was verified.
