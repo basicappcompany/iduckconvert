@@ -1,0 +1,120 @@
+/** What each audio and video converter asks ffmpeg to do. Pure, so the arguments can be unit tested. */
+import type { ToolKind } from '../lib/tools';
+
+export interface MediaOptions {
+  /** Audio bitrate in kbit/s for MP3, M4A and AAC. */
+  bitrate: number;
+  /** Compress video: high, medium or small. */
+  quality: 'high' | 'medium' | 'small';
+  /** Output width in pixels. 0 keeps the original. */
+  width: number;
+  fps: number;
+  /** Seconds. */
+  start: number;
+  /** Length in seconds for GIFs; 0 means to the end. */
+  duration: number;
+  /** Seconds. Trim stops here; 0 means to the end. */
+  end: number;
+}
+
+export const DEFAULT_MEDIA_OPTIONS: MediaOptions = { bitrate: 192, quality: 'medium', width: 480, fps: 12, start: 0, duration: 6, end: 0 };
+
+export interface MediaSpec {
+  ext: string;
+  mime: string;
+}
+
+export const AUDIO_TARGETS: Record<string, MediaSpec> = {
+  mp3: { ext: 'mp3', mime: 'audio/mpeg' },
+  wav: { ext: 'wav', mime: 'audio/wav' },
+  m4a: { ext: 'm4a', mime: 'audio/mp4' },
+  aac: { ext: 'aac', mime: 'audio/aac' },
+  ogg: { ext: 'ogg', mime: 'audio/ogg' },
+  flac: { ext: 'flac', mime: 'audio/flac' },
+  opus: { ext: 'opus', mime: 'audio/ogg' },
+};
+
+export function audioArgs(to: string, o: MediaOptions): string[] {
+  switch (to) {
+    case 'mp3':
+      return ['-vn', '-map_metadata', '0', '-c:a', 'libmp3lame', '-b:a', `${o.bitrate}k`];
+    case 'wav':
+      return ['-vn', '-c:a', 'pcm_s16le'];
+    case 'm4a':
+      return ['-vn', '-c:a', 'aac', '-b:a', `${o.bitrate}k`];
+    case 'aac':
+      return ['-vn', '-c:a', 'aac', '-b:a', `${o.bitrate}k`, '-f', 'adts'];
+    case 'ogg':
+      return ['-vn', '-c:a', 'libvorbis', '-q:a', String(Math.round(o.bitrate / 64))];
+    case 'flac':
+      return ['-vn', '-c:a', 'flac'];
+    case 'opus':
+      return ['-vn', '-c:a', 'libopus', '-b:a', `${Math.min(o.bitrate, 256)}k`];
+    default:
+      throw new Error(`Unknown audio format: ${to}`);
+  }
+}
+
+const EVEN = 'scale=trunc(iw/2)*2:trunc(ih/2)*2';
+
+/** The MP4 encode used by every "to MP4" converter. */
+export function mp4Args(crf = 23, width = 0): string[] {
+  const scale = width > 0 ? `scale='min(${width},iw)':-2` : EVEN;
+  return ['-c:v', 'libx264', '-preset', 'veryfast', '-crf', String(crf), '-pix_fmt', 'yuv420p', '-vf', scale, '-c:a', 'aac', '-b:a', '128k', '-movflags', '+faststart'];
+}
+
+export const webmArgs = (): string[] => ['-c:v', 'libvpx', '-deadline', 'realtime', '-cpu-used', '5', '-crf', '10', '-b:v', '1M', '-c:a', 'libvorbis'];
+
+export const gifArgs = (o: MediaOptions): { before: string[]; args: string[] } => ({
+  before: o.start > 0 ? ['-ss', String(o.start)] : [],
+  args: [
+    ...(o.duration > 0 ? ['-t', String(o.duration)] : []),
+    '-an',
+    '-vf',
+    `fps=${o.fps},scale=${o.width > 0 ? `'min(${o.width},iw)'` : 'iw'}:-1:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse`,
+    '-loop',
+    '0',
+  ],
+});
+
+const CRF: Record<MediaOptions['quality'], number> = { high: 22, medium: 28, small: 34 };
+
+export function jobFor(kind: ToolKind, to: string, o: MediaOptions): { before: string[]; args: string[]; spec: MediaSpec } {
+  switch (kind) {
+    case 'audio':
+      return { before: [], args: audioArgs(to, o), spec: AUDIO_TARGETS[to]! };
+    case 'video':
+      return { before: [], args: to === 'webm' ? webmArgs() : mp4Args(), spec: to === 'webm' ? { ext: 'webm', mime: 'video/webm' } : { ext: 'mp4', mime: 'video/mp4' } };
+    case 'gif-video':
+      return { before: [], args: mp4Args(23), spec: { ext: 'mp4', mime: 'video/mp4' } };
+    case 'video-gif': {
+      const g = gifArgs(o);
+      return { ...g, spec: { ext: 'gif', mime: 'image/gif' } };
+    }
+    case 'video-compress':
+      return { before: [], args: mp4Args(CRF[o.quality], o.width), spec: { ext: 'mp4', mime: 'video/mp4' } };
+    case 'video-trim':
+      return {
+        before: o.start > 0 ? ['-ss', String(o.start)] : [],
+        args: [...(o.end > o.start ? ['-t', String(o.end - o.start)] : []), ...mp4Args(23)],
+        spec: { ext: 'mp4', mime: 'video/mp4' },
+      };
+    default:
+      throw new Error(`Not a media converter: ${kind}`);
+  }
+}
+
+const AUDIO_EXT = ['.mp3', '.wav', '.m4a', '.aac', '.ogg', '.oga', '.flac', '.opus', '.wma', '.amr', '.aiff'];
+const VIDEO_EXT = ['.mp4', '.m4v', '.mov', '.mkv', '.webm', '.avi', '.wmv', '.flv', '.3gp', '.mpg', '.mpeg', '.ts', '.mts'];
+
+/** What the drop zone accepts for a converter's source format. Browsers label some files oddly, so extensions come first. */
+export function acceptsFor(kind: ToolKind, from: string): string[] {
+  if (from === 'video' || kind === 'video-compress' || kind === 'video-trim') return [...VIDEO_EXT, 'video/*', ...(kind === 'audio' ? [...AUDIO_EXT, 'audio/*'] : [])];
+  if (kind === 'video-gif') return [...VIDEO_EXT, 'video/*'];
+  const map: Record<string, string[]> = {
+    mp3: ['.mp3', 'audio/mpeg'], wav: ['.wav', 'audio/wav', 'audio/x-wav'], m4a: ['.m4a', 'audio/mp4', 'audio/x-m4a'], aac: ['.aac', 'audio/aac'],
+    ogg: ['.ogg', '.oga', 'audio/ogg'], flac: ['.flac', 'audio/flac'], opus: ['.opus', 'audio/opus'],
+    mp4: ['.mp4', '.m4v', 'video/mp4'], mov: ['.mov', 'video/quicktime'], mkv: ['.mkv', 'video/x-matroska'], webm: ['.webm', 'video/webm'], avi: ['.avi', 'video/x-msvideo'], gif: ['.gif', 'image/gif'],
+  };
+  return map[from] ?? ['.' + from];
+}

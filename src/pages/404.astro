@@ -1,0 +1,42 @@
+---
+import AppShell from '../components/AppShell.astro';
+import DuckMark from '../components/DuckMark.astro';
+import { TOOLS, hrefFor } from '../lib/tools';
+---
+
+<!-- Cloudflare Pages serves this file with a real 404 status for any address that does not exist. -->
+<AppShell title="Page not found | iDuckConvert" description="This page does not exist." noindex>
+  <section class="text-center">
+    <DuckMark size={96} class="mx-auto" />
+    <p class="eyebrow mt-4">Error 404</p>
+    <h1 class="display mt-2 text-4xl min-[420px]:text-5xl sm:text-6xl">Nothing <span class="mark">here</span>.</h1>
+    <p class="mx-auto mt-4 max-w-xl text-lg text-muted">
+      We could not find that page. It may have moved, or the link may have a typo. Pick a converter below, or go back
+      to the home page.
+    </p>
+    <p class="mt-5">
+      <a href="/" class="btn btn-primary btn-lg">Go to the home page</a>
+    </p>
+  </section>
+
+  <section class="mt-12" aria-label="Converters">
+    <h2 class="text-2xl font-black tracking-tight">Our converters</h2>
+    <ul class="mt-3 grid gap-4 sm:grid-cols-2">
+      {
+        TOOLS.map((tool) => (
+          <li>
+            <a href={hrefFor(tool)} class="card card-link h-full p-4">
+              <span class="flex items-center gap-3 text-lg font-black">
+                <span aria-hidden="true" class="text-2xl">
+                  {tool.emoji}
+                </span>
+                {tool.name}
+              </span>
+              <span class="mt-1 block text-sm text-muted">{tool.summary}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+</AppShell>

@@ -1,0 +1,31 @@
+---
+import AppShell from '../../components/AppShell.astro';
+import { GUIDES, guidePath } from '../../lib/guides';
+import { breadcrumbLd, collectionLd } from '../../lib/seo';
+
+const description = 'Short how-to guides for converting audio, video, spreadsheets, pictures and units without mistakes. Each gives the answer first.';
+---
+
+<AppShell
+  title="How-to guides for converting files | iDuckConvert"
+  description={description}
+  jsonLd={[
+    collectionLd('How-to guides', '/guides/', description, GUIDES.map((g) => ({ name: g.title, path: guidePath(g.slug) }))),
+    breadcrumbLd([{ name: 'Home', path: '/' }, { name: 'How-to guides', path: '/guides/' }]),
+  ]}
+>
+  <h1 class="display text-4xl sm:text-5xl">How-to <span class="mark">guides</span></h1>
+  <p class="mt-3 max-w-2xl text-lg text-muted">{description}</p>
+  <ul class="card-grid mt-6">
+    {
+      GUIDES.map((g) => (
+        <li>
+          <a href={guidePath(g.slug)} class="card card-link h-full p-4">
+            <span class="block text-[17px] font-black">{g.title}</span>
+            <span class="mt-1 block text-sm leading-[19px] text-muted">{g.description}</span>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</AppShell>
