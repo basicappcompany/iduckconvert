@@ -1,0 +1,68 @@
+---
+import CommunityLayout from '../components/CommunityLayout.astro';
+import { CONTACT_EMAIL, FEEDBACK_EMAIL } from '../lib/contact';
+---
+
+<CommunityLayout
+  title="Privacy policy | iDuckConvert"
+  description="What iDuckConvert does and does not do with your files and your data. Files are processed in your browser and are not uploaded."
+  before="Privacy"
+  mark="policy"
+  intro="Short version: your files stay on your device. Here is the longer version, in plain words."
+>
+  <section class="card p-5" aria-labelledby="files">
+    <h2 id="files" class="text-2xl font-black tracking-tight">Your files</h2>
+    <p class="mt-2 leading-relaxed">
+      Every iDuckConvert tool opens, changes and saves your files inside your own browser. Your files are not uploaded to our
+      servers, and we cannot see them or keep a copy. The one thing fetched from elsewhere is the ffmpeg engine for audio and video, a public code file that is downloaded from the jsDelivr CDN the first time you convert media; your file is not part of that request. When you close the tab they are gone from the page.
+    </p>
+  </section>
+
+  <section class="card p-5" aria-labelledby="collect">
+    <h2 id="collect" class="text-2xl font-black tracking-tight">What we collect</h2>
+    <ul class="mt-2 list-disc space-y-1 pl-6 leading-relaxed">
+      <li>
+        <strong>Ordinary web requests.</strong> Our host, Cloudflare, receives the technical details any website receives when a
+        page is loaded (such as your IP address, the page asked for and your browser type) and may keep them in standard
+        server logs for security and reliability.
+      </li>
+      <li>
+        <strong>Your theme choice.</strong> If you pick light or dark mode, it is saved in your browser local storage so the
+        site remembers it. It never leaves your device. You can clear it on the <a class="link" href="/settings/">Settings</a>
+        page.
+      </li>
+      <li>
+        <strong>Messages you choose to send.</strong> The feedback and request forms open an email in your own mail app. We only
+        receive what you send, at the address you see on those pages ({FEEDBACK_EMAIL}). For anything else, write to {CONTACT_EMAIL}.
+      </li>
+    </ul>
+    <p class="mt-3 leading-relaxed">We do not have accounts, so we hold no sign-up data. We do not sell personal data.</p>
+  </section>
+
+  <section class="card p-5" aria-labelledby="ads">
+    <h2 id="ads" class="text-2xl font-black tracking-tight">Ads and measuring visits</h2>
+    <p class="mt-2 leading-relaxed">
+      iDuckConvert may show advertising in the future to cover its costs, and may use a privacy-focused visit counter. If that
+      happens, ad and measurement providers may set cookies or collect data about your visit, and where the law requires it we
+      will ask for your consent first and update this page before turning them on. Ads are never placed over the area where you
+      add or download files, and they never receive your files.
+    </p>
+  </section>
+
+  <section class="card p-5" aria-labelledby="ai">
+    <h2 id="ai" class="text-2xl font-black tracking-tight">AI tools</h2>
+    <p class="mt-2 leading-relaxed">
+      iDuckConvert has no AI tools. If that ever changes, the page will say clearly where your data goes, and this page will list which tools.
+    </p>
+  </section>
+
+  <section class="card p-5" aria-labelledby="rights">
+    <h2 id="rights" class="text-2xl font-black tracking-tight">Your choices and contact</h2>
+    <p class="mt-2 leading-relaxed">
+      You can ask what we hold about you, or ask us to delete it, using the <a class="link" href="/feedback/">feedback form</a>.
+      Because we keep so little, there is usually nothing beyond server logs. This policy may change; the date below shows when
+      it last did.
+    </p>
+    <p class="mt-2 text-sm text-muted">Last updated: 13 November 2026. Operated by Basic App Company.</p>
+  </section>
+</CommunityLayout>

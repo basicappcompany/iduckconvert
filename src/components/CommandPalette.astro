@@ -1,0 +1,364 @@
+---
+/**
+ * The Ctrl K search window: a dim backdrop, a thick-bordered card
+ * with a hard shadow, results grouped as Tools, Shortcuts, Pages and Actions, the selected row in
+ * duck yellow, and a hint bar. Opens with Ctrl K or Cmd K (toggles), with "/" when you are not
+ * typing, and from the Search button. Arrow keys move, Enter opens, Esc closes.
+ */
+---
+
+<div id="palette" class="palette" hidden>
+  <div class="palette-backdrop" data-palette-close></div>
+  <div class="palette-card" role="dialog" aria-modal="true" aria-label="Search">
+    <div class="palette-top">
+      <span aria-hidden="true" class="text-lg">🔍</span>
+      <input
+        id="palette-input"
+        type="text"
+        class="palette-input"
+        placeholder="Search converters, pages and actions…"
+        autocomplete="off"
+        spellcheck="false"
+        role="combobox"
+        aria-expanded="true"
+        aria-controls="palette-list"
+        aria-autocomplete="list"
+        aria-label="Search converters, pages and actions"
+      />
+      <kbd class="palette-kbd" aria-hidden="true">Esc</kbd>
+    </div>
+    <div id="palette-list" class="palette-list" role="listbox" aria-label="Results"></div>
+    <div class="palette-hints" aria-hidden="true">
+      <span>↑ ↓ move</span><span>Enter open</span><span>Esc close</span>
+    </div>
+  </div>
+</div>
+
+<style is:global>
+  .palette {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 11vh 14px 0;
+  }
+  .palette[hidden] {
+    display: none;
+  }
+  .palette-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+  }
+  .palette-card {
+    position: relative;
+    width: 100%;
+    max-width: 640px;
+    background: var(--d-card);
+    color: var(--d-ink);
+    border: 3px solid var(--d-line);
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 8px 8px 0 #000;
+  }
+  .palette-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    border-bottom: 2px solid var(--d-line);
+  }
+  .palette-input {
+    flex: 1;
+    min-width: 0;
+    background: transparent;
+    border: 0;
+    outline: none;
+    font-size: 18px;
+    color: var(--d-ink);
+  }
+  .palette-input::placeholder {
+    color: var(--d-muted);
+  }
+  .palette-kbd {
+    border: 1.5px solid var(--d-muted);
+    color: var(--d-muted);
+    border-radius: 6px;
+    padding: 0 6px;
+    font-size: 12px;
+    font-weight: 800;
+  }
+  .palette-list {
+    max-height: min(420px, 60vh);
+    overflow-y: auto;
+    padding: 8px;
+  }
+  .palette-group {
+    color: var(--d-muted);
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    padding: 8px 10px 3px;
+  }
+  .palette-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 9px 12px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--d-ink);
+    text-align: left;
+    cursor: pointer;
+    font: inherit;
+  }
+  .palette-row[aria-selected='true'] {
+    background: var(--d-duck);
+    color: var(--d-duckink);
+  }
+  .palette-icon {
+    width: 28px;
+    text-align: center;
+    font-size: 20px;
+  }
+  .palette-label {
+    flex: 1;
+    font-weight: 800;
+    font-size: 15.5px;
+  }
+  .palette-hint {
+    font-size: 12px;
+    color: var(--d-muted);
+  }
+  .palette-row[aria-selected='true'] .palette-hint {
+    color: var(--d-duckink);
+  }
+  .palette-empty {
+    color: var(--d-muted);
+    padding: 16px;
+  }
+  .palette-hints {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    padding: 9px;
+    border-top: 2px solid var(--d-line);
+    color: var(--d-muted);
+    font-size: 12px;
+  }
+</style>
+
+<script>
+  import { TOOLS, hrefFor, searchTools } from '../lib/tools';
+  import { COMMUNITY, communityPath } from '../lib/community';
+  import { GUIDES, guidePath } from '../lib/guides';
+  import { browserTheme } from '../lib/theme-client';
+
+  type Group = 'Tools' | 'Shortcuts' | 'Pages' | 'Actions';
+  interface Item {
+    id: string;
+    label: string;
+    icon: string;
+    hint: string;
+    group: Group;
+    run: () => void;
+  }
+
+  const root = document.getElementById('palette') as HTMLElement;
+  const input = document.getElementById('palette-input') as HTMLInputElement;
+  const list = document.getElementById('palette-list') as HTMLElement;
+  const MAX = 14;
+
+  const go = (href: string) => () => {
+    location.href = href;
+  };
+
+  const PAGES: { to: string; label: string; icon: string; kw: string; hint?: string }[] = [
+    { to: '/', label: 'Home', icon: '🏠', kw: 'start main' },
+    { to: '/chat/', label: 'Ask the helper', icon: '💬', kw: 'chat assistant help which tool' },
+    { to: '/converters/', label: 'All converters', icon: '🧰', kw: 'browse list everything tools' },
+    { to: '/guides/', label: 'How-to guides', icon: '📖', kw: 'learn tutorial help steps how to', hint: 'Guides' },
+    ...GUIDES.map((g) => ({ to: guidePath(g.slug), label: g.title, icon: '📖', kw: g.description, hint: 'Guide' })),
+    ...COMMUNITY.map((p) => ({
+      to: communityPath(p.slug),
+      label: p.name,
+      icon: p.emoji,
+      kw: `${p.summary} ${p.slug === 'donate' ? 'tip support help share' : ''} ${p.slug === 'settings' ? 'theme dark light' : ''}`,
+    })),
+    { to: '/privacy/', label: 'Privacy policy', icon: '🔒', kw: 'data cookies legal' },
+    { to: '/terms/', label: 'Terms of use', icon: '📜', kw: 'legal rules conditions' },
+  ];
+
+  const words = (s: string) => s.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
+  const matches = (query: string, text: string) => {
+    const q = words(query);
+    if (q.length === 0) return true;
+    const hay = words(text);
+    return q.every((w) => hay.some((h) => h.startsWith(w)));
+  };
+
+  const theme = browserTheme();
+
+  function build(query: string): Item[] {
+    const q = query.trim();
+    const tools: Item[] = (q ? searchTools(q, TOOLS) : TOOLS.slice(0, 8)).map((t) => ({
+      id: `t-${t.slug}`,
+      label: t.name,
+      icon: t.emoji,
+      hint: t.site ? `on ${t.site}` : t.group,
+      group: 'Tools',
+      run: go(hrefFor(t)),
+    }));
+    const shortcuts: Item[] = [];
+    const pages: Item[] = PAGES.filter((p) => matches(q, `${p.label} ${p.kw}`)).map((p) => ({
+      id: `p-${p.to}`,
+      label: p.label,
+      icon: p.icon,
+      hint: p.hint ?? 'Page',
+      group: 'Pages',
+      run: go(p.to),
+    }));
+    const actions: Item[] = matches(q, 'switch light dark theme mode night')
+      ? [
+          {
+            id: 'a-theme',
+            label: 'Switch light / dark',
+            icon: '🌗',
+            hint: 'Action',
+            group: 'Actions',
+            run: () => theme.toggle(),
+          },
+        ]
+      : [];
+    return [...tools.slice(0, 10), ...shortcuts, ...pages, ...actions].slice(0, MAX);
+  }
+
+  let items: Item[] = [];
+  let sel = 0;
+  let opener: HTMLElement | null = null;
+
+  const rowId = (i: number) => `palette-row-${i}`;
+
+  function render() {
+    list.replaceChildren();
+    if (items.length === 0) {
+      const p = document.createElement('p');
+      p.className = 'palette-empty';
+      p.textContent = `Nothing matches "${input.value.trim()}". Try "mp3", "gif", "csv" or "length".`;
+      list.append(p);
+      input.removeAttribute('aria-activedescendant');
+      return;
+    }
+    let last = '';
+    items.forEach((it, i) => {
+      if (it.group !== last) {
+        const h = document.createElement('div');
+        h.className = 'palette-group';
+        h.textContent = it.group;
+        list.append(h);
+        last = it.group;
+      }
+      const row = document.createElement('button');
+      row.type = 'button';
+      row.id = rowId(i);
+      row.className = 'palette-row';
+      row.setAttribute('role', 'option');
+      row.setAttribute('aria-selected', String(i === sel));
+      row.tabIndex = -1;
+      const icon = document.createElement('span');
+      icon.className = 'palette-icon';
+      icon.setAttribute('aria-hidden', 'true');
+      icon.textContent = it.icon;
+      const label = document.createElement('span');
+      label.className = 'palette-label';
+      label.textContent = it.label;
+      const hint = document.createElement('span');
+      hint.className = 'palette-hint';
+      hint.textContent = it.hint;
+      row.append(icon, label, hint);
+      row.addEventListener('mouseenter', () => select(i, false));
+      row.addEventListener('click', () => choose(i));
+      list.append(row);
+    });
+    input.setAttribute('aria-activedescendant', rowId(sel));
+  }
+
+  function select(i: number, scroll = true) {
+    if (i === sel || items.length === 0) return;
+    sel = i;
+    list.querySelectorAll('.palette-row').forEach((r, idx) => r.setAttribute('aria-selected', String(idx === sel)));
+    input.setAttribute('aria-activedescendant', rowId(sel));
+    if (scroll) document.getElementById(rowId(sel))?.scrollIntoView({ block: 'nearest' });
+  }
+
+  function choose(i: number) {
+    const item = items[i];
+    if (!item) return;
+    close();
+    item.run();
+  }
+
+  function refresh() {
+    items = build(input.value);
+    sel = 0;
+    render();
+  }
+
+  function open() {
+    if (!root.hidden) return;
+    opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    root.hidden = false;
+    document.body.style.overflow = 'hidden';
+    input.value = '';
+    refresh();
+    input.focus();
+  }
+
+  function close() {
+    if (root.hidden) return;
+    root.hidden = true;
+    document.body.style.overflow = '';
+    opener?.focus?.();
+  }
+
+  root.querySelectorAll('[data-palette-close]').forEach((el) => el.addEventListener('click', close));
+  input.addEventListener('input', refresh);
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      select(Math.min(items.length - 1, sel + 1));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      select(Math.max(0, sel - 1));
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      choose(sel);
+    } else if (e.key === 'Tab') {
+      e.preventDefault(); // keep focus in the box while the window is open
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    const key = e.key.toLowerCase();
+    const el = e.target as HTMLElement | null;
+    const typing = !!el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT' || el.isContentEditable);
+    if ((e.ctrlKey || e.metaKey) && key === 'k') {
+      e.preventDefault();
+      if (root.hidden) open();
+      else close();
+    } else if (key === '/' && !typing && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      e.preventDefault();
+      open();
+    } else if (key === 'escape' && !root.hidden) {
+      e.preventDefault();
+      close();
+    }
+  });
+
+  document.getElementById('search-open')?.addEventListener('click', open);
+</script>

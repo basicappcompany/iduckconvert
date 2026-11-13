@@ -1,0 +1,6 @@
+# Old or guessed addresses keep working: a permanent (301) redirect to the page.
+/audio-converter /converters/ 301
+/video-converter /converters/ 301
+/tools /converters/ 301
+/support /donate/ 301
+/support/ /donate/ 301
