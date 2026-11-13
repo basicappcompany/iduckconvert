@@ -3,9 +3,9 @@ import Chips from './Chips';
 import { THEME_EVENT, browserTheme, type ThemeChoice } from '../lib/theme-client';
 
 const THEME_OPTIONS: { id: ThemeChoice; emoji: string; label: string }[] = [
-  { id: 'system', emoji: '🖥️', label: 'Match my device' },
   { id: 'light', emoji: '☀️', label: 'Light' },
   { id: 'dark', emoji: '🌙', label: 'Dark' },
+  { id: 'system', emoji: '🖥️', label: 'Match my device' },
 ];
 
 const SHORTCUTS: { keys: string[]; does: string }[] = [
@@ -19,8 +19,8 @@ const SHORTCUTS: { keys: string[]; does: string }[] = [
 export default function SettingsPanel() {
   // Created after the page loads: it needs the browser (window, localStorage), which the build does not have.
   const [theme, setTheme] = useState<ReturnType<typeof browserTheme> | null>(null);
-  const [choice, setChoice] = useState<ThemeChoice>('system');
-  const [saved, setSaved] = useState<ThemeChoice>('system');
+  const [choice, setChoice] = useState<ThemeChoice>('light');
+  const [saved, setSaved] = useState<ThemeChoice>('light');
   const [note, setNote] = useState('');
 
   useEffect(() => {
@@ -54,7 +54,7 @@ export default function SettingsPanel() {
           />
         </div>
         <p class="mt-3 text-sm text-muted">
-          "Match my device" follows your phone or computer's light or dark setting. Your choice is remembered in this browser only.
+          The site opens in light mode unless you choose otherwise. "Match my device" follows your phone or computer's light or dark setting. Your choice is kept on every page, in this browser only, until you change it.
         </p>
       </section>
 
@@ -63,7 +63,7 @@ export default function SettingsPanel() {
           Saved in this browser
         </h2>
         <p class="mt-2 text-sm text-muted" data-testid="saved-summary">
-          {saved === 'system' ? 'Nothing is saved: the theme follows your device.' : `Your theme choice: ${saved}.`} That is all we keep. Your images are never saved.
+          {saved === 'light' ? 'Theme: light, the default.' : saved === 'dark' ? 'Theme: dark, your choice.' : 'Theme: matches your device, your choice.'} That is all we keep. Your images are never saved.
         </p>
         <div class="mt-3 flex flex-wrap items-center gap-3">
           <button
@@ -71,7 +71,7 @@ export default function SettingsPanel() {
             class="btn"
             onClick={() => {
               theme?.clearSaved();
-              setNote('Cleared. The theme now follows your device.');
+              setNote('Cleared. The theme is back to light, the default.');
             }}
           >
             Clear saved settings

@@ -1,32 +1,61 @@
 import { expect, test } from '@playwright/test';
 
-test.describe('start page is always light', () => {
-  test('light even when the system is dark and dark was saved', async ({ page }) => {
+test.describe('theme: light by default, then consistent until changed', () => {
+  test('the default is light on every page, even when the system is dark', async ({ page }) => {
     await page.emulateMedia({ colorScheme: 'dark' });
-    await page.addInitScript(() => localStorage.setItem('duck.theme', 'dark'));
+    for (const path of ['/', '/length-converter/', '/guides/', '/about/']) {
+      await page.goto(path);
+      await expect(page.locator('html'), path).toHaveAttribute('data-theme', 'light');
+    }
+    const bg = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+    const [r, g, b] = bg.match(/\d+/g)!.map(Number);
+    // The cream page colour, not the #121212 dark one.
+    expect(r! + g! + b!).toBeGreaterThan(600);
+  });
+
+  test('the start page has the toggle, and a choice made there stays on every page until it is changed', async ({ page }) => {
+    await page.emulateMedia({ colorScheme: 'dark' });
     await page.goto('/');
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
-    const bg = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
-    // The cream page colour, not the #121212 dark one.
-    const [r, g, b] = bg.match(/\d+/g)!.map(Number);
-    expect(r! + g! + b!).toBeGreaterThan(600);
-    await expect(page.locator('#theme-toggle')).toHaveCount(0);
-  });
-
-  test('other pages still follow the saved choice', async ({ page }) => {
-    await page.emulateMedia({ colorScheme: 'light' });
-    await page.addInitScript(() => localStorage.setItem('duck.theme', 'dark'));
+    await expect(page.locator('#theme-toggle')).toHaveCount(1);
+    await page.locator('#theme-toggle').click();
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+    // Same choice on another page, after a reload, and back on the start page.
     await page.goto('/length-converter/');
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
-    await expect(page.locator('#theme-toggle')).toHaveCount(1);
+    await page.reload();
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+    await page.goto('/');
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+    // Changing it back is kept too.
+    await page.locator('#theme-toggle').click();
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+    await page.goto('/about/');
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
   });
 
-  test('the search window cannot make the start page dark', async ({ page }) => {
+  test('a saved dark choice is used on every page, including the start page', async ({ page }) => {
     await page.emulateMedia({ colorScheme: 'light' });
+    await page.addInitScript(() => localStorage.setItem('duck.theme', 'dark'));
+    for (const path of ['/', '/length-converter/']) {
+      await page.goto(path);
+      await expect(page.locator('html'), path).toHaveAttribute('data-theme', 'dark');
+    }
+  });
+
+  test('"match my device" is a choice that is kept too, and clearing goes back to light', async ({ page }) => {
+    await page.emulateMedia({ colorScheme: 'dark' });
+    await page.goto('/settings/');
+    await page.waitForFunction(() => document.querySelector('astro-island[client="load"]:not([ssr])') !== null);
+    await page.getByRole('radio', { name: /match my device/i }).click();
     await page.goto('/');
-    await page.keyboard.press('Control+k');
-    await page.getByRole('combobox').fill('switch light');
-    await page.keyboard.press('Enter');
+    // No fixed theme: the system (dark here) decides.
+    expect(await page.locator('html').getAttribute('data-theme')).toBeNull();
+    await page.goto('/settings/');
+    await page.waitForFunction(() => document.querySelector('astro-island[client="load"]:not([ssr])') !== null);
+    await page.getByRole('button', { name: 'Clear saved settings' }).click();
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+    await page.goto('/');
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
   });
 });
