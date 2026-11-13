@@ -1,15 +1,16 @@
 ---
-import CommunityLayout from '../components/CommunityLayout.astro';
+import AppShell from '../components/AppShell.astro';
 import ChatHelper from '../components/ChatHelper';
 ---
 
-<CommunityLayout
+<AppShell
   title="Ask the helper | iDuckConvert"
-  description="Describe what you want to convert in plain words and get pointed to the right free converter."
-  before="Ask the"
-  mark="helper"
-  intro="Describe what you want to convert in plain words and get pointed to the right free converter."
+  description="Describe what you want to convert in plain words and get pointed to the right free converter, or ask a quick sum like 5 km in miles."
   noindex
 >
+  <div class="flex flex-wrap items-baseline justify-between gap-x-4">
+    <h1 class="text-3xl font-black tracking-tight sm:text-4xl">Ask the <span class="mark">helper</span></h1>
+    <p class="text-sm text-muted">Say what you want to convert, or ask a quick sum.</p>
+  </div>
   <ChatHelper client:load />
-</CommunityLayout>
+</AppShell>

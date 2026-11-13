@@ -4,7 +4,7 @@ import { contentFor } from '../../src/lib/content';
 import { COMMUNITY } from '../../src/lib/community';
 import { GUIDES } from '../../src/lib/guides';
 import { PAGE_TOOLS, POPULAR_SLUGS, TOOLS, TOOL_GROUPS, searchTools, toolBySlug } from '../../src/lib/tools';
-import { respond } from '../../src/lib/helper';
+import { STARTERS, respond } from '../../src/lib/helper';
 import { AUDIO_TARGETS, DEFAULT_MEDIA_OPTIONS, acceptsFor, audioArgs, jobFor } from '../../src/tools/media';
 import { parseTime } from '../../src/tools/ffmpeg';
 import { UNIT_SETS } from '../../src/convert/units';
@@ -130,5 +130,38 @@ describe('helper', () => {
     expect(respond('heic to jpg').tools[0]?.href).toMatch(/^https:\/\/iduckimg\.com\//);
     expect(respond('is it safe').text).toMatch(/not uploaded/);
     expect(respond('qqqqzzzz').tools).toHaveLength(0);
+  });
+});
+
+describe('helper does small jobs and remembers the converter', () => {
+  it('converts units in the chat', () => {
+    expect(respond('5 km in miles').answer?.big).toBe('3.106855961 mi');
+    expect(respond('72 f in c').answer?.big).toBe('22.22222222 °C');
+    expect(respond('10 kg to pounds').answer?.big).toBe('22.04622622 lb');
+    expect(respond('2 acres in sq ft').answer?.big).toMatch(/^87,?120 /);
+    expect(respond('5 km in kg').answer).toBeUndefined();
+  });
+  it('writes numbers in words, Roman numerals and bases', () => {
+    expect(respond('1250000 in words').answer?.big).toBe('Twelve lakh fifty thousand');
+    expect(respond('1250000 in international words').answer?.big).toBe('One million two hundred and fifty thousand');
+    expect(respond('2026 in roman').answer?.big).toBe('MMXXVI');
+    expect(respond('xiv to number').answer?.big).toBe('14');
+    expect(respond('ff to decimal').answer?.big).toBe('255');
+    expect(respond('255 to binary').answer?.big).toBe('11111111');
+    expect(respond('5000 in roman').text).toMatch(/3999/);
+  });
+  it('answers follow-ups from the converter it just suggested', () => {
+    const first = respond('mp4 to mp3');
+    expect(first.focus).toBe('mp4-to-mp3');
+    expect(first.followups.length).toBeGreaterThan(0);
+    expect(respond('how do i use it?', undefined, first.focus).steps?.length).toBeGreaterThanOrEqual(3);
+    expect(respond('is my file uploaded?', undefined, first.focus).text).toMatch(/never leaves/);
+    expect(respond('how big a file can i use?', undefined, first.focus).text).toMatch(/500 MB/);
+    expect(respond('will the sound quality drop?', undefined, first.focus).text).toMatch(/quality|lossy|bitrate/i);
+  });
+  it('every starter and follow-up button gets a real answer', () => {
+    for (const s of STARTERS) expect(respond(s).text.length, s).toBeGreaterThan(5);
+    const r = respond('video to gif');
+    for (const f of r.followups) expect(respond(f, undefined, r.focus).text.length, f).toBeGreaterThan(5);
   });
 });

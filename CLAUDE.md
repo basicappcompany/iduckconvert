@@ -20,6 +20,10 @@ Free converters that run in the browser: audio, video, spreadsheets and data, un
 - `src/engine`, `FileDropzone`, `DownloadPanel`, `SimpleToolShell`: the shared file flow, inherited from iDuckImg (input files, options, job, outputs, ZIP).
 - Design system: neo-brutalist duck theme from iDuckImg/iDuckPDF (`src/styles/global.css`, `src/lib/theme.ts`; dark theme colour #121212). Use the shared classes (`card`, `btn`, `pill`, `chip`, `prose`...).
 
+## Ask the helper and the start page
+- `/chat/` is a full-height chat (`ChatHelper.tsx`, `src/lib/helper.ts`). It is still a keyword matcher, not an AI, but it does small jobs itself (units, number to words, Roman numerals, bases), remembers the converter it just suggested and answers follow-ups from that converter's own steps and questions. Keep the footnote honest if this changes. A unit test checks that every starter and follow-up button gets an answer.
+- The home page is always light (`forceLight` on `AppShell`, no theme toggle there, a MutationObserver puts `data-theme=light` back). Other pages follow the saved or system theme.
+
 ## Hosting
 - Cloudflare Pages project `iduckconvert` (build `pnpm build`, output `dist`, NODE_VERSION=22.23.4), deploys on merge to main. DNS is on Cloudflare (Free plan); the domain is registered at GoDaddy with Cloudflare nameservers. Email Routing forwards hello@ and feedback@ to the business mailbox; the catch-all drops.
 
