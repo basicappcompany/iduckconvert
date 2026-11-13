@@ -302,8 +302,8 @@ test.describe('site', () => {
     await expect(page.getByRole('option').first()).toBeVisible();
   });
 
-  test('theme toggle switches and persists', async ({ page }) => {
-    await page.goto('/');
+  test('theme toggle switches and persists (every page except the always-light start page)', async ({ page }) => {
+    await page.goto('/about/');
     await page.waitForFunction(() => document.querySelector('#theme-toggle') !== null);
     await page.emulateMedia({ colorScheme: 'light' });
     await page.locator('#theme-toggle').click();
