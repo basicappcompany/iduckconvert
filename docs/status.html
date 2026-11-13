@@ -254,7 +254,7 @@
    DATA. Edit here. States: done | progress | todo | waiting | later.  Owners: me | you | both | external | none.
    "me" = I can do it with no input. "you" = only you can. "both" = I do the mechanics, you sign in / approve / supply a secret.
    =================================================================================================================== */
-const VERIFIED = "13 Nov 2026 (type check 0 errors, lint clean, 42 unit tests, 26 browser tests; CI green on PR #1; live on https://iduckconvert.com checked with curl: home, converter, guide, sitemap, robots, og.png return 200, unknown address 404, www works, MX and SPF resolve; no test email sent yet; no phone test; no Lighthouse run)";
+const VERIFIED = "13 Nov 2026 (docs-sync re-measure: type check 0 errors, lint clean, 42 unit tests in 2 files, 74 pages built, 69 sitemap URLs; the 26 browser tests last ran on PR #1 and CI was green on every merge so far; live iduckconvert.com checked with curl: home, converter, sitemap, robots 200, unknown address 404, pages.dev noindex and the real domain not; iduckcalculator.com and the iDuckIMG link targets answer 200; no test email sent yet, no phone test, no Lighthouse run)";
 const REPO = "https://github.com/basicappcompany/iduckconvert";
 
 /* Tools. A row is "ready" only if its page exists on main and answers on https://iduckconvert.com. Move a planned row to "ready" in the same PR that ships it.
@@ -354,7 +354,7 @@ const PHASES = [
     I("9.1", "All converters, about, roadmap, request, feedback, donate, settings, privacy, terms", "done", "none", { when: "13 Nov" }),
     I("9.2", "Four starter guides", "done", "none", { when: "13 Nov", note: "Audio from a video, HEIC vs JPG, CSV in Excel, units without mistakes." }),
     I("9.3", "sitemap.xml, robots.txt, canonical, Open Graph, Twitter tags, favicon, 1200x630 og.png", "done", "none", { when: "13 Nov" }),
-    I("9.4", "Cross-links to iDuckPDF, iDuckIMG and iDuckCalculator", "progress", "you", { note: "iDuckPDF and iDuckIMG are linked in the sidebar and footer. iDuckCalculator exists locally (basicappcompany/iduckcalculator) but iduckcalculator.com currently redirects to a parked registrar page, so no link is shown. Once it is deployed, add it in the sidebar and footer of AppShell.astro." }),
+    I("9.4", "Cross-links to iDuckPDF, iDuckIMG and iDuckCalculator", "done", "none", { when: "13 Nov", note: "Sidebar (Also from iDuck), footer and About link to all three. iDuckCalculator was first left out because a stale local DNS cache showed its old parking page; it is live (checked through the Cloudflare edge with a valid certificate)." }),
   ]},
   { num: 10, name: "Quality and launch", summary: "Tests, then going live.", items: [
     I("10.1", "Test every converter with a small sample file", "done", "none", { when: "13 Nov", prio: 2 }),
