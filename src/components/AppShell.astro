@@ -36,7 +36,8 @@ const openGroup = toolForPath(path)?.group ?? TOOL_GROUPS[0];
     <meta name="theme-color" content="#fffdf5" media="(prefers-color-scheme: light)" />
     <title>{title}</title>
     <meta name="description" content={description} />
-    {noindex ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonical} />}
+    {noindex ? <meta name="robots" content="noindex" /> : <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1" />}
+    {!noindex && <link rel="canonical" href={canonical} />}
     <meta property="og:locale" content="en_US" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta property="og:site_name" content={SITE_NAME} />
@@ -208,6 +209,7 @@ const openGroup = toolForPath(path)?.group ?? TOOL_GROUPS[0];
             <a class="link" href="/converters/">All converters</a>
             <a class="link" href="/guides/">How-to guides</a>
             <a class="link" href="/about/">About</a>
+            <a class="link" href="/how-it-works/">How it works</a>
             <a class="link" href="/privacy/">Privacy</a>
             <a class="link" href="/terms/">Terms</a>
             <a class="link" href="/feedback/">Feedback</a>

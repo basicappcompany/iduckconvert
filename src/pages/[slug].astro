@@ -4,13 +4,19 @@ import MediaTool from '../tools/MediaTool';
 import { ExcelTool, TiffTool, WebpGifTool } from '../tools/FileTools';
 import { DataTool, EncodingTool } from '../tools/TextTools';
 import { BasesTool, CaseTool, ColourTool, DatesTool, RomanTool, TimeZoneTool, UnitsTool, WordsTool } from '../tools/Calculators';
-import { PAGE_TOOLS } from '../lib/tools';
+import { PAGE_TOOLS, GROUP_EMOJI, type ToolLink } from '../lib/tools';
+import { UNIT_PAIRS } from '../lib/unit-pages';
 
 export function getStaticPaths() {
-  return PAGE_TOOLS.map((tool) => ({ params: { slug: tool.slug }, props: { tool } }));
+  // A popular pair such as cm to inches is a unit converter with its own page.
+  const pairTool = (slug: string, set: string, name: string): ToolLink => ({ slug, name, summary: `Convert ${name} with the exact factor and a table of common values.`, group: 'Units', emoji: GROUP_EMOJI.Units, kind: 'units', units: set, quick: '', keywords: slug });
+  return [
+    ...PAGE_TOOLS.map((tool) => ({ params: { slug: tool.slug }, props: { tool, pair: undefined } })),
+    ...UNIT_PAIRS.map((pair) => ({ params: { slug: pair.slug }, props: { tool: pairTool(pair.slug, pair.set, pair.slug.replace(/-/g, ' ')), pair } })),
+  ];
 }
 
-const { tool } = Astro.props;
+const { tool, pair } = Astro.props;
 const k = tool.kind;
 const from = tool.from ?? '';
 const to = tool.to ?? '';
@@ -18,7 +24,7 @@ const runLabel = tool.slug === 'video-to-mp3' ? 'Extract MP3' : k === 'video-gif
 const noFiles = ['units', 'bases', 'words', 'roman', 'case', 'colour', 'timezone', 'dates'].includes(k);
 ---
 
-<ToolLayout tool={tool} usesFiles={!noFiles}>
+<ToolLayout tool={tool} usesFiles={!noFiles} {...(pair ? { pair } : {})}>
   {(k === 'audio' || k === 'video' || k === 'gif-video' || k === 'video-gif' || k === 'video-compress' || k === 'video-trim') && (
     <MediaTool client:load kind={k} from={from} to={to} runLabel={runLabel} />
   )}
@@ -27,7 +33,7 @@ const noFiles = ['units', 'bases', 'words', 'roman', 'case', 'colour', 'timezone
   {k === 'webp-gif' && <WebpGifTool client:load runLabel={runLabel} />}
   {k === 'data' && tool.slug !== 'text-encoding-fixer' && <DataTool client:load slug={tool.slug} />}
   {k === 'data' && tool.slug === 'text-encoding-fixer' && <EncodingTool client:load runLabel={runLabel} />}
-  {k === 'units' && <UnitsTool client:load units={tool.units!} />}
+  {k === 'units' && <UnitsTool client:load units={tool.units!} {...(pair ? { from: pair.from, to: pair.to } : {})} />}
   {k === 'bases' && <BasesTool client:load />}
   {k === 'words' && <WordsTool client:load />}
   {k === 'roman' && <RomanTool client:load />}

@@ -161,7 +161,7 @@ describe('helper does small jobs and remembers the converter', () => {
     expect(respond('how do i use it?', undefined, first.focus).steps?.length).toBeGreaterThanOrEqual(3);
     expect(respond('is my file uploaded?', undefined, first.focus).text).toMatch(/never leaves/);
     expect(respond('how big a file can i use?', undefined, first.focus).text).toMatch(/500 MB/);
-    expect(respond('will the sound quality drop?', undefined, first.focus).text).toMatch(/quality|lossy|bitrate/i);
+    expect(respond('will the sound quality drop?', undefined, first.focus).text).toMatch(/encoded once|quality|lossy/i);
   });
   it('every starter and follow-up button gets a real answer', () => {
     for (const s of STARTERS) expect(respond(s).text.length, s).toBeGreaterThan(5);

@@ -1,9 +1,9 @@
 ---
 import AppShell from '../components/AppShell.astro';
-import { TOOLS, TOOL_GROUPS, GROUP_EMOJI, hrefFor, toolsInGroup } from '../lib/tools';
+import { PAGE_TOOLS, TOOLS, TOOL_GROUPS, GROUP_EMOJI, hrefFor, toolsInGroup } from '../lib/tools';
 import { breadcrumbLd, collectionLd } from '../lib/seo';
 
-const description = `All ${TOOLS.length} free converters in one list: audio, video, images, spreadsheets and data, units, numbers, text and time zones. Everything runs in your browser.`;
+const description = `All ${PAGE_TOOLS.length} free converters on this site in one list, plus ${TOOLS.length - PAGE_TOOLS.length} on iDuckIMG: audio, video, images, spreadsheets and data, units, numbers, text and time zones. Everything runs in your browser.`;
 ---
 
 <AppShell
@@ -16,7 +16,7 @@ const description = `All ${TOOLS.length} free converters in one list: audio, vid
 >
   <h1 class="display text-4xl sm:text-5xl">All <span class="mark">converters</span></h1>
   <p class="mt-3 max-w-2xl text-lg text-muted">
-    {TOOLS.length} free converters, grouped by what they work on. They run in your browser, so your files are not uploaded. A few live on sister sites and are marked with an arrow.
+    {PAGE_TOOLS.length} free converters here, plus {TOOLS.length - PAGE_TOOLS.length} on iDuckIMG, grouped by what they work on. They run in your browser, so your files are not uploaded. The ones on a sister site are marked with an arrow.
   </p>
   <nav aria-label="Groups" class="mt-4 flex flex-wrap gap-2">
     {TOOL_GROUPS.map((g) => <a class="chip" href={`#${g.replace(/\W+/g, '-').toLowerCase()}`}>{GROUP_EMOJI[g]} {g}</a>)}
