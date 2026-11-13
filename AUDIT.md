@@ -69,7 +69,7 @@ GitHub (`gh` and browser), Cloudflare, Google and GoDaddy were each checked as t
 | MDN HTTP Observatory | **A+, 120/100**, 12 of 12 tests (was D, 35) |
 | Lighthouse mobile | home 99 / 100 / 100 / 100; MP4 to MP3 100 / 100 / 100 / 100; length converter 96 / 100 / 100 / 100; cm to inches 97 / 100 / 100 / 100 (performance, accessibility, best practices, SEO) |
 | Live check | 14 pages and real WAV to MP3 and WAV to FLAC conversions run in a browser on the live site with the policy active: no console errors |
-| Tests | 73 unit tests, 55 browser tests (against a server that applies the real security headers), type check and lint clean, CI green |
+| Tests | 73 unit tests (one test was fixed on 14 Nov to cope with Windows line endings; CI had always passed), 55 browser tests (against a server that applies the real security headers), type check and lint clean, CI green |
 | Built pages | 150, 0 broken internal links, no duplicate titles or descriptions, 145 sitemap URLs each with a lastmod |
 
 ## Things only you can do
