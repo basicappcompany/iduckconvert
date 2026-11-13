@@ -37,7 +37,7 @@ describe('security headers file', () => {
     expect([...hosts]).toEqual([WASM_CDN_HOST]);
   });
   it('keeps the pages.dev noindex rules and never noindexes the real domain', () => {
-    expect(headers).toMatch(/https:\/\/:project\.pages\.dev\/\*\n\s+X-Robots-Tag: noindex/);
+    expect(headers).toMatch(/https:\/\/:project\.pages\.dev\/\*\r?\n\s+X-Robots-Tag: noindex/);
     expect(globalBlock).not.toMatch(/X-Robots-Tag/i);
   });
 });
