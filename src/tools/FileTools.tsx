@@ -3,7 +3,7 @@ import { useMemo, useState } from 'preact/hooks';
 import SimpleToolShell from '../components/SimpleToolShell';
 import { Field, OptionsPanel } from '../components/OptionsPanel';
 import type { OutputFile, ToolDefinition } from '../engine/types';
-import { withExtension } from '../lib/files';
+import { checkSize, withExtension } from '../lib/files';
 import { parseCsv, stringifyCsv } from '../convert/data';
 
 // ---------- CSV <-> Excel ----------
@@ -21,6 +21,7 @@ const excelTool = (to: string): ToolDefinition<ExcelOptions> => ({
   accepts: to === 'xlsx' ? ['.csv', '.tsv', '.txt', 'text/csv'] : ['.xlsx', '.xls', '.xlsm', '.ods'],
   defaultOptions: { bom: true },
   run: async (file, options, ctx) => {
+    checkSize(file, 50, 'spreadsheet');
     const XLSX = await import('xlsx');
     ctx.onProgress(0.2);
     if (to === 'xlsx') {
@@ -79,6 +80,7 @@ const tiffTool: ToolDefinition<TiffOptions> = {
   accepts: ['.tif', '.tiff', 'image/tiff'],
   defaultOptions: { quality: 90 },
   run: async (file, options, ctx) => {
+    checkSize(file, 150, 'TIFF');
     const UTIF = (await import('utif2')).default;
     const buffer = await file.arrayBuffer();
     const pages = UTIF.decode(buffer);
@@ -134,6 +136,7 @@ const webpTool: ToolDefinition<WebpOptions> = {
   accepts: ['.webp', 'image/webp'],
   defaultOptions: { maxWidth: 0 },
   run: async (file, options) => {
+    checkSize(file, 50, 'picture');
     const { GIFEncoder, quantize, applyPalette } = await import('gifenc');
     const bitmap = await createImageBitmap(file);
     const scale = options.maxWidth > 0 && bitmap.width > options.maxWidth ? options.maxWidth / bitmap.width : 1;

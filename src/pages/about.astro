@@ -40,7 +40,7 @@ import { PAGE_TOOLS } from '../lib/tools';
   <section class="card p-5" aria-labelledby="built">
     <h2 id="built" class="text-2xl font-black tracking-tight">How it is built</h2>
     <p class="mt-2 leading-relaxed">
-      The pages are plain static files made with Astro, with small Preact pieces for the tools. Audio and video use ffmpeg.wasm, a copy of ffmpeg compiled to WebAssembly. Its engine file (about 30 MB) is fetched once from a public CDN and then cached by your browser; your files are never sent there. Spreadsheets use SheetJS, and the rest is small open-source code running on your device. Because everything runs on your device, big videos can be slow on an older phone.
+      The pages are plain static files made with Astro, with small Preact pieces for the tools. Audio and video use ffmpeg.wasm, a copy of ffmpeg compiled to WebAssembly. Its engine file (about 32 MB) is fetched once from jsDelivr (cdn.jsdelivr.net) and checked against a fixed fingerprint before it is used, then cached by your browser; your files are never sent there. The how-it-works page lists everything. Spreadsheets use SheetJS, and the rest is small open-source code running on your device. Because everything runs on your device, big videos can be slow on an older phone.
     </p>
   </section>
 
