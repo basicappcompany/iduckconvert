@@ -7,7 +7,7 @@ Resume here in a new session. The full picture is `docs/status.html`. Base = iDu
 - PDF conversions belong to iDuckPDF; image conversions iDuckIMG already has (HEIC/AVIF/BMP/SVG to JPG/PNG, favicon/ICO) are link cards.
 - Languages: EN-US built; TR planned (no switch until it exists).
 - Contact: hello@iduckconvert.com (general), feedback@iduckconvert.com (forms). Needs Cloudflare Email Routing set up by the owner.
-- iDuckCalculator: not linked until iduckcalculator.com stops being a parked page.
+- iDuckCalculator: live and linked (sidebar, footer, About).
 
 ## Checklist
 - [x] Step 0: GitHub account check
