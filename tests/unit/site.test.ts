@@ -2,7 +2,7 @@ import { existsSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { contentFor } from '../../src/lib/content';
 import { COMMUNITY } from '../../src/lib/community';
-import { GUIDES } from '../../src/lib/guides';
+import { GUIDES, GUIDE_CATEGORIES } from '../../src/lib/guides';
 import { PAGE_TOOLS, POPULAR_SLUGS, TOOLS, TOOL_GROUPS, searchTools, toolBySlug } from '../../src/lib/tools';
 import { STARTERS, respond } from '../../src/lib/helper';
 import { AUDIO_TARGETS, DEFAULT_MEDIA_OPTIONS, acceptsFor, audioArgs, jobFor } from '../../src/tools/media';
@@ -71,14 +71,18 @@ describe('page content', () => {
     for (const f of ['index', 'converters', '404', 'privacy', 'terms', 'chat', 'roadmap', '[slug]']) expect(existsSync(`src/pages/${f}.astro`), f).toBe(true);
   });
   it('guides have the structure the pages need', () => {
-    expect(GUIDES.length).toBe(4);
+    expect(GUIDES.length).toBeGreaterThanOrEqual(45);
+    expect(new Set(GUIDES.map((g) => g.slug)).size).toBe(GUIDES.length);
+    expect(new Set(GUIDES.map((g) => g.title)).size).toBe(GUIDES.length);
     for (const g of GUIDES) {
       expect(g.title.length, g.slug).toBeLessThanOrEqual(60);
       expect(g.description.length, g.slug).toBeGreaterThanOrEqual(70);
       expect(g.description.length, g.slug).toBeLessThanOrEqual(160);
+      expect(GUIDE_CATEGORIES, g.slug).toContain(g.category);
+      expect(g.faqs.length, g.slug).toBeGreaterThanOrEqual(3);
       expect(g.steps.length, g.slug).toBeGreaterThanOrEqual(3);
       for (const slug of g.tools) expect(toolBySlug(slug), `${g.slug} -> ${slug}`).toBeTruthy();
-      const words = [g.intro, ...g.steps, ...g.sections.flatMap((s) => s.paragraphs)].join(' ').split(/\s+/).length;
+      const words = [g.intro, ...g.steps, ...g.sections.flatMap((s) => s.paragraphs), ...g.faqs.flatMap((f) => [f.q, f.a])].join(' ').split(/\s+/).length;
       expect(words, g.slug).toBeGreaterThan(250);
     }
   });
