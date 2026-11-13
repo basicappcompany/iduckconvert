@@ -37,7 +37,7 @@ export const dark = {
 
 export type ThemeKey = keyof typeof light;
 
-/** localStorage key for an explicit choice. No key means "follow the system setting". */
+/** localStorage key for an explicit choice (light, dark or system). No key means the default, which is light. */
 export const THEME_STORAGE_KEY = 'duck.theme';
 
 /** WCAG relative luminance of a #rrggbb colour. */
