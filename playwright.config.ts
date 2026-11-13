@@ -20,7 +20,8 @@ export default defineConfig({
   },
   // Tests run against the production build, which is what ships.
   webServer: {
-    command: `pnpm build && pnpm preview --port ${PORT}`,
+    // scripts/serve.mjs applies dist/_headers (the real Content-Security-Policy), unlike `astro preview`.
+    command: `pnpm build && node scripts/serve.mjs ${PORT}`,
     url: `http://localhost:${PORT}/`,
     reuseExistingServer: !process.env['CI'],
     timeout: 180_000,

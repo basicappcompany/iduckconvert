@@ -1,6 +1,6 @@
 # Keep the free *.pages.dev addresses out of search results, so that only https://iduckconvert.com is indexed.
 # These rules name the pages.dev host in the pattern, so they never apply to iduckconvert.com.
-# DO NOT replace them with a bare /* rule: that would remove the whole site from search.
+# DO NOT replace them with a bare X-Robots-Tag rule on /*: that would remove the whole site from search.
 # tests/unit/headers.test.ts guards this, and the live check is: curl -I https://iduckconvert.pages.dev/
 
 # The production deployment: https://iduckconvert.pages.dev
@@ -10,3 +10,17 @@ https://:project.pages.dev/*
 # Preview deployments of pull requests: https://<hash>.iduckconvert.pages.dev
 https://:version.:project.pages.dev/*
   X-Robots-Tag: noindex
+
+# Security headers for every page and file.
+# __SCRIPT_HASHES__ is replaced after the build (scripts/finalize-headers.mjs) with the SHA-256 hashes of the few
+# inline scripts Astro writes into the pages, so scripts can stay free of 'unsafe-inline' and 'unsafe-eval'.
+# connect-src has blob: because the checked ffmpeg engine is handed to the converter as a blob URL; the only outside
+# host is cdn.jsdelivr.net, which serves that one engine file (its hash is verified before use).
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval' __SCRIPT_HASHES__; worker-src 'self' blob:; connect-src 'self' https://cdn.jsdelivr.net blob:; img-src 'self' blob: data:; media-src 'self' blob: data:; style-src 'self' 'unsafe-inline'; font-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
+  Cross-Origin-Opener-Policy: same-origin

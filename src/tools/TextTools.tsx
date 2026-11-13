@@ -4,7 +4,7 @@ import SimpleToolShell from '../components/SimpleToolShell';
 import { Field, OptionsPanel } from '../components/OptionsPanel';
 import type { ToolDefinition } from '../engine/types';
 import { copyText } from '../lib/clipboard';
-import { withExtension } from '../lib/files';
+import { checkSize, withExtension } from '../lib/files';
 import { DATA_SPECS, ENCODINGS, decodeBytes, runDataConversion } from '../convert/data';
 
 function download(name: string, text: string, mime: string): void {
@@ -55,6 +55,12 @@ export function DataTool({ slug }: { slug: string }) {
 
   const load = async (file: File | undefined) => {
     if (!file) return;
+    try {
+      checkSize(file, 20, 'text file');
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'That file is too big.');
+      return;
+    }
     setFileName(file.name);
     setInput(new TextDecoder('utf-8').decode(new Uint8Array(await file.arrayBuffer())));
   };
@@ -151,6 +157,7 @@ const encodingTool: ToolDefinition<EncodingOptions> = {
   accepts: ['.txt', '.csv', '.tsv', '.srt', '.log', '.md', '.html', '.xml', '.json', 'text/plain', 'text/csv'],
   defaultOptions: { encoding: 'windows-1252' },
   run: async (file, options) => {
+    checkSize(file, 50, 'text file');
     const text = decodeBytes(new Uint8Array(await file.arrayBuffer()), options.encoding);
     const name = withExtension(file.name, /\.([a-z0-9]+)$/i.exec(file.name)?.[1] ?? 'txt').replace(/(\.[a-z0-9]+)$/i, '-utf8$1');
     return [{ name, blob: new Blob([text], { type: 'text/plain;charset=utf-8' }) }];
