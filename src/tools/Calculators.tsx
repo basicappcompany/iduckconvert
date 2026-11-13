@@ -26,11 +26,11 @@ function CopyButton({ text, label = 'Copy' }: { text: string; label?: string }) 
 }
 
 // ---------- units ----------
-export function UnitsTool({ units }: { units: string }) {
+export function UnitsTool({ units, from: presetFrom, to: presetTo }: { units: string; from?: string; to?: string }) {
   const set = UNIT_SETS[units]!;
   const [value, setValue] = useState('1');
-  const [from, setFrom] = useState(set.defaultFrom);
-  const [to, setTo] = useState(set.defaultTo);
+  const [from, setFrom] = useState(presetFrom ?? set.defaultFrom);
+  const [to, setTo] = useState(presetTo ?? set.defaultTo);
   const n = Number(value.replace(/,/g, ''));
   const result = value.trim() === '' ? NaN : convertUnit(set, from, to, n);
   const fromUnit = set.units.find((u) => u.id === from)!;

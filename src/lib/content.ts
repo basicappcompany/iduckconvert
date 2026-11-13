@@ -1,9 +1,22 @@
 /** The "how to" steps, the questions and answers and the short explainer on each converter page. */
 import { FORMAT_NAMES, type ToolLink } from './tools';
+import { KBPS, MEDIA_PAGES, SETTINGS, mb, sizeLine } from './media-pages';
+import { UNIT_PAIRS, UNIT_SOURCES, factorStatement, pairsForSet, unitWord, valueTable, type TableRow, type UnitPair, type UnitSource } from './unit-pages';
+import { UNIT_SETS, convertUnit, formatNumber } from '../convert/units';
 
 export interface Faq {
   q: string;
   a: string;
+}
+
+export interface UnitFacts {
+  factor: string;
+  rows: TableRow[];
+  source: UnitSource;
+  fromLabel: string;
+  toLabel: string;
+  /** Popular pairs that have a page of their own, for the "Popular conversions" links. */
+  pairs: { slug: string; name: string }[];
 }
 
 export interface PageContent {
@@ -11,6 +24,11 @@ export interface PageContent {
   faqs: Faq[];
   /** A short paragraph under the tool: what the formats are and when to pick one. */
   about: string;
+  /** Question-style headings with their answers, written for this page only. Empty on pages that use `about`. */
+  sections: { h: string; p: string }[];
+  /** 40 to 60 words, shown right under the page heading. */
+  answer: string;
+  unit?: UnitFacts;
 }
 
 const BLURB: Record<string, string> = {
@@ -49,70 +67,77 @@ const BATCH_FAQ: Faq = {
   a: 'Yes. Drop several files in and they are converted one after another. When they finish you can download each one, or all of them together as one ZIP.',
 };
 
+const BASE = { sections: [] as { h: string; p: string }[], answer: '' };
+
+function mediaSections(t: ToolLink, sizeText: string): { h: string; p: string }[] {
+  const f = FORMAT_NAMES[t.from!]!;
+  const to = FORMAT_NAMES[t.to!]!;
+  const page = MEDIA_PAGES[t.slug]!;
+  const fromBlurb = t.from === 'video' ? 'Videos come in many formats, such as MP4, MOV, MKV, WEBM and AVI. This converter reads all of them and keeps only the sound.' : BLURB[t.from!]!;
+  return [
+    { h: `What are ${f === 'video' ? 'video files' : f} and ${to}?`, p: `${fromBlurb} ${BLURB[t.to!]!}` },
+    { h: `Who needs to convert ${f === 'video' ? 'video' : f} to ${to}?`, p: page.who },
+    { h: `Does converting ${f === 'video' ? 'video' : f} to ${to} lose quality?`, p: page.quality },
+    { h: `How big is the ${to} file?`, p: sizeText },
+    { h: `Which devices and apps open a ${to} file?`, p: page.devices },
+    { h: 'What settings does this converter use?', p: SETTINGS[t.to!]! },
+  ];
+}
+
 function audioContent(t: ToolLink): PageContent {
   const f = FORMAT_NAMES[t.from!]!;
   const to = FORMAT_NAMES[t.to!]!;
-  const fromVideo = t.from === 'video' || ['mp4'].includes(t.from!);
-  const lossless = ['wav', 'flac'].includes(t.to!);
-  const sourceLossless = ['wav', 'flac'].includes(t.from!);
+  const page = MEDIA_PAGES[t.slug]!;
+  const fromVideo = t.from === 'video' || t.from === 'mp4';
   const verb = t.slug === 'video-to-mp3' ? 'Extract MP3' : 'Convert';
+  const noQuality = ['wav', 'flac'].includes(t.to!);
+  const sizeText = fromVideo
+    ? `A video has picture and sound, and the picture is most of its size. A 10-minute video of 100 MB typically has about 10 MB of sound at 128 kbit/s, so a 192 kbit/s MP3 comes to about ${mb(192, 600).toFixed(0)} MB, around ${((mb(192, 600) / 100) * 100).toFixed(0)} percent of the video. Each minute of MP3 is about ${(mb(192, 60)).toFixed(1)} MB at 192 kbit/s and ${(mb(96, 60)).toFixed(1)} MB at 96 kbit/s.`
+    : `${sizeLine(t.from!, t.to!)} ${KBPS[t.from!] && KBPS[t.to!] && KBPS[t.to!]! > KBPS[t.from!]! ? 'The file grows because the target stores more data than the source.' : 'Choosing a lower bitrate shrinks it further; a higher one grows it.'}`;
   return {
+    ...BASE,
     steps: [
-      `Drop your ${fromVideo ? 'video' : f} ${fromVideo ? 'files' : 'files'} onto the box, or press Choose files.`,
-      t.to === 'wav' || t.to === 'flac' ? 'There are no quality settings for this one: the sound is kept exactly as decoded.' : 'Pick a quality. 192 kbit/s is a good everyday choice; 320 is the best you can get for music.',
+      `Drop your ${fromVideo ? 'video' : f} files onto the box, or press Choose files.`,
+      noQuality ? 'There are no quality settings for this one: the sound is written exactly as decoded.' : 'Pick a quality. 192 kbit/s is a good everyday choice; 320 is the best you can get for music, and 96 to 128 is fine for speech.',
       `Press ${verb}. A progress bar shows how far along it is.`,
       `Download your ${to} file, or all of them as a ZIP.`,
     ],
-    about: `${fromVideo ? BLURB[t.to!]! : `${BLURB[t.from!]!} ${BLURB[t.to!]!}`}`,
+    about: page.who,
+    answer: page.answer,
+    sections: mediaSections(t, sizeText),
     faqs: [
-      {
-        q: fromVideo ? `How do I get the audio out of a ${f === 'video' ? 'video' : f + ' video'}?` : `Why convert ${f} to ${to}?`,
-        a: fromVideo
-          ? `Drop the video in and press ${verb}. Only the sound track is kept and saved as ${to}. The picture is ignored, so the file is far smaller than the video.`
-          : `${BLURB[t.from!]!} ${lossless ? `${to} is a good choice when you want to edit the sound or keep it without further loss.` : `Convert to ${to} when you need a file that works on the device or app you are using, or when you want a smaller file.`} ${BLURB[t.to!]!}`,
-      },
-      {
-        q: 'Will the sound quality drop?',
-        a: lossless
-          ? `Converting to ${to} adds no further loss. If the original was already compressed (for example MP3 or AAC), that earlier loss stays: ${to} cannot bring back what was removed.`
-          : sourceLossless
-            ? `A little, by design: ${to} is a lossy format, so some detail is traded for a much smaller file. At 192 kbit/s or above most people cannot hear the difference.`
-            : `Going from one lossy format to another loses a little more each time. Use the highest bitrate you are comfortable with, and keep the original file.`,
-      },
+      { q: `Why convert ${f === 'video' ? 'a video' : f} to ${to}?`, a: page.who },
+      page.faqs[0],
+      page.faqs[1],
       PRIVATE_FAQ(fromVideo ? 'video' : 'audio'),
-      BATCH_FAQ,
       ENGINE_FAQ,
       SIZE_FAQ(),
     ],
   };
 }
 
-const VIDEO_WHY: Record<string, string> = {
-  'mov-to-mp4': 'iPhones and Macs record in MOV. MP4 plays on Android, Windows, TVs and every social app, so converting a MOV is the usual way to share an iPhone video.',
-  'mkv-to-mp4': 'Many phones, TVs and editing apps do not open MKV. MP4 plays almost everywhere, so converting makes the video easy to watch and share.',
-  'avi-to-mp4': 'AVI is a very old format that many phones and apps refuse. MP4 is newer, smaller and plays almost everywhere.',
-  'webm-to-mp4': 'WEBM plays in browsers, but many editors, TVs and phone galleries do not accept it. MP4 is accepted by nearly all of them.',
-  'mp4-to-webm': 'WEBM files are small and play natively in web browsers, which makes them handy for putting video on a website.',
-  'mov-to-webm': 'WEBM is small and web-friendly, so it is a good choice for putting an iPhone clip on a website.',
-  'mkv-to-webm': 'WEBM plays directly in web browsers, which MKV does not. Converting makes the video usable on a website.',
-  'avi-to-webm': 'WEBM is a modern, small, web-friendly format, while AVI is from the 1990s and browsers cannot play it.',
-};
+const VIDEO_SIZE =
+  'How big the file ends up depends on the picture. Busy 1080p footage at this setting is often around 40 to 70 MB per minute, 720p roughly half of that, and a mostly still screen recording or slide video far less. A short clip converts in moments; a long, high-resolution one is slow because your own device does the work.';
 
 function videoContent(t: ToolLink): PageContent {
   const f = FORMAT_NAMES[t.from!]!;
   const to = FORMAT_NAMES[t.to!]!;
+  const page = MEDIA_PAGES[t.slug]!;
   return {
+    ...BASE,
     steps: [
       `Drop your ${f} video onto the box, or press Choose files.`,
-      `Press Convert. The first time, your browser downloads the converter engine, then the video is converted in a progress bar you can watch.`,
+      'Press Convert. The first time, your browser downloads the converter engine, then the video is converted while you watch a progress bar.',
       `Download your ${to} file when it finishes, or all of them as a ZIP.`,
     ],
-    about: `${BLURB[t.from!]!} ${BLURB[t.to!]!}`,
+    about: page.who,
+    answer: page.answer,
+    sections: mediaSections(t, VIDEO_SIZE),
     faqs: [
-      { q: `Why convert ${f} to ${to}?`, a: VIDEO_WHY[t.slug] ?? `${to} is more widely supported than ${f}.` },
-      { q: 'Will the video quality drop?', a: `Slightly, because the video is encoded again. We use a high-quality setting, so most people cannot tell. Keep the original in case you want to convert again.` },
+      { q: `Why convert ${f} to ${to}?`, a: page.who },
+      page.faqs[0],
+      page.faqs[1],
       PRIVATE_FAQ('video'),
-      { q: 'Why is it slow?', a: 'Video is heavy work, and it is done by your own device, not a server. A laptop or desktop is many times faster than a phone, and short clips are quick. Close other tabs to help.' },
       ENGINE_FAQ,
       SIZE_FAQ(),
     ],
@@ -120,10 +145,10 @@ function videoContent(t: ToolLink): PageContent {
 }
 
 function simple(steps: string[], about: string, faqs: Faq[]): PageContent {
-  return { steps, about, faqs };
+  return { ...BASE, steps, about, faqs };
 }
 
-export function contentFor(t: ToolLink): PageContent {
+function baseContent(t: ToolLink): PageContent {
   switch (t.kind) {
     case 'audio':
       return audioContent(t);
@@ -325,6 +350,57 @@ export function contentFor(t: ToolLink): PageContent {
   }
 }
 
+const TAIL_FILES = 'It runs in your browser, so your files are never uploaded, and there is no sign-up, no watermark and no ads.';
+const TAIL_CALC = 'It works in your browser as you type, nothing is sent anywhere, and there is no sign-up, no watermark and no ads.';
+
+/** The exact factor, a table of common values and the source, for a unit set and a pair of its units. */
+export function unitFacts(setKey: string, from: string, to: string): UnitFacts {
+  const set = UNIT_SETS[setKey]!;
+  return {
+    factor: factorStatement(setKey, from, to),
+    rows: valueTable(setKey, from, to),
+    source: UNIT_SOURCES[setKey]!,
+    fromLabel: set.units.find((u) => u.id === from)!.symbol,
+    toLabel: set.units.find((u) => u.id === to)!.symbol,
+    pairs: pairsForSet(setKey).map((p) => ({ slug: p.slug, name: p.slug.replace(/-/g, ' ') })),
+  };
+}
+
+export function contentFor(t: ToolLink): PageContent {
+  const c = baseContent(t);
+  const answer = c.answer || `${t.quick} ${t.kind === 'units' || ['bases', 'words', 'roman', 'case', 'colour', 'timezone', 'dates'].includes(t.kind) ? TAIL_CALC : TAIL_FILES}`;
+  const unit = t.kind === 'units' && t.units ? unitFacts(t.units, UNIT_SETS[t.units]!.defaultFrom, UNIT_SETS[t.units]!.defaultTo) : undefined;
+  return { ...c, answer, ...(unit ? { unit } : {}) };
+}
+
+/** Every popular pair page, as the small objects the page and the sitemap need. */
+export const PAIR_SLUGS = UNIT_PAIRS.map((p) => p.slug);
+
+/** The page text for a popular pair such as cm to inches. */
+export function pairContent(pair: UnitPair): PageContent {
+  const set = UNIT_SETS[pair.set]!;
+  const name = pair.slug.replace(/-/g, ' ');
+  const facts = unitFacts(pair.set, pair.from, pair.to);
+  const fromWord = unitWord(pair.set, pair.from, 2);
+  const toWord = unitWord(pair.set, pair.to, 2);
+  const five = formatNumber(convertUnit(set, pair.from, pair.to, 5));
+  const temp = pair.set === 'temperature';
+  return {
+    ...BASE,
+    steps: [`Type the number you want to convert in the Value box.`, `The units are already set to ${fromWord} and ${toWord}. Change them or press the ⇄ button to swap.`, 'Read the answer, or look it up in the table of common values below.'],
+    about: pair.note,
+    answer: `To convert ${name}, type the number and read the answer. ${facts.factor} The converter works in your browser as you type, nothing is sent anywhere, and there is no sign-up, no watermark and no ads.`,
+    sections: [{ h: `What is the exact factor for ${name}?`, p: `${facts.factor} ${pair.note}` }],
+    unit: facts,
+    faqs: [
+      { q: `How many ${toWord} are in one ${unitWord(pair.set, pair.from, 1)}?`, a: facts.factor },
+      { q: `How do I convert ${name} by hand?`, a: temp ? `${facts.factor} For example, 5 ${facts.fromLabel} is ${five} ${facts.toLabel}.` : `Multiply the number of ${fromWord} by the factor: ${facts.factor} For example, 5 ${facts.fromLabel} is ${five} ${facts.toLabel}.` },
+      pair.faq,
+      { q: 'Is anything sent to a server?', a: 'No. The conversion is calculated in your browser as you type, and nothing leaves your device.' },
+    ],
+  };
+}
+
 function dataContent(t: ToolLink): PageContent {
   const spec: Record<string, { why: string; steps?: string[]; extra: Faq[] }> = {
     'csv-to-json': { why: 'CSV is a table in plain text. JSON is what websites and apps use to exchange data.', extra: [
@@ -376,6 +452,7 @@ function dataContent(t: ToolLink): PageContent {
   const info = spec[t.slug]!;
   const isEncoding = t.slug === 'text-encoding-fixer';
   return {
+    ...BASE,
     steps: isEncoding
       ? ['Drop your text file onto the box.', 'Choose the encoding the file was written in and check the preview.', 'Press Convert.', 'Download the UTF-8 copy.']
       : [`Paste your ${t.from!.toUpperCase()} into the left box, or drop a file in. Try an example if you just want to see it work.`, 'The result appears on the right as you type.', 'Press Download, or Copy to paste it somewhere else.'],
@@ -434,6 +511,7 @@ function unitsContent(t: ToolLink): PageContent {
     ],
   };
   return {
+    ...BASE,
     steps: [`Type the number you want to convert.`, `Choose the unit you have in "From" and the one you want in "To".`, 'Read the answer. The ⇄ button swaps the two units, and the table shows every unit at once.'],
     about: `This ${name} converter uses exact conversion factors and shows the result with up to 10 significant digits.`,
     faqs: [

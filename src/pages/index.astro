@@ -1,7 +1,7 @@
 ---
 import AppShell from '../components/AppShell.astro';
 import DuckMark from '../components/DuckMark.astro';
-import { POPULAR_SLUGS, TOOLS, TOOL_GROUPS, hrefFor, toolBySlug, toolsInGroup } from '../lib/tools';
+import { PAGE_TOOLS, POPULAR_SLUGS, TOOLS, TOOL_GROUPS, hrefFor, toolBySlug, toolsInGroup } from '../lib/tools';
 import { GUIDES, guidePath } from '../lib/guides';
 import { faqLd, organizationLd, websiteLd } from '../lib/seo';
 
@@ -36,7 +36,7 @@ const why = [
     <DuckMark size={96} class="mx-auto" />
     <h1 class="display mt-4 text-4xl min-[420px]:text-5xl sm:text-6xl">Files, <span class="mark">quacked</span> into shape.</h1>
     <p class="mx-auto mt-4 max-w-xl text-lg text-muted">
-      {TOOLS.length} free converters for audio, video, spreadsheets, data, units and more. No sign-up, no watermark, and everything runs in your browser tab.
+      {PAGE_TOOLS.length} free converters for audio, video, spreadsheets, data, units and more, plus {TOOLS.length - PAGE_TOOLS.length} picture tools on iDuckIMG. No sign-up, no watermark, and everything runs in your browser tab.
     </p>
     <div class="mt-4 flex flex-wrap justify-center gap-2">
       <span class="pill pill-ok">Runs in your browser</span>
@@ -87,12 +87,12 @@ const why = [
   </section>
 
   <section class="mt-12" aria-label="All converters">
-    <h2 class="text-2xl font-black tracking-tight">All {TOOLS.length} converters</h2>
+    <h2 class="text-2xl font-black tracking-tight">All {PAGE_TOOLS.length} converters here</h2>
     <p class="mt-1 text-muted">Pick a group to narrow the list, or press Ctrl K to search.</p>
     <div class="mt-3 flex flex-wrap gap-2" role="group" aria-label="Filter by group">
-      <button type="button" class="chip" role="switch" aria-checked="true" data-filter="all">Everything ({TOOLS.length})</button>
+      <button type="button" class="chip" role="switch" aria-checked="true" data-filter="all">Everything ({PAGE_TOOLS.length})</button>
       {TOOL_GROUPS.map((group) => (
-        <button type="button" class="chip" role="switch" aria-checked="false" data-filter={group}>{group} ({toolsInGroup(group).length})</button>
+        <button type="button" class="chip" role="switch" aria-checked="false" data-filter={group}>{group} ({toolsInGroup(group).filter((t) => !t.site).length})</button>
       ))}
     </div>
     <div class="mt-6">
@@ -101,7 +101,7 @@ const why = [
           <div class="mt-8 first:mt-0" data-card-group data-group={group}>
             <h3 class="text-2xl font-black tracking-tight">{group}</h3>
             <ul class="card-grid mt-3">
-              {toolsInGroup(group).map((tool) => (
+              {toolsInGroup(group).filter((t) => !t.site).map((tool) => (
                 <li data-card data-slug={tool.slug}>
                   <a href={hrefFor(tool)} class="card card-link h-full p-4" {...(tool.site ? { rel: 'noopener' } : {})}>
                     <span class="flex items-center gap-2.5 text-[17px] font-black">
@@ -118,6 +118,31 @@ const why = [
         ))
       }
     </div>
+  </section>
+
+  <section class="mt-14" aria-label="On our sister sites">
+    <h2 class="text-2xl font-black tracking-tight">On our sister sites</h2>
+    <p class="mt-1 text-muted">These live on iDuckIMG and iDuckPDF, so each tool has one good home. They also run in your browser.</p>
+    <ul class="card-grid mt-3">
+      {
+        TOOLS.filter((t) => t.site).map((tool) => (
+          <li>
+            <a href={hrefFor(tool)} class="card card-link h-full p-4" rel="noopener">
+              <span class="flex items-center gap-2.5 text-[17px] font-black"><span aria-hidden="true" class="text-[28px] leading-none">{tool.emoji}</span>{tool.name}</span>
+              <span class="mt-1 block text-sm leading-[19px] text-muted">{tool.summary}</span>
+              <span class="pill mt-2 w-fit">on {tool.site} ↗</span>
+            </a>
+          </li>
+        ))
+      }
+      <li>
+        <a href="https://iduckpdf.com/" class="card card-link h-full p-4" rel="noopener">
+          <span class="flex items-center gap-2.5 text-[17px] font-black"><span aria-hidden="true" class="text-[28px] leading-none">📚</span>All PDF conversions</span>
+          <span class="mt-1 block text-sm leading-[19px] text-muted">Word, Excel and images to PDF and back, and more.</span>
+          <span class="pill mt-2 w-fit">on iDuckPDF ↗</span>
+        </a>
+      </li>
+    </ul>
   </section>
 
   <section class="mt-14" aria-label="New and next">

@@ -16,7 +16,7 @@ export function organizationLd(): Json {
     name: 'Basic App Company',
     url: SITE_URL,
     logo: absolute('/favicon.svg'),
-    sameAs: ['https://iduckpdf.com/', 'https://iduckimg.com/'],
+    sameAs: ['https://iduckpdf.com/', 'https://iduckimg.com/', 'https://iduckcalculator.com/'],
   };
 }
 
@@ -40,7 +40,7 @@ export function webApplicationLd(name: string, path: string, description: string
     description,
     inLanguage: lang,
     applicationCategory: 'UtilitiesApplication',
-    operatingSystem: 'Any (web browser)',
+    operatingSystem: 'Any',
     browserRequirements: 'Requires a modern browser with JavaScript',
     isAccessibleForFree: true,
     offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
