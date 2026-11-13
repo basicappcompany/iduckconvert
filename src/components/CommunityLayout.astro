@@ -1,0 +1,26 @@
+---
+import AppShell from './AppShell.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  /** The heading is `before` + a highlighted `mark` + `after`, like the home page. */
+  before?: string;
+  mark: string;
+  after?: string;
+  intro: string;
+  noindex?: boolean;
+  jsonLd?: unknown[];
+}
+const { title, description, before = '', mark, after = '', intro, noindex = false, jsonLd = [] } = Astro.props;
+---
+
+<AppShell title={title} description={description} noindex={noindex} jsonLd={jsonLd}>
+  <h1 class="display text-4xl sm:text-5xl">
+    {before}{before && ' '}<span class="mark">{mark}</span>{after}
+  </h1>
+  <p class="mt-3 max-w-2xl text-lg text-muted">{intro}</p>
+  <div class="mt-6 grid gap-5">
+    <slot />
+  </div>
+</AppShell>

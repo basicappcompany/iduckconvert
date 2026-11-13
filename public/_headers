@@ -1,0 +1,12 @@
+# Keep the free *.pages.dev addresses out of search results, so that only https://iduckconvert.com is indexed.
+# These rules name the pages.dev host in the pattern, so they never apply to iduckconvert.com.
+# DO NOT replace them with a bare /* rule: that would remove the whole site from search.
+# tests/unit/headers.test.ts guards this, and the live check is: curl -I https://iduckconvert.pages.dev/
+
+# The production deployment: https://iduckconvert.pages.dev
+https://:project.pages.dev/*
+  X-Robots-Tag: noindex
+
+# Preview deployments of pull requests: https://<hash>.iduckconvert.pages.dev
+https://:version.:project.pages.dev/*
+  X-Robots-Tag: noindex

@@ -1,0 +1,15 @@
+---
+import CommunityLayout from '../components/CommunityLayout.astro';
+import ChatHelper from '../components/ChatHelper';
+---
+
+<CommunityLayout
+  title="Ask the helper | iDuckConvert"
+  description="Describe what you want to convert in plain words and get pointed to the right free converter."
+  before="Ask the"
+  mark="helper"
+  intro="Describe what you want to convert in plain words and get pointed to the right free converter."
+  noindex
+>
+  <ChatHelper client:load />
+</CommunityLayout>

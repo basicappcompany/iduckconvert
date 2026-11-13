@@ -1,0 +1,212 @@
+---
+import AppShell from '../components/AppShell.astro';
+import DuckMark from '../components/DuckMark.astro';
+import { POPULAR_SLUGS, TOOLS, TOOL_GROUPS, hrefFor, toolBySlug, toolsInGroup } from '../lib/tools';
+import { GUIDES, guidePath } from '../lib/guides';
+import { faqLd, organizationLd, websiteLd } from '../lib/seo';
+
+const faqs = [
+  { q: 'What is iDuckConvert?', a: 'A free set of converters: audio, video, spreadsheets and data files, units, numbers, text and time zones. Everything runs in your browser.' },
+  { q: 'Is iDuckConvert free?', a: 'Yes. There is no sign-up, no watermark and no ads. If you want to help, tips are the only way to support it.' },
+  { q: 'Are my files uploaded to a server?', a: 'No. Every converter runs in your browser tab, so your files stay on your device. The audio and video engine (ffmpeg) is downloaded once from a public CDN, but your files are not part of that.' },
+  { q: 'Why are video conversions slow on my phone?', a: 'Your own device does the work, not a server. A computer is many times faster than a phone, so use one for big videos. We suggest files under 500 MB on a computer and 100 MB on a phone.' },
+  { q: 'Where are the PDF and image converters?', a: 'PDF conversions live on iDuckPDF and picture tools such as HEIC to JPG live on iDuckIMG. We link to them instead of copying them, so each tool has one good home.' },
+];
+
+const popular = POPULAR_SLUGS.map((s) => toolBySlug(s)!).filter(Boolean);
+const next = [
+  { emoji: '🇹🇷', title: 'Turkish language', text: 'The whole site in Turkish, with a language switch.' },
+  { emoji: '🌀', title: 'Animated WEBP to GIF', text: 'Keep every frame, not just the first.' },
+  { emoji: '💱', title: 'Currency converter', text: 'Only if we can find a free, trustworthy rate source and show when it was updated.' },
+];
+const why = [
+  { emoji: '🔒', title: 'Your files stay with you', text: 'Every converter runs in your browser. Your files are not uploaded to our servers.' },
+  { emoji: '🎁', title: 'No sign-up, no watermark, no ads', text: 'Open a converter and use it. Nothing to install, and nothing stamped on your results.' },
+  { emoji: '📱', title: 'Made for phones too', text: 'Pick a file from your gallery or files and every converter works at phone size.' },
+];
+---
+
+<AppShell
+  jsonLd={[websiteLd(), organizationLd(), faqLd(faqs)]}
+  title="iDuckConvert: free converters that run in your browser"
+  description="Convert audio, video, spreadsheets, JSON, units, numbers and time zones free in your browser. No upload, no sign-up, no watermark."
+>
+  <section class="text-center">
+    <DuckMark size={96} class="mx-auto" />
+    <h1 class="display mt-4 text-4xl min-[420px]:text-5xl sm:text-6xl">Files, <span class="mark">quacked</span> into shape.</h1>
+    <p class="mx-auto mt-4 max-w-xl text-lg text-muted">
+      {TOOLS.length} free converters for audio, video, spreadsheets, data, units and more. No sign-up, no watermark, and everything runs in your browser tab.
+    </p>
+    <div class="mt-4 flex flex-wrap justify-center gap-2">
+      <span class="pill pill-ok">Runs in your browser</span>
+      <span class="pill">No sign-up</span>
+      <span class="pill">No watermark</span>
+      <span class="pill">No ads</span>
+    </div>
+
+    <div class="mx-auto mt-6 max-w-xl">
+      <button type="button" id="hero-search" class="hero-search" aria-label="Search converters, pages and actions" data-open-palette>
+        <span aria-hidden="true" class="text-lg">🔍</span>
+        <span class="min-w-0 flex-1 truncate text-left">Search converters…</span>
+        <kbd aria-hidden="true">Ctrl K</kbd>
+      </button>
+      <p class="mt-2 text-sm text-muted" data-kbd-hint>Press <b>Ctrl K</b> (or <b>/</b>) on any page to search.</p>
+    </div>
+  </section>
+
+  <section class="mt-8" aria-label="Ask the helper">
+    <div class="card flex flex-wrap items-center gap-4 bg-duck p-5 text-duckink">
+      <span aria-hidden="true" class="text-4xl">💬</span>
+      <div class="min-w-48 flex-1">
+        <h2 class="text-xl font-black tracking-tight">Not sure which converter you need?</h2>
+        <p class="opacity-80">Describe the job in plain words and the helper will point you to the right one.</p>
+      </div>
+      <a href="/chat/" class="btn btn-ink">Ask the helper</a>
+    </div>
+  </section>
+
+  <section class="mt-10" aria-label="Popular right now">
+    <h2 class="text-2xl font-black tracking-tight">Popular right now</h2>
+    <ul class="card-grid mt-3">
+      {
+        popular.map((p) => (
+          <li>
+            <a href={hrefFor(p)} class="card card-link h-full p-4" {...(p.site ? { rel: 'noopener' } : {})}>
+              <span class="flex items-center gap-2.5 text-[17px] font-black">
+                <span aria-hidden="true" class="text-[28px] leading-none">{p.emoji}</span>
+                {p.name}
+              </span>
+              <span class="mt-1 block text-sm leading-[19px] text-muted">{p.summary}</span>
+              {p.site && <span class="pill mt-2 w-fit">on {p.site} ↗</span>}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <section class="mt-12" aria-label="All converters">
+    <h2 class="text-2xl font-black tracking-tight">All {TOOLS.length} converters</h2>
+    <p class="mt-1 text-muted">Pick a group to narrow the list, or press Ctrl K to search.</p>
+    <div class="mt-3 flex flex-wrap gap-2" role="group" aria-label="Filter by group">
+      <button type="button" class="chip" role="switch" aria-checked="true" data-filter="all">Everything ({TOOLS.length})</button>
+      {TOOL_GROUPS.map((group) => (
+        <button type="button" class="chip" role="switch" aria-checked="false" data-filter={group}>{group} ({toolsInGroup(group).length})</button>
+      ))}
+    </div>
+    <div class="mt-6">
+      {
+        TOOL_GROUPS.map((group) => (
+          <div class="mt-8 first:mt-0" data-card-group data-group={group}>
+            <h3 class="text-2xl font-black tracking-tight">{group}</h3>
+            <ul class="card-grid mt-3">
+              {toolsInGroup(group).map((tool) => (
+                <li data-card data-slug={tool.slug}>
+                  <a href={hrefFor(tool)} class="card card-link h-full p-4" {...(tool.site ? { rel: 'noopener' } : {})}>
+                    <span class="flex items-center gap-2.5 text-[17px] font-black">
+                      <span aria-hidden="true" class="text-[28px] leading-none">{tool.emoji}</span>
+                      {tool.name}
+                    </span>
+                    <span class="mt-1 block text-sm leading-[19px] text-muted">{tool.summary}</span>
+                    {tool.site && <span class="pill mt-2 w-fit">on {tool.site} ↗</span>}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="mt-14" aria-label="New and next">
+    <h2 class="text-2xl font-black tracking-tight">New and next</h2>
+    <ul class="card-grid mt-3">
+      {
+        next.map((n) => (
+          <li class="card p-4">
+            <span class="flex items-center gap-2.5 text-[17px] font-black"><span aria-hidden="true" class="text-[28px] leading-none">{n.emoji}</span>{n.title}</span>
+            <span class="mt-1 block text-sm leading-[19px] text-muted">{n.text}</span>
+          </li>
+        ))
+      }
+    </ul>
+    <p class="mt-3"><a class="link" href="/roadmap/">See the whole roadmap</a> or <a class="link" href="/request/">ask for a converter</a>.</p>
+  </section>
+
+  <section class="mt-14" aria-label="Why iDuckConvert">
+    <ul class="grid gap-4 sm:grid-cols-3">
+      {
+        why.map((item) => (
+          <li class="card p-4">
+            <span aria-hidden="true" class="text-[28px] leading-none">{item.emoji}</span>
+            <h3 class="mt-2 text-lg font-black">{item.title}</h3>
+            <p class="mt-1 text-sm text-muted">{item.text}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <section class="mt-14" aria-label="How-to guides">
+    <h2 class="text-3xl font-black tracking-tight">How-to guides</h2>
+    <p class="mt-1 text-muted">Short walkthroughs for the jobs people search for most. Each gives the answer first.</p>
+    <ul class="card-grid mt-3">
+      {
+        GUIDES.map((g) => (
+          <li>
+            <a href={guidePath(g.slug)} class="card card-link h-full p-4">
+              <span class="block text-[17px] font-black">{g.title}</span>
+              <span class="mt-1 block text-sm leading-[19px] text-muted">{g.description}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+    <p class="mt-3"><a class="link" href="/guides/">All {GUIDES.length} how-to guides</a></p>
+  </section>
+
+  <section class="mt-14" aria-label="Common questions">
+    <h2 class="text-3xl font-black tracking-tight">Common questions</h2>
+    <div class="mt-4 grid gap-3">
+      {
+        faqs.map((f) => (
+          <details class="card px-4 py-3">
+            <summary class="cursor-pointer text-lg font-black">{f.q}</summary>
+            <p class="mt-2 leading-relaxed">{f.a}</p>
+          </details>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="mt-14" aria-label="Support">
+    <div class="card flex flex-wrap items-center gap-4 bg-duck p-5 text-duckink">
+      <span aria-hidden="true" class="text-4xl">💛</span>
+      <div class="min-w-48 flex-1">
+        <h2 class="text-xl font-black tracking-tight">Keep the pond clean</h2>
+        <p class="opacity-80">iDuckConvert has no ads and no paywall. Tips are the only way it pays for itself.</p>
+      </div>
+      <a href="/donate/" class="btn btn-ink">Support iDuckConvert</a>
+    </div>
+  </section>
+
+  <script>
+    // The big search box is a button for the Ctrl K window, which lives in the page shell.
+    document.querySelectorAll('[data-open-palette]').forEach((el) =>
+      el.addEventListener('click', () => document.getElementById('search-open')?.click()),
+    );
+
+    // Group chips narrow the list of converters; "Everything" shows all of them again.
+    const chips = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-filter]'));
+    chips.forEach((chip) =>
+      chip.addEventListener('click', () => {
+        const wanted = chip.dataset['filter'] ?? 'all';
+        chips.forEach((c) => c.setAttribute('aria-checked', String(c === chip)));
+        document.querySelectorAll<HTMLElement>('[data-card-group]').forEach((g) => {
+          g.hidden = wanted !== 'all' && g.dataset['group'] !== wanted;
+        });
+      }),
+    );
+  </script>
+</AppShell>

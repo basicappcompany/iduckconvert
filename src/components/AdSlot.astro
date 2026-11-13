@@ -1,0 +1,22 @@
+---
+interface Props {
+  /** Stable name for the placement, e.g. 'below-tool'. */
+  name: string;
+  width: number;
+  height: number;
+}
+const { name, width, height } = Astro.props;
+// Inactive until AdSense is approved: set PUBLIC_ADS_ENABLED=true to reserve and fill slots.
+const enabled = import.meta.env.PUBLIC_ADS_ENABLED === 'true';
+---
+
+{
+  enabled && (
+    <aside
+      class="mx-auto my-6 flex items-center justify-center overflow-hidden bg-soft"
+      style={`width:${width}px;max-width:100%;height:${height}px`}
+      data-ad-slot={name}
+      aria-label="Advertisement"
+    />
+  )
+}

@@ -1,0 +1,547 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>iDuckConvert: project status</title>
+<script>
+  // Apply the saved theme before first paint so the page never flashes the wrong one.
+  try { var t = localStorage.getItem('iduckconvert-status-theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t); } catch (e) {}
+</script>
+<style>
+  :root {
+    color-scheme: light;
+    --bg: #fffdf5; --surface: #ffffff; --surface-2: #f6f2e2; --text: #17160f; --muted: #6b685b; --border: #e3dcc2; --line: #17160f;
+    --duck: #ffd23f; --duck-ink: #17160f; --focus: #1d6fd8;
+    --done: #1b7a46;    --done-bg: #e1f3e8;
+    --prog: #1f5fbf;    --prog-bg: #e3edfb;
+    --todo: #8a5a00;    --todo-bg: #fbefd2;
+    --wait: #b3261e;    --wait-bg: #fbe5e2;
+    --later: #5d6068;   --later-bg: #eceef0;
+    --you: #b3261e;     --you-bg: #fbe5e2;
+    --me: #0b6b63;      --me-bg: #dcf2ef;
+    --both: #6b3fa0;    --both-bg: #efe6fa;
+    --ext: #5d6068;     --ext-bg: #eceef0;
+    --shadow: 3px 3px 0 var(--line);
+    --soft-shadow: 0 1px 2px rgb(40 30 0 / .08), 0 6px 18px rgb(40 30 0 / .06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { color-scheme: dark;
+      --bg: #121212; --surface: #1c1c1e; --surface-2: #26262a; --text: #f5f5f5; --muted: #a1a1a6; --border: #3a3a40; --line: #f5f5f5;
+      --focus: #7fb3ff;
+      --done: #6fdc9a; --done-bg: #17321f; --prog: #8db8ff; --prog-bg: #182a46; --todo: #f2c065; --todo-bg: #352a12;
+      --wait: #ff9a92; --wait-bg: #3d1d1a; --later: #b4b8c0; --later-bg: #2b2d32;
+      --you: #ff9a92; --you-bg: #3d1d1a; --me: #6fdcd0; --me-bg: #143431; --both: #cdaaf7; --both-bg: #2e2340; --ext: #b4b8c0; --ext-bg: #2b2d32;
+      --shadow: 3px 3px 0 #000; --soft-shadow: 0 1px 2px rgb(0 0 0 / .5), 0 8px 20px rgb(0 0 0 / .4); }
+  }
+  :root[data-theme="dark"] { color-scheme: dark;
+    --bg: #121212; --surface: #1c1c1e; --surface-2: #26262a; --text: #f5f5f5; --muted: #a1a1a6; --border: #3a3a40; --line: #f5f5f5;
+    --focus: #7fb3ff;
+    --done: #6fdc9a; --done-bg: #17321f; --prog: #8db8ff; --prog-bg: #182a46; --todo: #f2c065; --todo-bg: #352a12;
+    --wait: #ff9a92; --wait-bg: #3d1d1a; --later: #b4b8c0; --later-bg: #2b2d32;
+    --you: #ff9a92; --you-bg: #3d1d1a; --me: #6fdcd0; --me-bg: #143431; --both: #cdaaf7; --both-bg: #2e2340; --ext: #b4b8c0; --ext-bg: #2b2d32;
+    --shadow: 3px 3px 0 #000; --soft-shadow: 0 1px 2px rgb(0 0 0 / .5), 0 8px 20px rgb(0 0 0 / .4); }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 4.5rem; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  a { color: var(--focus); }
+  code, .mono { font-family: ui-monospace, "Cascadia Code", Menlo, Consolas, monospace; font-size: .9em; }
+  code { background: var(--surface-2); border: 1px solid var(--border); border-radius: 5px; padding: 0 .3em; }
+  button, input, select { font: inherit; color: inherit; }
+  :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 6px; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 1.1rem 4rem; }
+  .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  /* ---------- top bar ---------- */
+  .topbar { position: sticky; top: 0; z-index: 20; background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(8px); border-bottom: 2px solid var(--line); }
+  .topbar-in { max-width: 1180px; margin: 0 auto; padding: .55rem 1.1rem; display: flex; align-items: center; gap: .8rem; }
+  .brand { font-weight: 900; font-size: 1.05rem; letter-spacing: -.02em; white-space: nowrap; }
+  .brand b { background: var(--duck); color: var(--duck-ink); padding: 0 .35em; border-radius: 6px; }
+  .nav { display: flex; gap: .2rem; overflow-x: auto; flex: 1; scrollbar-width: none; }
+  .nav a { text-decoration: none; color: var(--muted); padding: .25rem .6rem; border-radius: 999px; font-size: .85rem; white-space: nowrap; font-weight: 600; }
+  .nav a:hover { background: var(--surface-2); color: var(--text); }
+  .nav a.on { background: var(--duck); color: var(--duck-ink); }
+  .toggle { border: 2px solid var(--line); background: var(--surface); border-radius: 12px; padding: .3rem .7rem; cursor: pointer; font-weight: 700; box-shadow: 2px 2px 0 var(--line); white-space: nowrap; }
+  .toggle:hover { background: var(--duck); color: var(--duck-ink); }
+
+  /* ---------- header ---------- */
+  header.hero { padding: 1.6rem 0 .6rem; }
+  h1 { margin: 0 0 .3rem; font-size: clamp(1.7rem, 4vw, 2.5rem); letter-spacing: -.03em; line-height: 1.1; }
+  h1 mark { background: var(--duck); color: var(--duck-ink); padding: 0 .2em; border-radius: 8px; }
+  .sub { margin: 0; color: var(--muted); max-width: 78ch; }
+  .meta { display: flex; flex-wrap: wrap; gap: .4rem 1.2rem; margin: .9rem 0 0; color: var(--muted); font-size: .88rem; }
+  .meta b { color: var(--text); }
+
+  /* ---------- stat cards ---------- */
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: .8rem; margin: 1.2rem 0; }
+  .stat { background: var(--surface); border: 2px solid var(--line); border-radius: 14px; padding: .8rem 1rem; box-shadow: var(--shadow); text-align: left; cursor: pointer; }
+  .stat:hover { transform: translate(-1px, -1px); }
+  .stat .n { font-size: 2rem; font-weight: 900; line-height: 1; letter-spacing: -.03em; }
+  .stat .l { color: var(--muted); font-size: .82rem; margin-top: .25rem; font-weight: 600; }
+  .stat.hot { background: var(--duck); color: var(--duck-ink); } .stat.hot .l { color: var(--duck-ink); opacity: .8; }
+  .bar { height: 10px; border-radius: 999px; background: var(--surface-2); border: 1.5px solid var(--line); overflow: hidden; display: flex; }
+  .bar i { display: block; height: 100%; }
+  .bar .d { background: var(--done); } .bar .p { background: var(--prog); } .bar .t { background: var(--todo); } .bar .w { background: var(--wait); } .bar .x { background: var(--later); }
+  .overall { background: var(--surface); border: 2px solid var(--line); border-radius: 14px; padding: .9rem 1rem; box-shadow: var(--shadow); margin-bottom: 1rem; }
+  .overall .top { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-bottom: .5rem; font-weight: 700; }
+  .legend { display: flex; flex-wrap: wrap; gap: .3rem 1rem; margin-top: .55rem; font-size: .8rem; color: var(--muted); }
+  .legend span::before { content: ""; display: inline-block; width: .7rem; height: .7rem; border-radius: 3px; margin-right: .3rem; vertical-align: -1px; background: var(--c); }
+
+  /* ---------- sections ---------- */
+  section { margin: 2rem 0; }
+  h2 { font-size: 1.3rem; margin: 0 0 .25rem; letter-spacing: -.02em; }
+  h2 .count { background: var(--duck); color: var(--duck-ink); border-radius: 999px; font-size: .8rem; padding: .05rem .55rem; vertical-align: .15em; margin-left: .35rem; }
+  .lede { margin: 0 0 1rem; color: var(--muted); max-width: 80ch; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: .9rem; }
+  .card { background: var(--surface); border: 2px solid var(--line); border-radius: 14px; padding: .9rem 1rem; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: .45rem; }
+  .card h3 { margin: 0; font-size: 1rem; line-height: 1.3; }
+  .card p { margin: 0; color: var(--muted); font-size: .9rem; }
+  .card ol, .card ul { margin: .1rem 0 0; padding-left: 1.2rem; font-size: .88rem; }
+  .card li { margin: .15rem 0; }
+  .card .foot { margin-top: auto; display: flex; flex-wrap: wrap; gap: .35rem; align-items: center; font-size: .8rem; color: var(--muted); }
+  .card.you { border-color: var(--you); }
+  .card.me { border-color: var(--me); }
+  .card.later { border-style: dashed; border-color: var(--border); box-shadow: none; }
+  .group-title { margin: 1.1rem 0 .5rem; font-size: .78rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 800; }
+
+  /* ---------- pills ---------- */
+  .pill { display: inline-flex; align-items: center; gap: .25rem; border-radius: 999px; padding: .02rem .55rem; font-size: .74rem; font-weight: 800; white-space: nowrap; line-height: 1.5; }
+  .st-done { background: var(--done-bg); color: var(--done); } .st-progress { background: var(--prog-bg); color: var(--prog); }
+  .st-todo { background: var(--todo-bg); color: var(--todo); } .st-waiting { background: var(--wait-bg); color: var(--wait); } .st-later { background: var(--later-bg); color: var(--later); }
+  .ow-you { background: var(--you-bg); color: var(--you); } .ow-me { background: var(--me-bg); color: var(--me); } .ow-both { background: var(--both-bg); color: var(--both); } .ow-external { background: var(--ext-bg); color: var(--ext); } .ow-none { display: none; }
+  .tag { border: 1.5px solid var(--border); border-radius: 999px; padding: 0 .5rem; font-size: .74rem; color: var(--muted); white-space: nowrap; }
+
+  /* ---------- toolbar ---------- */
+  .toolbar { position: sticky; top: 3.2rem; z-index: 10; background: var(--bg); padding: .6rem 0; display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; border-bottom: 1.5px solid var(--border); }
+  .search { flex: 1 1 220px; border: 2px solid var(--line); border-radius: 12px; background: var(--surface); padding: .4rem .8rem; min-width: 0; }
+  .chip { border: 2px solid var(--line); border-radius: 999px; background: var(--surface); padding: .22rem .75rem; cursor: pointer; font-weight: 700; font-size: .85rem; }
+  .chip[aria-pressed="true"] { background: var(--duck); color: var(--duck-ink); }
+  .chip small { opacity: .75; font-weight: 600; }
+  .linkbtn { background: none; border: 0; color: var(--focus); cursor: pointer; font-weight: 700; padding: .2rem .4rem; }
+
+  /* ---------- phases ---------- */
+  details.phase { background: var(--surface); border: 2px solid var(--line); border-radius: 16px; margin: .9rem 0; box-shadow: var(--shadow); overflow: clip; }
+  details.phase > summary { list-style: none; cursor: pointer; padding: .85rem 1rem; display: grid; grid-template-columns: auto 1fr auto; gap: .2rem .8rem; align-items: center; }
+  details.phase > summary::-webkit-details-marker { display: none; }
+  .pnum { background: var(--duck); color: var(--duck-ink); font-weight: 900; border-radius: 10px; padding: .15rem .6rem; font-size: .85rem; border: 2px solid var(--line); }
+  .ptitle { font-weight: 900; font-size: 1.05rem; letter-spacing: -.01em; }
+  .pmeta { color: var(--muted); font-size: .82rem; text-align: right; }
+  .psum { grid-column: 2 / 4; color: var(--muted); font-size: .88rem; margin: 0; }
+  .pbar { grid-column: 1 / 4; margin-top: .3rem; }
+  .chev { transition: transform .15s; display: inline-block; margin-right: .2rem; }
+  details[open] > summary .chev { transform: rotate(90deg); }
+  .items { list-style: none; margin: 0; padding: 0 .6rem .7rem; }
+  details.item { border-top: 1.5px solid var(--border); }
+  details.item > summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: 2.6rem 1fr auto; gap: .5rem; align-items: start; padding: .55rem .4rem; border-radius: 8px; }
+  details.item > summary::-webkit-details-marker { display: none; }
+  details.item > summary:hover { background: var(--surface-2); }
+  .iid { color: var(--muted); font-size: .8rem; font-weight: 700; padding-top: .12rem; }
+  .iname { font-weight: 700; }
+  .iname.done { font-weight: 600; }
+  .itags { display: flex; flex-wrap: wrap; gap: .3rem; justify-content: flex-end; max-width: 330px; }
+  .ibody { padding: .1rem .5rem .8rem 3.2rem; font-size: .9rem; color: var(--muted); display: grid; gap: .4rem; }
+  .ibody p { margin: 0; } .ibody b { color: var(--text); }
+  .ibody ol { margin: 0; padding-left: 1.2rem; color: var(--text); } .ibody li { margin: .15rem 0; }
+  .hidden { display: none !important; }
+  .empty { padding: 1rem; color: var(--muted); text-align: center; }
+
+  /* ---------- scorecard / tables ---------- */
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: .8rem; }
+  .kpi { background: var(--surface); border: 2px solid var(--line); border-radius: 14px; padding: .8rem 1rem; box-shadow: var(--shadow); }
+  .kpi .v { font-size: 1.5rem; font-weight: 900; letter-spacing: -.02em; }
+  .kpi .k { font-weight: 700; } .kpi .d { color: var(--muted); font-size: .82rem; }
+  .tablewrap { overflow-x: auto; border: 2px solid var(--line); border-radius: 14px; background: var(--surface); box-shadow: var(--shadow); }
+  table { border-collapse: collapse; width: 100%; font-size: .88rem; }
+  th, td { text-align: left; padding: .45rem .7rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { background: var(--surface-2); font-size: .76rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); position: sticky; top: 0; }
+  tr:last-child td { border-bottom: 0; }
+  .timeline { list-style: none; margin: 0; padding: 0 0 0 1.1rem; border-left: 3px solid var(--line); display: grid; gap: .9rem; }
+  .timeline li { position: relative; } .timeline li::before { content: ""; position: absolute; left: -1.62rem; top: .35rem; width: .8rem; height: .8rem; border-radius: 50%; background: var(--duck); border: 2px solid var(--line); }
+  .timeline .d { font-weight: 800; font-size: .82rem; color: var(--muted); } .timeline p { margin: .1rem 0 0; }
+  .howto { background: var(--surface-2); border: 2px dashed var(--border); border-radius: 14px; padding: .8rem 1rem; color: var(--muted); font-size: .88rem; }
+  .howto b { color: var(--text); }
+  footer { color: var(--muted); font-size: .82rem; margin-top: 2.5rem; border-top: 1.5px solid var(--border); padding-top: 1rem; }
+
+  @media (max-width: 640px) {
+    details.item > summary { grid-template-columns: 2.2rem 1fr; } .itags { grid-column: 2; justify-content: flex-start; max-width: none; }
+    .ibody { padding-left: .5rem; } .pmeta { grid-column: 2 / 4; text-align: left; } .topbar-in { flex-wrap: wrap; } .nav { order: 3; flex: 1 0 100%; padding-bottom: .2rem; } .brand { flex: 1; }
+  }
+  @media print { .topbar, .toolbar, .toggle { display: none; } details > * { display: block !important; } body { background: #fff; color: #000; } }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .stat:hover { transform: none; } }
+</style>
+</head>
+<body>
+<div class="topbar"><div class="topbar-in">
+  <span class="brand">🦆 <b>iDuckConvert</b> status</span>
+  <nav class="nav" id="nav" aria-label="Sections"></nav>
+  <button class="toggle" id="theme" type="button" aria-label="Switch colour theme"><span id="themeIcon">🖥️</span> <span id="themeLabel">System</span></button>
+</div></div>
+
+<main class="wrap">
+  <header class="hero">
+    <h1>Where <mark>iDuckConvert</mark> stands</h1>
+    <p class="sub">Every phase and every item: what is done, what is next, what only you can do, and what I can do on my own. Click a count to filter, click an item to see the details and exact steps.</p>
+    <div class="meta">
+      <span>Last verified <b id="verified"></b></span>
+      <span>Site: <a id="siteLink" href="https://iduckconvert.com" target="_blank" rel="noopener">iduckconvert.com</a></span>
+      <span>Repo: <a id="repoLink" target="_blank" rel="noopener"></a></span>
+      <span>Release flow: <b>branch, pull request, merge on green CI</b></span>
+    </div>
+  </header>
+
+  <div class="overall" id="overall"></div>
+  <div class="stats" id="stats"></div>
+
+  <section id="you" data-nav="Needs you">
+    <h2>Pending from you <span class="count" id="youCount"></span></h2>
+    <p class="lede">Things I cannot do for you: accounts, secrets, decisions and anything that needs your sign-in. The number counts what you can act on today, most useful first. Where I can do the mechanical part, the card says so.</p>
+    <div id="youGroups"></div>
+  </section>
+
+  <section id="me" data-nav="I can do">
+    <h2>What I can do on my own <span class="count" id="meCount"></span></h2>
+    <p class="lede">No input needed from you. Each one goes on its own branch and pull request and is merged when CI is green, as agreed. Ranked by value for the effort.</p>
+    <div class="grid" id="meGrid"></div>
+  </section>
+
+  <section id="phases" data-nav="Phases">
+    <h2>All phases and items</h2>
+    <p class="lede">The full list, nothing hidden. Filter by who owns it or by state.</p>
+    <div class="toolbar" role="search">
+      <input class="search" id="q" type="search" placeholder="Search items, e.g. sitemap, Cloudflare, HEIC…" aria-label="Search items">
+      <span id="chips" role="group" aria-label="Filter"></span>
+      <button class="linkbtn" id="expand" type="button">Expand all</button>
+      <button class="linkbtn" id="collapse" type="button">Collapse all</button>
+    </div>
+    <div id="phaseList"></div>
+  </section>
+
+  <section id="quality" data-nav="Scorecard">
+    <h2>Quality scorecard</h2>
+    <p class="lede">Measured, not estimated. Mobile Lighthouse uses throttled CPU and network, which is deliberately harsh.</p>
+    <div class="kpis" id="kpis"></div>
+  </section>
+
+  <section id="tools" data-nav="Tools">
+    <h2>Every tool and its URL <span class="count" id="toolCount"></span></h2>
+    <p class="lede">Every planned tool and the keyword URL it will live at. A row moves from Planned to Built in the same pull request that ships the tool.</p>
+    <div class="toolbar"><input class="search" id="tq" type="search" placeholder="Filter tools or URLs…" aria-label="Filter tools"><span id="tchips" role="group" aria-label="Tool state"></span></div>
+    <div class="tablewrap"><table><thead><tr><th>Tool</th><th>Category</th><th>URL</th><th>State</th></tr></thead><tbody id="toolRows"></tbody></table></div>
+  </section>
+
+  <section id="decisions" data-nav="Decisions">
+    <h2>Decisions on record</h2>
+    <p class="lede">Settled, so nobody has to ask again.</p>
+    <div class="grid" id="decisionGrid"></div>
+  </section>
+
+  <section id="timeline" data-nav="Shipped when">
+    <h2>What shipped when</h2>
+    <ol class="timeline" id="timelineList"></ol>
+  </section>
+
+  <section>
+    <div class="howto"><b>Keeping this page current.</b> It is <code>docs/status.html</code>, a single file with no external requests, so it opens straight from disk. Item data lives in the <code>PHASES</code> array and the tool table in <code>TOOLS_DATA</code>, both near the bottom. Update it in the same pull request that changes the work.</div>
+  </section>
+
+  <footer>iDuckConvert · iduckconvert.com · operated by Basic App Company · this page is internal and not part of the website.</footer>
+</main>
+
+<script>
+/* ===================================================================================================================
+   DATA. Edit here. States: done | progress | todo | waiting | later.  Owners: me | you | both | external | none.
+   "me" = I can do it with no input. "you" = only you can. "both" = I do the mechanics, you sign in / approve / supply a secret.
+   =================================================================================================================== */
+const VERIFIED = "13 Nov 2026 (measured on the build-shell branch before merge: type check 0 errors, lint clean, 42 unit tests in 2 files, 26 browser tests pass in 1 file including real ffmpeg conversions; 74 pages built; live site not deployed yet)";
+const REPO = "https://github.com/basicappcompany/iduckconvert";
+
+/* Tools. A row is "ready" only if its page exists on main and answers on https://iduckconvert.com. Move a planned row to "ready" in the same PR that ships it.
+   status: ready | soon | link (lives on a sister site; "to" says which). */
+const T = (category, icon, rows) => rows.map(([slug, name, status = "ready", to = ""]) => ({ id: slug, name, icon, category, slug, status, to }));
+const TOOLS_DATA = [
+  ...T("Audio", "🎵", [
+    ["mp3-to-wav", "MP3 to WAV"], ["wav-to-mp3", "WAV to MP3"], ["m4a-to-mp3", "M4A to MP3"], ["aac-to-mp3", "AAC to MP3"],
+    ["ogg-to-mp3", "OGG to MP3"], ["flac-to-mp3", "FLAC to MP3"], ["opus-to-mp3", "OPUS to MP3"], ["mp3-to-ogg", "MP3 to OGG"],
+    ["mp3-to-m4a", "MP3 to M4A"], ["wav-to-flac", "WAV to FLAC"], ["flac-to-wav", "FLAC to WAV"], ["m4a-to-wav", "M4A to WAV"],
+    ["video-to-mp3", "Video to MP3"], ["mp4-to-mp3", "MP4 to MP3"],
+  ]),
+  ...T("Video", "🎬", [
+    ["mp4-to-webm", "MP4 to WEBM"], ["webm-to-mp4", "WEBM to MP4"], ["mov-to-mp4", "MOV to MP4"], ["mkv-to-mp4", "MKV to MP4"],
+    ["avi-to-mp4", "AVI to MP4"], ["mov-to-webm", "MOV to WEBM"], ["mkv-to-webm", "MKV to WEBM"], ["avi-to-webm", "AVI to WEBM"],
+    ["video-to-gif", "Video to GIF"], ["gif-to-mp4", "GIF to MP4"], ["compress-video", "Compress video"], ["trim-video", "Trim video"],
+  ]),
+  ...T("Images", "🖼️", [
+    ["heic-to-jpg", "HEIC to JPG", "link", "iDuckIMG"], ["avif-to-jpg", "AVIF to JPG", "link", "iDuckIMG"], ["avif-to-png", "AVIF to PNG", "link", "iDuckIMG"],
+    ["svg-to-png", "SVG to PNG", "link", "iDuckIMG"], ["png-to-ico", "PNG to ICO (favicon)", "link", "iDuckIMG"], ["bmp-to-jpg", "BMP to JPG", "link", "iDuckIMG"],
+    ["tiff-to-jpg", "TIFF to JPG"], ["webp-to-gif", "WEBP to GIF"],
+  ]),
+  ...T("Data & documents", "📊", [
+    ["csv-to-excel", "CSV to Excel"], ["excel-to-csv", "Excel to CSV"], ["csv-to-json", "CSV to JSON"], ["json-to-csv", "JSON to CSV"],
+    ["json-to-xml", "JSON to XML"], ["xml-to-json", "XML to JSON"], ["yaml-to-json", "YAML to JSON"], ["json-to-yaml", "JSON to YAML"],
+    ["markdown-to-html", "Markdown to HTML"], ["html-to-markdown", "HTML to Markdown"], ["text-encoding-fixer", "Text encoding fixer"],
+  ]),
+  ...T("Units", "📏", [
+    ["length-converter", "Length"], ["weight-converter", "Weight"], ["temperature-converter", "Temperature"], ["area-converter", "Area"],
+    ["volume-converter", "Volume"], ["speed-converter", "Speed"], ["time-unit-converter", "Time units"], ["data-size-converter", "Data size (KB, MB, GB)"],
+    ["pressure-converter", "Pressure"], ["energy-converter", "Energy"], ["indian-land-converter", "Indian land units (bigha, gaj, acre)"],
+  ]),
+  ...T("Numbers & text", "🔢", [
+    ["number-base-converter", "Number bases"], ["number-to-words", "Number to words"], ["roman-numeral-converter", "Roman numerals"],
+    ["text-case-converter", "Text case"], ["color-code-converter", "Colour codes (HEX, RGB, HSL)"],
+  ]),
+  ...T("Time & money", "🌍", [
+    ["time-zone-converter", "Time zone converter"], ["date-format-converter", "Date format converter"],
+  ]),
+];
+
+const I = (id, name, state, owner, o = {}) => Object.assign({ id, name, state, owner }, o);
+
+const PHASES = [
+  { num: 0, name: "Setup", summary: "Account check, study of the sister sites, the repo and this page.", items: [
+    I("0.1", "GitHub account check", "done", "none", { when: "13 Nov", note: "Signed in as `basicappcompany`; `the business mailbox` is the primary verified email (Settings > Emails). No password typed, no account created." }),
+    I("0.2", "Read the sister repos (iduckpdf, iDuckImg)", "done", "none", { when: "13 Nov", note: "iduckpdf is an Expo app, iDuckImg is a static Astro site. iDuckImg is the base because it has clean URLs, SEO files, Cloudflare Pages config and CI, and its own CLAUDE.md says it copies iDuckPDF's look." }),
+    I("0.3", "Create the private repo and PROGRESS.md", "done", "none", { when: "13 Nov", note: "`basicappcompany/iduckconvert`, private like iduckpdf. The first commit went straight to main because the repo was empty; everything after goes by branch and pull request." }),
+    I("0.4", "This status page", "done", "none", { when: "13 Nov", note: "`docs/status.html`, copied from iDuckImg's page. Update it in the same pull request as the work." }),
+    I("0.5", "Look at the live sites in the browser (dark, light, phone width)", "done", "none", { when: "13 Nov", prio: 1, note: "So far only the code has been read. Open iduckpdf.com and iduckimg.com: home, a tool, settings, about, roadmap, request, feedback, donate, privacy, terms." }),
+    I("0.6", "Overlap list with iDuckPDF and iDuckIMG", "done", "none", { when: "13 Nov", note: "iDuckIMG already converts HEIC, AVIF, SVG and BMP to JPG or PNG and has a favicon tool, so those become link cards (see the Tools table). No PDF conversion is rebuilt." }),
+  ]},
+  { num: 1, name: "Site shell", summary: "Theme, sidebar, search, language switch and the shared pages, copied from iDuckImg and trimmed.", items: [
+    I("1.1", "Astro 7 project, pinned versions, CI, headers and redirects", "done", "none", { when: "13 Nov", prio: 1 }),
+    I("1.2", "Theme tokens, AppShell, top bar, sidebar with › groups, footer", "done", "none", { when: "13 Nov", prio: 1, note: "Same palette and theme colour (#121212 in dark mode) as the sister sites." }),
+    I("1.3", "Ctrl K search window and the theme toggle", "done", "none", { when: "13 Nov" }),
+    I("1.4", "Language switch: EN-US and TR only", "todo", "me", { note: "iDuckImg ships 11 languages; this site trims that to two. Turkish text is machine-written until a person reads it." }),
+    I("1.5", "Home page: Popular right now, All N tools with chips, New and next, trust cards, guides, FAQ, Support call-out", "done", "none", { when: "13 Nov", prio: 2 }),
+    I("1.6", "Helper chat", "done", "none", { when: "13 Nov" }),
+    I("1.7", "Converter page template: H1, steps, 4 to 6 FAQs with FAQPage data, 3 related links", "done", "none", { when: "13 Nov", prio: 1 }),
+    I("1.8", "Link cards to sister-site tools (\"on iDuckIMG\", \"on iDuckPDF\")", "done", "none", { when: "13 Nov" }),
+  ]},
+  { num: 2, name: "Audio", summary: "Fourteen conversions plus video to MP3. Browser-side with ffmpeg.wasm.", items: [
+    I("2.1", "Shared ffmpeg.wasm engine: pinned CDN version, single-thread core, progress bar, size warning", "done", "none", { when: "13 Nov", prio: 2, note: "Single-thread core so no special server headers are needed. Suggested limits 500 MB desktop, 100 MB phone." }),
+    I("2.2", "Audio converters (MP3, WAV, M4A, AAC, OGG, FLAC, OPUS)", "done", "none", { when: "13 Nov" }),
+    I("2.3", "Video to MP3 and MP4 to MP3", "done", "none", { when: "13 Nov", prio: 2, note: "On the Popular list." }),
+  ]},
+  { num: 3, name: "Video", summary: "Format changes, GIF, compress and trim.", items: [
+    I("3.1", "MP4, MOV, WEBM, MKV, AVI conversions", "done", "none", { when: "13 Nov" }),
+    I("3.2", "Video to GIF and GIF to MP4", "done", "none", { when: "13 Nov", prio: 2, note: "Video to GIF is on the Popular list." }),
+    I("3.3", "Compress video and trim video", "done", "none", { when: "13 Nov" }),
+    I("3.4", "Check on a real phone that large files fail gracefully", "todo", "you", { note: "Only you have the phone; I can test desktop Chrome." }),
+  ]},
+  { num: 4, name: "Images", summary: "Only what iDuckIMG does not have; the rest link out.", items: [
+    I("4.1", "TIFF to JPG", "done", "none", { when: "13 Nov" }),
+    I("4.2", "WEBP to GIF", "done", "none", { when: "13 Nov" }),
+    I("4.3", "Link cards: HEIC, AVIF, SVG, BMP, PNG to ICO on iDuckIMG", "done", "none", { when: "13 Nov", note: "HEIC to JPG is on your Popular list but iDuckIMG already has it, so its card links there." }),
+  ]},
+  { num: 5, name: "Data and documents", summary: "Spreadsheet, JSON, XML, YAML, Markdown and text tools.", items: [
+    I("5.1", "CSV and Excel (SheetJS)", "done", "none", { when: "13 Nov", prio: 2, note: "CSV to Excel is on the Popular list." }),
+    I("5.2", "JSON, CSV, XML and YAML conversions", "done", "none", { when: "13 Nov" }),
+    I("5.3", "Markdown and HTML, text encoding fixer", "done", "none", { when: "13 Nov" }),
+  ]},
+  { num: 6, name: "Units", summary: "Eleven converters, including Indian land units.", items: [
+    I("6.1", "Length, weight, temperature, area, volume, speed, time, data size, pressure, energy", "done", "none", { when: "13 Nov", prio: 2, note: "Length is on the Popular list." }),
+    I("6.2", "Indian land units with a note that a bigha differs by state", "done", "none", { when: "13 Nov" }),
+  ]},
+  { num: 7, name: "Numbers and text", summary: "Bases, words, Roman numerals, case and colours.", items: [
+    I("7.1", "Number bases, Roman numerals, text case, colour codes", "done", "none", { when: "13 Nov" }),
+    I("7.2", "Number to words (Indian and international styles)", "done", "none", { when: "13 Nov", prio: 2, note: "On the Popular list." }),
+  ]},
+  { num: 8, name: "Time and money", summary: "Time zones and date formats. Currency only with a free keyless source.", items: [
+    I("8.1", "Time zone converter and date format converter", "done", "none", { when: "13 Nov", prio: 2, note: "Time zone converter is on the Popular list." }),
+    I("8.2", "Live currency converter", "later", "me", { note: "Only if a free, reliable rate source with no API key exists; it would show when the rates were last updated. Not built by default." }),
+  ]},
+  { num: 9, name: "Site pages and SEO", summary: "Everything around the tools.", items: [
+    I("9.1", "All converters, about, roadmap, request, feedback, donate, settings, privacy, terms", "done", "none", { when: "13 Nov" }),
+    I("9.2", "Four starter guides", "done", "none", { when: "13 Nov", note: "Audio from a video, HEIC vs JPG, CSV in Excel, units without mistakes." }),
+    I("9.3", "sitemap.xml, robots.txt, canonical, Open Graph, Twitter tags, favicon, 1200x630 og.png", "done", "none", { when: "13 Nov" }),
+    I("9.4", "Cross-links to iDuckPDF, iDuckIMG and iDuckCalculator", "progress", "you", { note: "iDuckPDF and iDuckIMG are linked in the sidebar and footer. iDuckCalculator exists locally (basicappcompany/iduckcalculator) but iduckcalculator.com currently redirects to a parked registrar page, so no link is shown. Once it is deployed, add it in the sidebar and footer of AppShell.astro." }),
+  ]},
+  { num: 10, name: "Quality and launch", summary: "Tests, then going live.", items: [
+    I("10.1", "Test every converter with a small sample file", "done", "none", { when: "13 Nov", prio: 2 }),
+    I("10.2", "Dark and light, phone width, Ctrl K, language switch, no broken links, no console errors", "todo", "me"),
+    I("10.3", "Create the Cloudflare Pages project and connect the repo", "todo", "you", { prio: 1, note: "Needs your Cloudflare sign-in. Build settings will be listed here once the Astro project exists (iDuckImg: build command `pnpm build`, output `dist`, Node 22)." }),
+    I("10.4", "Point iduckconvert.com at Cloudflare", "todo", "you", { note: "Needs the domain registrar or Cloudflare DNS. Not checked whether the domain is registered yet." }),
+    I("10.6", "Email Routing for hello@ and feedback@iduckconvert.com", "todo", "you", { note: "Same pattern as iDuckImg: receive-only Cloudflare Email Routing addresses that forward to the business inbox, no catch-all. Needs the domain on Cloudflare and your sign-in. The site will use `hello@` for general questions and `feedback@` for the feedback and request forms." }),
+    I("10.5", "Read the Turkish text", "later", "you", { note: "A person who reads Turkish should check it before it is marked reviewed." }),
+  ]},
+];
+
+const DECISIONS = [
+  ["Base", "Fork of iDuckImg's Astro setup (Astro 7 static, Preact islands for tools, Tailwind 4, pnpm, Cloudflare Pages), not iDuckPDF's Expo app.", "13 Nov"],
+  ["Visibility", "Private repo, the same as iduckpdf.", "13 Nov"],
+  ["Release flow", "Branch, pull request, merge on green CI. The one exception was the first commit on an empty repo.", "13 Nov"],
+  ["Privacy promise", "Everything runs in the browser and nothing is uploaded. Show \"files never leave your browser\" only where that is true.", "13 Nov"],
+  ["Overlap", "Never rebuild a tool a sister site has. Add a card that links to it. All PDF conversions belong to iDuckPDF.", "13 Nov"],
+  ["Video engine", "ffmpeg.wasm from a pinned CDN version, single-thread core, so no cross-origin isolation headers are needed.", "13 Nov"],
+  ["Languages", "EN-US and TR only.", "13 Nov"],
+  ["Contact addresses", "hello@iduckconvert.com for general questions and feedback@iduckconvert.com for the feedback and request forms (given by the owner).", "13 Nov"],
+];
+
+const TIMELINE = [
+  ["13 Nov 2026", "Account checked, sister repos read", "Signed in as basicappcompany with the right primary email; iduckpdf and iDuckImg read for conventions."],
+  ["13 Nov 2026", "Repo created", "Private `basicappcompany/iduckconvert` with `PROGRESS.md`."],
+  ["13 Nov 2026", "Status page created", "This file."],
+];
+
+const SCORECARD = [
+  { k: "Unit tests", v: "42", d: "In 2 files: CSV, JSON, XML, YAML and Markdown conversion, number bases, number to words, Roman numerals, text case, colour codes, every unit table, time zones with daylight saving, date formats, the tool registry, page content, guides, ffmpeg arguments and the helper. All pass locally." },
+  { k: "Browser tests", v: "26", d: "Playwright in Chrome against the production build. Real files in, real files out: WAV to MP3 and FLAC, WEBM to MP4, MP4 to MP3, video to GIF and back to MP4, compress and trim, CSV to Excel and back, TIFF to JPG, WEBP to GIF, the encoding fixer, every calculator, a broken file, a ZIP batch, search, theme and the 404 page. MOV, MKV and AVI inputs share the same code as WEBM to MP4 and are not each tested with a real file of that type." },
+  { k: "Tools", v: "57 built of 57", d: "57 converters are built plus 6 link cards to iDuckIMG (63 rows in the Tools table). None is live on the internet until Cloudflare Pages is connected (10.3)." },
+  { k: "Live site", v: "Not deployed", d: "No Cloudflare project yet (10.3). Runs locally with pnpm preview." },
+];
+
+const STATE_LABEL = { done: "Done", progress: "In progress", todo: "To do", waiting: "Waiting", later: "Later" };
+const OWNER_LABEL = { me: "Me", you: "You", both: "Both", external: "External", none: "" };
+const OWNER_LONG = { me: "I can do this alone", you: "Needs you", both: "I do the mechanics, you approve or sign in", external: "Someone else", none: "" };
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const fmt = (s) => esc(s).replace(/`([^`]+)`/g, "<code>$1</code>");
+const $ = (id) => document.getElementById(id);
+
+const ALL = PHASES.flatMap((p) => p.items.map((i) => Object.assign({ phase: p.num, phaseName: p.name }, i)));
+const mine = (i) => i.owner === "you" || i.owner === "both";
+const needsYou = (i) => mine(i) && (i.state === "todo" || i.state === "progress"); // actionable now
+const notYet = (i) => mine(i) && (i.state === "later" || i.state === "waiting"); // yours, but not actionable yet
+const canDo = (i) => i.state !== "done" && i.owner === "me" && i.state !== "later" && i.state !== "waiting";
+const count = (f) => ALL.filter(f).length;
+const prio = (i) => i.prio || 9;
+
+/* ---------- theme ---------- */
+const THEMES = { system: ["🖥️", "System", "light"], light: ["☀️", "Light", "dark"], dark: ["🌙", "Dark", "system"] };
+const getTheme = () => { try { return localStorage.getItem("iduckconvert-status-theme") || "system"; } catch (e) { return "system"; } };
+function setTheme(t) {
+  if (t === "system") document.documentElement.removeAttribute("data-theme"); else document.documentElement.setAttribute("data-theme", t);
+  try { t === "system" ? localStorage.removeItem("iduckconvert-status-theme") : localStorage.setItem("iduckconvert-status-theme", t); } catch (e) {}
+  $("themeIcon").textContent = THEMES[t][0]; $("themeLabel").textContent = THEMES[t][1];
+}
+setTheme(getTheme());
+$("theme").addEventListener("click", () => setTheme(THEMES[getTheme()][2]));
+
+/* ---------- header, stats ---------- */
+$("verified").textContent = VERIFIED;
+$("repoLink").href = REPO; $("repoLink").textContent = REPO.replace("https://github.com/", "");
+
+let filter = "all", query = "";
+const FILTERS = [
+  ["all", "All", () => true], ["you", "Needs you", needsYou], ["me", "I can do", canDo],
+  ["todo", "To do", (i) => i.state === "todo" || i.state === "progress"], ["waiting", "Waiting", (i) => i.state === "waiting"],
+  ["later", "Later", (i) => i.state === "later"], ["done", "Done", (i) => i.state === "done"],
+];
+
+function renderStats() {
+  const total = ALL.length, done = count((i) => i.state === "done");
+  const pct = Math.round((done / total) * 100);
+  const seg = (s) => count((i) => i.state === s);
+  const w = (n) => ((n / total) * 100).toFixed(2) + "%";
+  $("overall").innerHTML = `<div class="top"><span>Overall: ${done} of ${total} items done (${pct}%)</span><span class="mono">${PHASES.length} phases</span></div>
+    <div class="bar" role="img" aria-label="${done} done, ${seg("progress")} in progress, ${seg("todo")} to do, ${seg("waiting")} waiting, ${seg("later")} later">
+      <i class="d" style="width:${w(done)}"></i><i class="p" style="width:${w(seg("progress"))}"></i><i class="t" style="width:${w(seg("todo"))}"></i><i class="w" style="width:${w(seg("waiting"))}"></i><i class="x" style="width:${w(seg("later"))}"></i></div>
+    <div class="legend"><span style="--c:var(--done)">Done ${done}</span><span style="--c:var(--prog)">In progress ${seg("progress")}</span><span style="--c:var(--todo)">To do ${seg("todo")}</span><span style="--c:var(--wait)">Waiting ${seg("waiting")}</span><span style="--c:var(--later)">Later ${seg("later")}</span></div>`;
+  const youN = count(needsYou), meN = count(canDo);
+  const cards = [
+    ["you", youN, "Pending from you, actionable now", "hot"], ["me", meN, "I can do on my own", ""], ["todo", count((i) => i.state === "todo" || i.state === "progress"), "Open items", ""],
+    ["waiting", count((i) => i.state === "waiting"), "Waiting on something", ""], ["later", count((i) => i.state === "later"), "Parked for later", ""], ["done", done, "Done", ""],
+  ];
+  $("stats").innerHTML = cards.map(([f, n, l, c]) => `<button class="stat ${c}" type="button" data-f="${f}"><div class="n">${n}</div><div class="l">${l}</div></button>`).join("");
+  $("stats").querySelectorAll("button").forEach((b) => b.addEventListener("click", () => { setFilter(b.dataset.f); $("phases").scrollIntoView(); }));
+  $("youCount").textContent = youN; $("meCount").textContent = meN;
+}
+
+/* ---------- pending from you / what I can do ---------- */
+const pills = (i) => `<span class="pill st-${i.state}">${STATE_LABEL[i.state]}</span>${i.owner !== "none" ? `<span class="pill ow-${i.owner}" title="${esc(OWNER_LONG[i.owner])}">${OWNER_LABEL[i.owner]}</span>` : ""}`;
+function card(i, cls) {
+  const steps = i.steps ? `<ol>${i.steps.map((s) => `<li>${fmt(s)}</li>`).join("")}</ol>` : "";
+  return `<article class="card ${cls}"><h3><span class="mono" style="color:var(--muted)">${i.id}</span> ${esc(i.name)}</h3>${i.note ? `<p>${fmt(i.note)}</p>` : ""}${steps}
+    <div class="foot">${pills(i)}${i.effort ? `<span class="tag">${esc(i.effort)}</span>` : ""}${i.decision ? `<span class="tag">decision</span>` : ""}<span class="tag">Phase ${i.phase}</span></div></article>`;
+}
+function renderYou() {
+  const list = ALL.filter(needsYou).sort((a, b) => prio(a) - prio(b) || a.id.localeCompare(b.id, undefined, { numeric: true }));
+  const minutes = (i) => { const m = /^(\d+)\s*min/.exec(i.effort || ""); return m ? Number(m[1]) : 999; };
+  const quick = list.filter((i) => minutes(i) <= 10 && !i.decision);
+  const decisions = list.filter((i) => i.decision);
+  const rest = list.filter((i) => !quick.includes(i) && !decisions.includes(i));
+  const later = ALL.filter(notYet).sort((a, b) => a.id.localeCompare(b.id, undefined, { numeric: true }));
+  const group = (t, a, cls = "you") => a.length ? `<div class="group-title">${t} (${a.length})</div><div class="grid">${a.map((i) => card(i, cls)).join("")}</div>` : "";
+  $("youGroups").innerHTML = group("Quick wins: 10 minutes or less", quick) + group("Decisions only you can make", decisions) + group("Accounts, secrets, posting and longer tasks", rest)
+    + group("Yours, but not actionable yet (waiting on something, or parked for later)", later, "later");
+}
+function renderMe() {
+  const list = ALL.filter(canDo).sort((a, b) => prio(a) - prio(b) || a.id.localeCompare(b.id, undefined, { numeric: true }));
+  $("meGrid").innerHTML = list.map((i, n) => card(i, "me").replace('<h3>', `<h3><span class="pill st-progress">#${n + 1}</span> `)).join("");
+}
+
+/* ---------- phases ---------- */
+function itemHtml(i) {
+  const steps = i.steps ? `<div><b>Steps</b><ol>${i.steps.map((s) => `<li>${fmt(s)}</li>`).join("")}</ol></div>` : "";
+  const body = [i.note ? `<p>${fmt(i.note)}</p>` : "", i.blockedBy ? `<p><b>Waiting for:</b> ${esc(i.blockedBy)}</p>` : "", steps,
+    `<p><b>Who:</b> ${esc(OWNER_LONG[i.owner] || "Nobody, it is finished")}${i.when ? ` · <b>Shipped:</b> ${esc(i.when)}` : ""}${i.effort ? ` · <b>Effort:</b> ${esc(i.effort)}` : ""}</p>`].join("");
+  const tags = pills(i) + (i.effort && i.state !== "done" ? `<span class="tag">${esc(i.effort)}</span>` : "") + (i.when && i.state === "done" ? `<span class="tag">${esc(i.when)}</span>` : "") + (i.decision ? `<span class="tag">decision</span>` : "");
+  return `<li><details class="item" data-id="${i.id}"><summary><span class="iid">${i.id}</span><span class="iname ${i.state}">${esc(i.name)}</span><span class="itags">${tags}</span></summary><div class="ibody">${body}</div></details></li>`;
+}
+function renderPhases() {
+  $("phaseList").innerHTML = PHASES.map((p) => {
+    const its = ALL.filter((i) => i.phase === p.num), done = its.filter((i) => i.state === "done").length, n = its.length;
+    const s = (st) => its.filter((i) => i.state === st).length, w = (x) => ((x / n) * 100).toFixed(2) + "%";
+    const you = its.filter(needsYou).length;
+    return `<details class="phase" data-phase="${p.num}" ${done < n ? "open" : ""}><summary>
+      <span class="pnum">PHASE ${p.num}</span><span class="ptitle"><span class="chev">▸</span>${esc(p.name)}</span>
+      <span class="pmeta">${done}/${n} done${you ? ` · <b style="color:var(--you)">${you} need you</b>` : ""}</span>
+      <p class="psum">${esc(p.summary)}</p>
+      <div class="pbar bar" role="img" aria-label="${done} of ${n} done"><i class="d" style="width:${w(done)}"></i><i class="p" style="width:${w(s("progress"))}"></i><i class="t" style="width:${w(s("todo"))}"></i><i class="w" style="width:${w(s("waiting"))}"></i><i class="x" style="width:${w(s("later"))}"></i></div>
+      </summary><ul class="items">${its.map(itemHtml).join("")}<li class="empty hidden">No items match this filter.</li></ul></details>`;
+  }).join("");
+  applyFilter();
+}
+function applyFilter() {
+  const f = FILTERS.find((x) => x[0] === filter)[2], q = query.trim().toLowerCase();
+  document.querySelectorAll("#phaseList details.phase").forEach((ph) => {
+    let shown = 0;
+    ph.querySelectorAll("details.item").forEach((d) => {
+      const i = ALL.find((x) => x.id === d.dataset.id);
+      const hay = [i.id, i.name, i.note, i.effort, i.owner, i.state, (i.steps || []).join(" ")].join(" ").toLowerCase();
+      const ok = f(i) && (!q || hay.includes(q));
+      d.parentElement.classList.toggle("hidden", !ok); if (ok) shown++;
+    });
+    ph.classList.toggle("hidden", shown === 0);
+    if (q || filter !== "all") ph.open = shown > 0;
+  });
+}
+function renderChips() {
+  $("chips").innerHTML = FILTERS.map(([k, l, f]) => `<button class="chip" type="button" data-f="${k}" aria-pressed="${k === filter}">${l} <small>${count(f)}</small></button>`).join(" ");
+  $("chips").querySelectorAll("button").forEach((b) => b.addEventListener("click", () => setFilter(b.dataset.f)));
+}
+function setFilter(f) { filter = f; renderChips(); applyFilter(); }
+$("q").addEventListener("input", (e) => { query = e.target.value; applyFilter(); });
+$("expand").addEventListener("click", () => { document.querySelectorAll("#phaseList details").forEach((d) => { if (!d.classList.contains("hidden")) d.open = true; }); });
+$("collapse").addEventListener("click", () => { document.querySelectorAll("#phaseList details").forEach((d) => (d.open = false)); });
+
+/* ---------- scorecard, tools, decisions, timeline ---------- */
+$("kpis").innerHTML = SCORECARD.map((k) => `<div class="kpi"><div class="k">${esc(k.k)}</div><div class="v">${esc(k.v)}</div><div class="d">${esc(k.d)}</div></div>`).join("");
+
+let toolFilter = "all", toolQuery = "";
+function renderTools() {
+  const rows = TOOLS_DATA.filter((t) => (toolFilter === "all" || t.status === toolFilter) && (!toolQuery || (t.name + " " + t.slug + " " + t.category).toLowerCase().includes(toolQuery)));
+  $("toolCount").textContent = `${TOOLS_DATA.filter((t) => t.status === "ready").length} built · ${TOOLS_DATA.filter((t) => t.status === "soon").length} planned · ${TOOLS_DATA.filter((t) => t.status === "link").length} links`;
+  $("toolRows").innerHTML = rows.length ? rows.map((t) => `<tr><td>${esc(t.icon)} <b>${esc(t.name)}</b></td><td>${esc(t.category)}</td><td class="mono">${t.status === "ready" ? `<a href="https://iduckconvert.com/${esc(t.slug)}" target="_blank" rel="noopener">/${esc(t.slug)}</a>` : `/${esc(t.slug)}`}</td><td><span class="pill ${t.status === "ready" ? "st-done" : t.status === "link" ? "st-progress" : "st-later"}">${t.status === "ready" ? "Built" : t.status === "link" ? "Link to " + esc(t.to) : "Planned"}</span>${/^pdf-to|^word|^excel|^powerpoint|^html/.test(t.slug) && t.status !== "ready" ? "" : ""}</td></tr>`).join("") : `<tr><td colspan="4" class="empty">${TOOLS_DATA.length ? "Nothing matches." : "No tools listed yet."}</td></tr>`;
+}
+function renderToolChips() {
+  const opts = [["all", "All"], ["ready", "Built"], ["soon", "Planned"], ["link", "Sister-site links"]];
+  $("tchips").innerHTML = opts.map(([k, l]) => `<button class="chip" type="button" data-t="${k}" aria-pressed="${k === toolFilter}">${l}</button>`).join(" ");
+  $("tchips").querySelectorAll("button").forEach((b) => b.addEventListener("click", () => { toolFilter = b.dataset.t; renderToolChips(); renderTools(); }));
+}
+$("tq").addEventListener("input", (e) => { toolQuery = e.target.value.trim().toLowerCase(); renderTools(); });
+
+$("decisionGrid").innerHTML = DECISIONS.map(([t, d, w]) => `<article class="card"><h3>${esc(t)}</h3><p>${esc(d)}</p><div class="foot"><span class="tag">${esc(w)}</span></div></article>`).join("");
+$("timelineList").innerHTML = TIMELINE.slice().reverse().map(([d, t, p]) => `<li><div class="d">${esc(d)}</div><b>${esc(t)}</b><p>${esc(p)}</p></li>`).join("");
+
+/* ---------- nav with scroll spy ---------- */
+const sections = [...document.querySelectorAll("section[data-nav]")];
+$("nav").innerHTML = sections.map((s) => `<a href="#${s.id}" data-s="${s.id}">${esc(s.dataset.nav)}</a>`).join("");
+const spy = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) document.querySelectorAll("#nav a").forEach((a) => a.classList.toggle("on", a.dataset.s === e.target.id)); }), { rootMargin: "-30% 0px -60% 0px" });
+sections.forEach((s) => spy.observe(s));
+
+/* ---------- go ---------- */
+renderStats(); renderYou(); renderMe(); renderChips(); renderPhases(); renderToolChips(); renderTools();
+if (location.hash) { const d = document.querySelector(`details.item[data-id="${CSS.escape(location.hash.slice(1))}"]`); if (d) { d.open = true; d.closest("details.phase").open = true; d.scrollIntoView(); } }
+</script>
+</body>
+</html>

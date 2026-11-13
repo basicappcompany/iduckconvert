@@ -1,0 +1,15 @@
+---
+import CommunityLayout from '../components/CommunityLayout.astro';
+import FeedbackForm from '../components/FeedbackForm';
+---
+
+<CommunityLayout
+  title="Send feedback | iDuckConvert"
+  description="Tell us what broke, what could be better, or what worked well on iDuckConvert."
+  before="Tell us"
+  mark="everything"
+  intro="Something broke, something could be better, or something worked great? Write it here. It helps most when you say which tool you used and what you expected."
+  noindex
+>
+  <FeedbackForm mode="feedback" client:load />
+</CommunityLayout>
