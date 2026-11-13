@@ -24,6 +24,7 @@ Free converters that run in the browser: audio, video, spreadsheets and data, un
 - Cloudflare Pages project `iduckconvert` (build `pnpm build`, output `dist`, NODE_VERSION=22.23.4), deploys on merge to main. DNS is on Cloudflare (Free plan); the domain is registered at GoDaddy with Cloudflare nameservers. Email Routing forwards hello@ and feedback@ to the business Gmail; the catch-all drops.
 
 ## Gotchas
+- After moving a domain to Cloudflare, purge the zone cache (Caching, Configuration, Purge Everything): the edge kept a robots.txt cached from the old GoDaddy parking origin for about an hour (max-age 4 h). Check `curl -sI https://iduckconvert.com/robots.txt` for `cf-cache-status` and an `Age` that predates the cutover. iduckcalculator.com showed the same stale file when checked.
 - Cloudflare Pages returns the home page with status 200 for unknown URLs unless there is a 404 page. Keep `src/pages/404.astro`, and keep `public/_headers` limited to the `*.pages.dev` hosts (a bare `/*` rule would noindex the real site).
 - Browser components must not touch `window`/`document` while rendering (the build prerenders them).
 - Languages: English (US) only so far. Turkish is planned (status item 1.4); do not add a language switch that leads to missing pages.
