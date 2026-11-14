@@ -276,3 +276,15 @@ describe.each(MACHINE.map((l) => [l.code]))('%s converter page text', (code) => 
     }
   });
 });
+
+describe.each(MACHINE.map((l) => [l.code]))('%s converter page text is complete', (code) => {
+  it('translates every sentence of every converter page', () => {
+    const missing: string[] = [];
+    for (const t of PAGE_TOOLS) {
+      const c = contentFor(t);
+      const gap = pageStrings(c).filter((s) => translationFor(code!, s) === undefined);
+      if (gap.length) missing.push(`${t.slug}: ${gap.length} missing, first: ${gap[0]}`);
+    }
+    expect(missing).toEqual([]);
+  });
+});
