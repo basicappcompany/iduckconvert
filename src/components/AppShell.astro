@@ -2,11 +2,13 @@
 import '../styles/global.css';
 import DuckMark from './DuckMark.astro';
 import CommandPalette from './CommandPalette.astro';
-import { GROUP_EMOJI, TOOL_GROUPS, hrefFor, toolForPath, toolsInGroup } from '../lib/tools';
+import { GROUP_EMOJI, TOOLS, TOOL_GROUPS, hrefFor, toolForPath, toolsInGroup } from '../lib/tools';
 import { THEME_STORAGE_KEY } from '../lib/theme';
 import { COMMUNITY, communityPath } from '../lib/community';
 import { OG_IMAGE, SITE_NAME, serialize } from '../lib/seo';
 import { LAST_UPDATED } from '../lib/site';
+import { flagSvg } from '../i18n/flags';
+import { dictFor, format, languageLinks, localeByCode, localePath, splitLocalePath, toolText, type Alternate } from '../i18n';
 
 interface Props {
   title: string;
@@ -15,17 +17,30 @@ interface Props {
   noindex?: boolean;
   /** Structured data objects (schema.org), written as JSON-LD in the head. */
   jsonLd?: unknown[];
+  /** The language of this page: en, hi, pt-BR... English (US) is the default and lives at the root. */
+  locale?: string;
+  /** Every language version of this page, for hreflang. Empty when the page has no translations. */
+  alternates?: Alternate[];
 }
-const { title, description, noindex = false, jsonLd = [] } = Astro.props;
+const { title, description, noindex = false, jsonLd = [], locale = 'en', alternates = [] } = Astro.props;
+const loc = localeByCode(locale);
+const d = dictFor(locale);
+const lp = (p: string) => localePath(locale, p);
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
-const path = Astro.url.pathname.endsWith('/') ? Astro.url.pathname : `${Astro.url.pathname}/`;
+const fullPath = Astro.url.pathname.endsWith('/') ? Astro.url.pathname : `${Astro.url.pathname}/`;
+// The page's address without the language, so the menu and the "current page" checks work in every language.
+const { rest: path } = splitLocalePath(fullPath);
+const langLinks = languageLinks(path);
+const englishHref = alternates.find((a) => a.locale.code === 'en')?.href;
 const isHome = path === '/';
 // The group holding the current page starts open; the first group otherwise.
 const openGroup = toolForPath(path)?.group ?? TOOL_GROUPS[0];
+const POPULAR_FOOTER = ['mp4-to-mp3', 'video-to-gif', 'csv-to-excel', 'json-to-csv', 'number-to-words', 'length-converter', 'time-zone-converter'] as const;
+const popularTools = POPULAR_FOOTER.map((slug) => TOOLS.find((t) => t.slug === slug)!);
 ---
 
 <!doctype html>
-<html lang="en-US" data-theme="light">
+<html lang={loc.hreflang} data-theme="light">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -36,7 +51,9 @@ const openGroup = toolForPath(path)?.group ?? TOOL_GROUPS[0];
     <meta name="description" content={description} />
     {noindex ? <meta name="robots" content="noindex" /> : <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1" />}
     {!noindex && <link rel="canonical" href={canonical} />}
-    <meta property="og:locale" content="en_US" />
+    {!noindex && alternates.map((a) => <link rel="alternate" hreflang={a.hreflang} href={a.href} />)}
+    {!noindex && englishHref && <link rel="alternate" hreflang="x-default" href={englishHref} />}
+    <meta property="og:locale" content={loc.og} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta property="og:site_name" content={SITE_NAME} />
     <meta property="og:type" content="website" />
@@ -69,40 +86,40 @@ const openGroup = toolForPath(path)?.group ?? TOOL_GROUPS[0];
       href="#main"
       class="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-50 focus:rounded-lg focus:border-2 focus:border-line focus:bg-duck focus:px-4 focus:py-2 focus:font-black focus:text-duckink"
     >
-      Skip to the converter
+      {d.skipToTool}
     </a>
 
     <div class="shell">
-      <aside class="sidebar" id="sidebar" aria-label="Site menu">
+      <aside class="sidebar" id="sidebar" aria-label={d.siteMenu}>
         <div class="nav-scroll">
-          <a href="/" class="nav-brand" aria-label="iDuckConvert home">
+          <a href={lp('/')} class="nav-brand" aria-label={d.homeAria}>
             <DuckMark size={34} />
             <span>iDuckConvert</span>
           </a>
 
-          <button type="button" id="sidebar-search" class="nav-search" aria-label="Search converters">
+          <button type="button" id="sidebar-search" class="nav-search" aria-label={d.searchAria}>
             <span aria-hidden="true">🔍</span>
-            <span class="flex-1 text-left">Search</span>
+            <span class="flex-1 text-left">{d.searchPlaceholder}</span>
             <kbd aria-hidden="true">Ctrl K</kbd>
           </button>
 
           <nav aria-label="Main">
-            <a class="nav-item" href="/" aria-current={isHome ? 'page' : undefined}>
-              <span class="nav-icon" aria-hidden="true">🏠</span><span class="nav-text">Home</span>
+            <a class="nav-item" href={lp('/')} aria-current={isHome ? 'page' : undefined}>
+              <span class="nav-icon" aria-hidden="true">🏠</span><span class="nav-text">{d.navHome}</span>
             </a>
             <a class="nav-item" href="/chat/" aria-current={path === '/chat/' ? 'page' : undefined}>
-              <span class="nav-icon" aria-hidden="true">💬</span><span class="nav-text">Ask the helper</span>
+              <span class="nav-icon" aria-hidden="true">💬</span><span class="nav-text">{d.navHelper}</span>
             </a>
             <a class="nav-item" href="/converters/" aria-current={path === '/converters/' ? 'page' : undefined}>
-              <span class="nav-icon" aria-hidden="true">🧰</span><span class="nav-text">All converters</span>
+              <span class="nav-icon" aria-hidden="true">🧰</span><span class="nav-text">{d.navConverters}</span>
             </a>
             <a class="nav-item" href="/guides/" aria-current={path.startsWith('/guides/') ? 'page' : undefined}>
-              <span class="nav-icon" aria-hidden="true">📖</span><span class="nav-text">How-to guides</span>
+              <span class="nav-icon" aria-hidden="true">📖</span><span class="nav-text">{d.navGuides}</span>
             </a>
           </nav>
 
-          <nav aria-label="Converters">
-            <p class="nav-label">Converters</p>
+          <nav aria-label={d.convertersLabel}>
+            <p class="nav-label">{d.convertersLabel}</p>
             {
               TOOL_GROUPS.map((group, i) => {
                 const open = group === openGroup;
@@ -110,7 +127,7 @@ const openGroup = toolForPath(path)?.group ?? TOOL_GROUPS[0];
                   <div data-group>
                     <button type="button" class="nav-group" data-nav-group aria-expanded={open ? 'true' : 'false'} aria-controls={`group-${i}`}>
                       <span class="nav-icon" aria-hidden="true">{GROUP_EMOJI[group]}</span>
-                      <span class="nav-text">{group}</span>
+                      <span class="nav-text">{d.groups[group]}</span>
                       <span class="nav-chevron" aria-hidden="true">›</span>
                     </button>
                     <ul class="nav-children" id={`group-${i}`} hidden={!open}>
@@ -118,12 +135,12 @@ const openGroup = toolForPath(path)?.group ?? TOOL_GROUPS[0];
                         <li data-tool={tool.slug}>
                           <a
                             class="nav-item nav-small"
-                            href={hrefFor(tool)}
+                            href={tool.site ? hrefFor(tool) : lp(hrefFor(tool))}
                             {...(tool.site ? { rel: 'noopener' } : {})}
                             aria-current={path === `/${tool.slug}/` ? 'page' : undefined}
                           >
                             <span class="nav-icon" aria-hidden="true">{tool.emoji}</span>
-                            <span class="nav-text">{tool.name}{tool.site ? ` ↗` : ''}</span>
+                            <span class="nav-text">{toolText(locale, tool).name}{tool.site ? ` ↗` : ''}</span>
                           </a>
                         </li>
                       ))}
@@ -134,21 +151,21 @@ const openGroup = toolForPath(path)?.group ?? TOOL_GROUPS[0];
             }
           </nav>
 
-          <p class="nav-label">Community</p>
+          <p class="nav-label">{d.communityLabel}</p>
           <ul>
             {
               COMMUNITY.map((page) => (
                 <li>
                   <a class="nav-item" href={communityPath(page.slug)} aria-current={path === communityPath(page.slug) ? 'page' : undefined}>
                     <span class="nav-icon" aria-hidden="true">{page.emoji}</span>
-                    <span class="nav-text">{page.name}</span>
+                    <span class="nav-text">{d.community[page.slug as keyof typeof d.community]}</span>
                   </a>
                 </li>
               ))
             }
           </ul>
 
-          <p class="nav-label">Also from iDuck</p>
+          <p class="nav-label">{d.alsoFrom}</p>
           <a class="nav-item" href="https://iduckpdf.com/" rel="noopener">
             <span class="nav-icon" aria-hidden="true">📚</span><span class="nav-text">iDuckPDF</span>
           </a>
@@ -165,23 +182,41 @@ const openGroup = toolForPath(path)?.group ?? TOOL_GROUPS[0];
 
       <div class="min-w-0">
         <header class="topbar sticky top-0 z-20 flex items-center gap-1.5 px-2.5 py-2 min-[400px]:gap-2 min-[400px]:px-3">
-          <button type="button" class="btn btn-sm" data-menu-button aria-label="Open the menu" aria-controls="sidebar" aria-expanded="false">☰</button>
-          <a href="/" class="flex items-center gap-2 rounded-lg min-[900px]:hidden">
+          <button type="button" class="btn btn-sm" data-menu-button aria-label={d.openMenu} aria-controls="sidebar" aria-expanded="false">☰</button>
+          <a href={lp('/')} class="flex items-center gap-2 rounded-lg min-[900px]:hidden">
             <DuckMark size={28} />
             <span class="hidden font-black min-[370px]:inline">iDuckConvert</span>
           </a>
           <div class="ml-auto flex items-center gap-1.5 min-[400px]:gap-2">
-            <button type="button" class="btn btn-sm" id="search-open" aria-label="Open search">
+            <button type="button" class="btn btn-sm" id="search-open" aria-label={d.openSearch}>
               <span aria-hidden="true">🔍</span>
-              <span class="hidden sm:inline">Search</span>
+              <span class="hidden sm:inline">{d.searchPlaceholder}</span>
             </button>
-            <button type="button" class="btn btn-sm" id="theme-toggle" aria-label="Switch between light and dark" aria-pressed="false">
+            <details class="lang" data-lang-menu>
+              <summary class="btn btn-sm" aria-label={d.language}>
+                <Fragment set:html={flagSvg(loc.code)} />
+                <span class="hidden min-[520px]:inline">{loc.native}</span>
+              </summary>
+              <ul class="lang-list">
+                {
+                  langLinks.map((l) => (
+                    <li>
+                      <a href={l.href} hreflang={l.locale.hreflang} lang={l.locale.hreflang} aria-current={l.locale.code === locale ? 'true' : undefined}>
+                        <Fragment set:html={flagSvg(l.locale.code)} />
+                        <span>{l.locale.native}</span>
+                      </a>
+                    </li>
+                  ))
+                }
+              </ul>
+            </details>
+            <button type="button" class="btn btn-sm" id="theme-toggle" aria-label={d.themeToggle} aria-pressed="false">
               <span data-theme-icon="moon" aria-hidden="true">🌙</span>
               <span data-theme-icon="sun" aria-hidden="true">☀️</span>
             </button>
-            <a href="/donate/" class="btn btn-sm btn-primary" aria-label="Donate">
+            <a href="/donate/" class="btn btn-sm btn-primary" aria-label={d.supportAria}>
               <span aria-hidden="true">💛</span>
-              <span class="hidden min-[520px]:inline">Support</span>
+              <span class="hidden min-[520px]:inline">{d.support}</span>
             </a>
           </div>
         </header>
@@ -191,37 +226,56 @@ const openGroup = toolForPath(path)?.group ?? TOOL_GROUPS[0];
         </main>
 
         <footer class="mx-auto max-w-[1072px] px-4 pb-10 text-sm text-muted">
-          <nav aria-label="Popular conversions" class="border-t-2 border-line pt-6">
-            <p class="eyebrow mb-2">Popular</p>
+          <nav aria-label={d.popularAria} class="border-t-2 border-line pt-6">
+            <p class="eyebrow mb-2">{d.popularLabel}</p>
             <ul class="flex flex-wrap gap-x-4 gap-y-1 [&_a]:inline-block [&_a]:py-1.5">
-              <li><a class="link" href="/mp4-to-mp3/">MP4 to MP3</a></li>
-              <li><a class="link" href="/video-to-gif/">Video to GIF</a></li>
-              <li><a class="link" href="/csv-to-excel/">CSV to Excel</a></li>
-              <li><a class="link" href="/json-to-csv/">JSON to CSV</a></li>
-              <li><a class="link" href="/number-to-words/">Number to words</a></li>
-              <li><a class="link" href="/length-converter/">Length converter</a></li>
-              <li><a class="link" href="/time-zone-converter/">Time zone converter</a></li>
+              {popularTools.map((t) => <li><a class="link" href={lp(`/${t.slug}/`)}>{toolText(locale, t).name}</a></li>)}
             </ul>
           </nav>
           <p class="mt-5 flex flex-wrap gap-x-4 [&_a]:inline-block [&_a]:py-1.5">
-            <a class="link" href="/converters/">All converters</a>
-            <a class="link" href="/guides/">How-to guides</a>
-            <a class="link" href="/about/">About</a>
-            <a class="link" href="/how-it-works/">How it works</a>
-            <a class="link" href="/privacy/">Privacy</a>
-            <a class="link" href="/terms/">Terms</a>
-            <a class="link" href="/feedback/">Feedback</a>
+            <a class="link" href="/converters/">{d.footerAllConverters}</a>
+            <a class="link" href="/guides/">{d.footerGuides}</a>
+            <a class="link" href="/about/">{d.footerAbout}</a>
+            <a class="link" href="/how-it-works/">{d.footerHow}</a>
+            <a class="link" href="/privacy/">{d.footerPrivacy}</a>
+            <a class="link" href="/terms/">{d.footerTerms}</a>
+            <a class="link" href="/feedback/">{d.footerFeedback}</a>
             <a class="link" href="https://iduckpdf.com/" rel="noopener">iDuckPDF</a>
             <a class="link" href="https://iduckimg.com/" rel="noopener">iDuckIMG</a>
             <a class="link" href="https://iduckcalculator.com/" rel="noopener">iDuckCalculator</a>
           </p>
-          <p class="mt-3">© 2026 Basic App Company · iDuckConvert · iduckconvert.com · Free converters that run in your browser. Last updated {LAST_UPDATED}.</p>
+          <p class="mt-3">{format(d.footerLine, { date: LAST_UPDATED })}</p>
         </footer>
       </div>
     </div>
 
     <CommandPalette />
 
+    <script>
+      // The language menu closes when you tap or click anywhere else, choose a language, move focus away or press Escape.
+      const langMenu = document.querySelector<HTMLDetailsElement>('[data-lang-menu]');
+      if (langMenu) {
+        const close = () => {
+          langMenu.open = false;
+        };
+        // "pointerdown" covers touch, pen and mouse. A "click" is not sent when you tap a plain part of the page in iOS Safari.
+        document.addEventListener('pointerdown', (e) => {
+          if (!langMenu.contains(e.target as Node)) close();
+        });
+        langMenu.addEventListener('click', (e) => {
+          if ((e.target as Element).closest('.lang-list a')) close();
+        });
+        langMenu.addEventListener('focusout', (e) => {
+          const next = e.relatedTarget as Node | null;
+          if (next && !langMenu.contains(next)) close();
+        });
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') close();
+        });
+        // Coming back with the browser's Back button must not show the menu open.
+        window.addEventListener('pageshow', close);
+      }
+    </script>
     <script>
       import { THEME_STORAGE_KEY } from '../lib/theme';
 

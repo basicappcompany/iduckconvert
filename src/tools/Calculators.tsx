@@ -300,7 +300,7 @@ export function TimeZoneTool() {
         </Field>
       </div>
       {fromInfo && <p class="font-bold">{fromInfo.date}, {fromInfo.time} in {CITIES.find((c) => c.zone === from)?.label}</p>}
-      <div class="card overflow-x-auto p-4">
+      <div class="card relative overflow-x-auto p-4">
         <table class="w-full min-w-[28rem] text-left text-sm">
           <thead><tr class="text-muted"><th class="pb-2">Place</th><th class="pb-2">Time</th><th class="pb-2">Date</th><th class="pb-2">Offset</th><th class="pb-2"><span class="sr-only">Remove</span></th></tr></thead>
           <tbody>

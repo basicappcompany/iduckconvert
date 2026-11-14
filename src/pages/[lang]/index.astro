@@ -1,0 +1,206 @@
+---
+/**
+ * The home page in another language: /es/, /pt-br/ and so on. Everything on it is translated: the heading, the
+ * popular and all-converters lists, the reasons and the questions. The converter cards link to the translated
+ * converter pages. The how-to guides, "new and next" and the helper are English-only for now, so they are left off.
+ */
+import AppShell from '../../components/AppShell.astro';
+import DuckMark from '../../components/DuckMark.astro';
+import { PAGE_TOOLS, POPULAR_SLUGS, TOOLS, TOOL_GROUPS, hrefFor, toolBySlug, toolsInGroup } from '../../lib/tools';
+import { faqLd, organizationLd, websiteLd } from '../../lib/seo';
+import { OTHER_LOCALES, alternatesFor, dictFor, format, localeByPath, localePath, toolText } from '../../i18n';
+
+export function getStaticPaths() {
+  return OTHER_LOCALES.map((locale) => ({ params: { lang: locale.path } }));
+}
+
+const { lang } = Astro.params as { lang: string };
+const locale = localeByPath(lang)!;
+const d = dictFor(locale.code);
+const lp = (p: string) => localePath(locale.code, p);
+const machine = locale.status === 'machine';
+const site = { ...(websiteLd() as Record<string, unknown>), inLanguage: locale.hreflang, description: d.homeDescription };
+const popular = POPULAR_SLUGS.map((s) => toolBySlug(s)!).filter(Boolean);
+const cardHref = (t: (typeof TOOLS)[number]) => (t.site ? hrefFor(t) : lp(hrefFor(t)));
+const whyEmoji = ['🔒', '🎁', '📱'];
+---
+
+<AppShell locale={locale.code} alternates={alternatesFor('/')} jsonLd={[site, organizationLd(), faqLd(d.faqs)]} title={d.homeTitle} description={d.homeDescription}>
+  <section class="text-center">
+    <DuckMark size={96} class="mx-auto" />
+    <h1 class="display mt-4 text-4xl min-[420px]:text-5xl sm:text-6xl">{d.heroBefore} <span class="mark">{d.heroMark}</span>{d.heroAfter}</h1>
+    <p class="mx-auto mt-4 max-w-xl text-lg text-muted">{format(d.heroSub, { n: PAGE_TOOLS.length, m: TOOLS.length - PAGE_TOOLS.length })}</p>
+    <div class="mt-4 flex flex-wrap justify-center gap-2">
+      <span class="pill pill-ok">{d.runsInBrowser}</span>
+      <span class="pill">{d.noSignup}</span>
+      <span class="pill">{d.noWatermark}</span>
+      <span class="pill">{d.noAds}</span>
+    </div>
+
+    <div class="mx-auto mt-6 max-w-xl">
+      <button type="button" id="hero-search" class="hero-search" aria-label={d.searchAria} data-open-palette>
+        <span aria-hidden="true" class="text-lg">🔍</span>
+        <span class="min-w-0 flex-1 truncate text-left">{d.heroSearch}</span>
+        <kbd aria-hidden="true">Ctrl K</kbd>
+      </button>
+      <p class="mt-2 text-sm text-muted" data-kbd-hint>{d.searchHint}</p>
+    </div>
+    {machine && <p class="mx-auto mt-3 max-w-xl text-sm text-muted" data-machine-note>{d.machineNote}</p>}
+  </section>
+
+  <section class="mt-8" aria-label={d.helperButton}>
+    <div class="card flex flex-wrap items-center gap-4 bg-duck p-5 text-duckink">
+      <span aria-hidden="true" class="text-4xl">💬</span>
+      <div class="min-w-48 flex-1">
+        <h2 class="text-xl font-black tracking-tight">{d.helperTitle}</h2>
+        <p class="opacity-80">{d.helperText}</p>
+      </div>
+      <a href="/chat/" class="btn btn-ink">{d.helperButton}</a>
+    </div>
+  </section>
+
+  <section class="mt-10" aria-label={d.popularHeading}>
+    <h2 class="text-2xl font-black tracking-tight">{d.popularHeading}</h2>
+    <ul class="card-grid mt-3">
+      {
+        popular.map((p) => {
+          const text = toolText(locale.code, p);
+          return (
+            <li>
+              <a href={cardHref(p)} class="card card-link h-full p-4" {...(p.site ? { rel: 'noopener' } : {})}>
+                <span class="flex items-center gap-2.5 text-[17px] font-black">
+                  <span aria-hidden="true" class="text-[28px] leading-none">{p.emoji}</span>
+                  {text.name}
+                </span>
+                <span class="mt-1 block text-sm leading-[19px] text-muted">{text.summary}</span>
+                {p.site && <span class="pill mt-2 w-fit">{format(d.onSite, { site: p.site })} ↗</span>}
+              </a>
+            </li>
+          );
+        })
+      }
+    </ul>
+  </section>
+
+  <section class="mt-12" aria-label={format(d.allHeading, { n: PAGE_TOOLS.length })}>
+    <h2 class="text-2xl font-black tracking-tight">{format(d.allHeading, { n: PAGE_TOOLS.length })}</h2>
+    <p class="mt-1 text-muted">{d.pickGroup}</p>
+    <div class="mt-3 flex flex-wrap gap-2" role="group" aria-label={d.filterAria}>
+      <button type="button" class="chip" role="switch" aria-checked="true" data-filter="all">{format(d.everything, { n: PAGE_TOOLS.length })}</button>
+      {TOOL_GROUPS.map((group) => (
+        <button type="button" class="chip" role="switch" aria-checked="false" data-filter={group}>{d.groups[group]} ({toolsInGroup(group).filter((t) => !t.site).length})</button>
+      ))}
+    </div>
+    <div class="mt-6">
+      {
+        TOOL_GROUPS.map((group) => (
+          <div class="mt-8 first:mt-0" data-card-group data-group={group}>
+            <h3 class="text-2xl font-black tracking-tight">{d.groups[group]}</h3>
+            <ul class="card-grid mt-3">
+              {toolsInGroup(group).filter((t) => !t.site).map((tool) => {
+                const text = toolText(locale.code, tool);
+                return (
+                  <li data-card data-slug={tool.slug}>
+                    <a href={lp(hrefFor(tool))} class="card card-link h-full p-4">
+                      <span class="flex items-center gap-2.5 text-[17px] font-black">
+                        <span aria-hidden="true" class="text-[28px] leading-none">{tool.emoji}</span>
+                        {text.name}
+                      </span>
+                      <span class="mt-1 block text-sm leading-[19px] text-muted">{text.summary}</span>
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="mt-14" aria-label={d.sisterHeading}>
+    <h2 class="text-2xl font-black tracking-tight">{d.sisterHeading}</h2>
+    <p class="mt-1 text-muted">{d.sisterText}</p>
+    <ul class="card-grid mt-3">
+      {
+        TOOLS.filter((t) => t.site).map((tool) => {
+          const text = toolText(locale.code, tool);
+          return (
+            <li>
+              <a href={hrefFor(tool)} class="card card-link h-full p-4" rel="noopener">
+                <span class="flex items-center gap-2.5 text-[17px] font-black"><span aria-hidden="true" class="text-[28px] leading-none">{tool.emoji}</span>{text.name}</span>
+                <span class="mt-1 block text-sm leading-[19px] text-muted">{text.summary}</span>
+                <span class="pill mt-2 w-fit">{format(d.onSite, { site: tool.site ?? '' })} ↗</span>
+              </a>
+            </li>
+          );
+        })
+      }
+      <li>
+        <a href="https://iduckpdf.com/" class="card card-link h-full p-4" rel="noopener">
+          <span class="flex items-center gap-2.5 text-[17px] font-black"><span aria-hidden="true" class="text-[28px] leading-none">📚</span>{d.pdfTitle}</span>
+          <span class="mt-1 block text-sm leading-[19px] text-muted">{d.pdfText}</span>
+          <span class="pill mt-2 w-fit">{format(d.onSite, { site: 'iDuckPDF' })} ↗</span>
+        </a>
+      </li>
+    </ul>
+  </section>
+
+  <section class="mt-14" aria-label="iDuckConvert">
+    <ul class="grid gap-4 sm:grid-cols-3">
+      {
+        d.why.map((item, i) => (
+          <li class="card p-4">
+            <span aria-hidden="true" class="text-[28px] leading-none">{whyEmoji[i]}</span>
+            <h3 class="mt-2 text-lg font-black">{item.title}</h3>
+            <p class="mt-1 text-sm text-muted">{item.text}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <section class="mt-14" aria-label={d.faqHeading}>
+    <h2 class="text-3xl font-black tracking-tight">{d.faqHeading}</h2>
+    <div class="mt-4 grid gap-3">
+      {
+        d.faqs.map((f) => (
+          <details class="card px-4 py-3">
+            <summary class="cursor-pointer text-lg font-black">{f.q}</summary>
+            <p class="mt-2 leading-relaxed">{f.a}</p>
+          </details>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="mt-14" aria-label={d.support}>
+    <div class="card flex flex-wrap items-center gap-4 bg-duck p-5 text-duckink">
+      <span aria-hidden="true" class="text-4xl">💛</span>
+      <div class="min-w-48 flex-1">
+        <h2 class="text-xl font-black tracking-tight">{d.supportTitle}</h2>
+        <p class="opacity-80">{d.supportText}</p>
+      </div>
+      <a href="/donate/" class="btn btn-ink">{d.supportButton}</a>
+    </div>
+  </section>
+
+  <script>
+    // The big search box is a button for the Ctrl K window, which lives in the page shell.
+    document.querySelectorAll('[data-open-palette]').forEach((el) =>
+      el.addEventListener('click', () => document.getElementById('search-open')?.click()),
+    );
+
+    // Group chips narrow the list of converters; "Everything" shows all of them again.
+    const chips = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-filter]'));
+    chips.forEach((chip) =>
+      chip.addEventListener('click', () => {
+        const wanted = chip.dataset['filter'] ?? 'all';
+        chips.forEach((c) => c.setAttribute('aria-checked', String(c === chip)));
+        document.querySelectorAll<HTMLElement>('[data-card-group]').forEach((g) => {
+          g.hidden = wanted !== 'all' && g.dataset['group'] !== wanted;
+        });
+      }),
+    );
+  </script>
+</AppShell>
