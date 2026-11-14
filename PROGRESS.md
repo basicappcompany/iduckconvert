@@ -5,7 +5,7 @@ Resume here in a new session. The full picture is `docs/status.html`. Base = iDu
 ## Decisions
 - Private repo. Never push to main after the first commit: branch, PR, merge on green CI.
 - PDF conversions belong to iDuckPDF; image conversions iDuckIMG already has (HEIC/AVIF/BMP/SVG to JPG/PNG, favicon/ICO) are link cards.
-- Languages: EN-US built; TR planned (no switch until it exists).
+- Languages: English plus 9 (hi, bn, pt-BR, id, ru, de, es, fr, tr), phase 1 live: home page, all converters, shared controls. Phases 2 and 3 (guides, helper, pair pages, long text) to do.
 - Contact: hello@iduckconvert.com (general), feedback@iduckconvert.com (forms). Needs Cloudflare Email Routing set up by the owner.
 - iDuckCalculator: live and linked (sidebar, footer, About).
 
@@ -19,7 +19,9 @@ Resume here in a new session. The full picture is `docs/status.html`. Base = iDu
 - [x] Converters: audio (14), video (12), images (2 built, 6 linked), data (11), units (11), numbers and text (5), time (2)
 - [x] Site pages, 4 guides, sitemap, robots, canonical, OG/Twitter, og.png, favicon
 - [x] Unit tests (42) and browser tests (26)
-- [ ] Turkish (language switch)
+- [x] Languages phase 1 (switch, hreflang, home page and every converter in 9 languages)
+- [ ] Languages phase 2: how-to guides and the helper
+- [ ] Languages phase 3: unit pair pages, long explanations, About, Privacy, Terms
 - [x] Cloudflare Pages project, domain, Email Routing (done 13 Nov; send a real test email to hello@ still to do)
 - [x] 46 how-to guides (42 added), grouped by topic
 - [x] Helper chat rebuilt (full height, inline sums, follow-ups); home page always light
