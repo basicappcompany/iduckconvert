@@ -65,6 +65,10 @@ export const id: LocaleData = {
     descFiles: '{summary} Gratis, tanpa daftar, tanpa watermark, dan file Anda tidak pernah diunggah.',
     descNoFiles: '{summary} Gratis, tanpa daftar, tanpa watermark.',
     controlsEnglish: 'Pemilih file, tombol, dan area unduhan di bawah sudah diterjemahkan. Opsi di dalam konverter masih dalam bahasa Inggris untuk sementara.',
+    /** Contains {name}. The headings of the steps, the explanation and the questions under a converter. */
+    pageStepsHeading: 'Bagaimana cara memakai {name}?',
+    pageAboutHeading: 'Apa yang perlu saya ketahui tentang {name}?',
+    pageFaqHeading: 'Pertanyaan umum tentang {name}',
     homeTitle: 'iDuckConvert: konverter gratis yang berjalan di browser Anda',
     homeDescription: 'Konversi audio, video, spreadsheet, JSON, satuan, angka, dan zona waktu secara gratis di browser Anda. Tanpa unggah, tanpa daftar, tanpa watermark.',
     heroBefore: 'File Anda,',

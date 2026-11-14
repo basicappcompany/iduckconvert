@@ -2,13 +2,16 @@
 /**
  * A converter page in another language (/es/mp4-to-mp3/ and so on). It shows what is translated so far: the
  * heading, the short answer, the trust line, the converter itself (shared controls and run buttons translated)
- * and links to related converters. The longer explanation, the steps, the table and the questions are English-only
- * for now, so they are left off these pages rather than shown in English under a translated address.
+ * and links to related converters. The steps, the explanation and the questions appear once every sentence of them
+ * is translated (src/i18n/pages); until then they are left off rather than shown in English under a translated address.
+ * The unit table and factor are still left off.
  */
 import AppShell from './AppShell.astro';
 import { hrefFor, relatedTools, type ToolLink } from '../lib/tools';
 import { alternatesFor, dictFor, format, localeByCode, localePath, toolText } from '../i18n';
-import { breadcrumbLd, webApplicationLd } from '../lib/seo';
+import { breadcrumbLd, faqLd, howToLd, webApplicationLd } from '../lib/seo';
+import { contentFor } from '../lib/content';
+import { pageTextFor } from '../i18n/pages';
 import { guideForTool } from '../lib/guides';
 import { guideTextFor } from '../i18n/guides';
 
@@ -33,7 +36,10 @@ const trail = [
   { name: groupName, path: lp('/') },
   { name: heading, path: lp(path) },
 ];
-const jsonLd = [webApplicationLd(heading, lp(path), description, loc.hreflang), breadcrumbLd(trail)];
+// The steps, explanation and questions, when every sentence of them is translated for this language.
+const content = pageTextFor(locale, contentFor(tool));
+const lower = heading.toLocaleLowerCase(loc.hreflang);
+const jsonLd = [webApplicationLd(heading, lp(path), description, loc.hreflang), breadcrumbLd(trail), ...(content ? [howToLd(format(d.pageStepsHeading, { name: heading }), content.steps), faqLd(content.faqs)] : [])];
 const related = relatedTools(tool).map((m) => ({ href: lp(hrefFor(m)), emoji: m.emoji, name: toolText(locale, m).name, summary: toolText(locale, m).summary }));
 const machine = loc.status === 'machine';
 const englishGuide = guideForTool(tool.slug);
@@ -73,6 +79,30 @@ const guideText = englishGuide ? guideTextFor(locale, englishGuide.slug) : undef
   <section class="tool-area mt-5 grid gap-5" aria-label={d.converterLabel}>
     <slot />
   </section>
+
+  {
+    content && (
+      <>
+        <div class="prose mt-12">
+          <h2>{format(d.pageStepsHeading, { name: heading })}</h2>
+          <ol>{content.steps.map((step) => <li>{step}</li>)}</ol>
+          {content.sections.length === 0 && content.about && <><h2>{format(d.pageAboutHeading, { name: lower })}</h2><p class="mt-2">{content.about}</p></>}
+          {content.sections.map((sec) => <><h2>{sec.h}</h2><p class="mt-2">{sec.p}</p></>)}
+        </div>
+        <section class="mt-12" aria-labelledby="faq">
+          <h2 id="faq" class="text-3xl font-black tracking-tight">{format(d.pageFaqHeading, { name: lower })}</h2>
+          <div class="mt-4 grid gap-3">
+            {content.faqs.map((f) => (
+              <details class="card px-4 py-3">
+                <summary class="cursor-pointer text-lg font-black">{f.q}</summary>
+                <p class="mt-2 leading-relaxed">{f.a}</p>
+              </details>
+            ))}
+          </div>
+        </section>
+      </>
+    )
+  }
 
   {machine && <p class="mt-6 text-sm text-muted" data-machine-note>{d.machineNote} {d.controlsEnglish}</p>}
 

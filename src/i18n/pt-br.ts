@@ -65,6 +65,10 @@ export const ptBR: LocaleData = {
     descFiles: '{summary} Grátis, sem cadastro, sem marca d’água e seus arquivos nunca são enviados.',
     descNoFiles: '{summary} Grátis, sem cadastro e sem marca d’água.',
     controlsEnglish: 'O seletor de arquivos, os botões e a área de download abaixo estão traduzidos. As opções dentro do conversor estão em inglês por enquanto.',
+    /** Contains {name}. The headings of the steps, the explanation and the questions under a converter. */
+    pageStepsHeading: 'Como uso {name}?',
+    pageAboutHeading: 'O que devo saber sobre {name}?',
+    pageFaqHeading: 'Perguntas frequentes sobre {name}',
     homeTitle: 'iDuckConvert: conversores gratuitos que funcionam no seu navegador',
     homeDescription: 'Converta áudio, vídeo, planilhas, JSON, unidades, números e fusos horários de graça no seu navegador. Sem enviar arquivos, sem cadastro, sem marca d’água.',
     heroBefore: 'Seus arquivos,',

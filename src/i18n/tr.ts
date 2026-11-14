@@ -65,6 +65,10 @@ export const tr: LocaleData = {
     descFiles: '{summary} Ücretsiz, kayıt yok, filigran yok ve dosyalarınız asla yüklenmez.',
     descNoFiles: '{summary} Ücretsiz, kayıt ve filigran yok.',
     controlsEnglish: 'Aşağıdaki dosya seçici, düğmeler ve indirme alanı çevrilmiştir. Dönüştürücünün içindeki seçenekler şimdilik İngilizcedir.',
+    /** Contains {name}. The headings of the steps, the explanation and the questions under a converter. */
+    pageStepsHeading: '{name} nasıl kullanılır?',
+    pageAboutHeading: '{name} hakkında ne bilmeliyim?',
+    pageFaqHeading: '{name} hakkında sık sorulan sorular',
     homeTitle: 'iDuckConvert: tarayıcınızda çalışan ücretsiz dönüştürücüler',
     homeDescription: 'Ses, video, e-tablo, JSON, birim, sayı ve saat dilimlerini tarayıcınızda ücretsiz dönüştürün. Yükleme yok, kayıt yok, filigran yok.',
     heroBefore: 'Dosyalarınız,',
