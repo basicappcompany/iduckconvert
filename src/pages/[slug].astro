@@ -1,9 +1,6 @@
 ---
 import ToolLayout from '../components/ToolLayout.astro';
-import MediaTool from '../tools/MediaTool';
-import { ExcelTool, TiffTool, WebpGifTool } from '../tools/FileTools';
-import { DataTool, EncodingTool } from '../tools/TextTools';
-import { BasesTool, CaseTool, ColourTool, DatesTool, RomanTool, TimeZoneTool, UnitsTool, WordsTool } from '../tools/Calculators';
+import ToolIsland from '../components/ToolIsland.astro';
 import { PAGE_TOOLS, GROUP_EMOJI, type ToolLink } from '../lib/tools';
 import { UNIT_PAIRS } from '../lib/unit-pages';
 
@@ -18,27 +15,10 @@ export function getStaticPaths() {
 
 const { tool, pair } = Astro.props;
 const k = tool.kind;
-const from = tool.from ?? '';
-const to = tool.to ?? '';
 const runLabel = tool.slug === 'video-to-mp3' ? 'Extract MP3' : k === 'video-gif' ? 'Make GIF' : k === 'video-compress' ? 'Compress' : k === 'video-trim' ? 'Trim' : 'Convert';
 const noFiles = ['units', 'bases', 'words', 'roman', 'case', 'colour', 'timezone', 'dates'].includes(k);
 ---
 
 <ToolLayout tool={tool} usesFiles={!noFiles} {...(pair ? { pair } : {})}>
-  {(k === 'audio' || k === 'video' || k === 'gif-video' || k === 'video-gif' || k === 'video-compress' || k === 'video-trim') && (
-    <MediaTool client:load kind={k} from={from} to={to} runLabel={runLabel} />
-  )}
-  {k === 'excel' && <ExcelTool client:load to={to as 'xlsx' | 'csv'} runLabel={runLabel} />}
-  {k === 'tiff' && <TiffTool client:load runLabel={runLabel} />}
-  {k === 'webp-gif' && <WebpGifTool client:load runLabel={runLabel} />}
-  {k === 'data' && tool.slug !== 'text-encoding-fixer' && <DataTool client:load slug={tool.slug} />}
-  {k === 'data' && tool.slug === 'text-encoding-fixer' && <EncodingTool client:load runLabel={runLabel} />}
-  {k === 'units' && <UnitsTool client:load units={tool.units!} {...(pair ? { from: pair.from, to: pair.to } : {})} />}
-  {k === 'bases' && <BasesTool client:load />}
-  {k === 'words' && <WordsTool client:load />}
-  {k === 'roman' && <RomanTool client:load />}
-  {k === 'case' && <CaseTool client:load />}
-  {k === 'colour' && <ColourTool client:load />}
-  {k === 'timezone' && <TimeZoneTool client:load />}
-  {k === 'dates' && <DatesTool client:load />}
+  <ToolIsland tool={tool} runLabel={runLabel} pair={pair} />
 </ToolLayout>

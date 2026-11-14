@@ -7,6 +7,7 @@ import { guideForTool, guidePath } from '../lib/guides';
 import { breadcrumbLd, faqLd, howToLd, webApplicationLd } from '../lib/seo';
 import { LAST_REVIEWED_TEXT } from '../lib/site';
 import { UNIT_PAIRS, bighaRows, type UnitPair } from '../lib/unit-pages';
+import { alternatesFor } from '../i18n';
 
 interface Props {
   tool: ToolLink;
@@ -53,7 +54,7 @@ const unit = content.unit;
 const mainUnitPage = pair ? PAGE_TOOLS.find((t) => t.units === pair.set) : undefined;
 ---
 
-<AppShell title={title} description={description} jsonLd={jsonLd}>
+<AppShell title={title} description={description} jsonLd={jsonLd} alternates={alternatesFor(path)}>
   <p class="eyebrow">
     <a href="/" class="underline decoration-2 underline-offset-2">Home</a>
     <span aria-hidden="true"> / </span>

@@ -1,0 +1,39 @@
+---
+/**
+ * The interactive converter for a tool page. English pages and every translated page mount it the same way;
+ * only the run button's label (and, inside the islands, the shared control text) changes with the language.
+ */
+import MediaTool from '../tools/MediaTool';
+import { ExcelTool, TiffTool, WebpGifTool } from '../tools/FileTools';
+import { DataTool, EncodingTool } from '../tools/TextTools';
+import { BasesTool, CaseTool, ColourTool, DatesTool, RomanTool, TimeZoneTool, UnitsTool, WordsTool } from '../tools/Calculators';
+import type { ToolLink } from '../lib/tools';
+import type { UnitPair } from '../lib/unit-pages';
+
+interface Props {
+  tool: ToolLink;
+  runLabel: string;
+  pair?: UnitPair | undefined;
+}
+const { tool, runLabel, pair } = Astro.props;
+const k = tool.kind;
+const from = tool.from ?? '';
+const to = tool.to ?? '';
+---
+
+{(k === 'audio' || k === 'video' || k === 'gif-video' || k === 'video-gif' || k === 'video-compress' || k === 'video-trim') && (
+  <MediaTool client:load kind={k} from={from} to={to} runLabel={runLabel} />
+)}
+{k === 'excel' && <ExcelTool client:load to={to as 'xlsx' | 'csv'} runLabel={runLabel} />}
+{k === 'tiff' && <TiffTool client:load runLabel={runLabel} />}
+{k === 'webp-gif' && <WebpGifTool client:load runLabel={runLabel} />}
+{k === 'data' && tool.slug !== 'text-encoding-fixer' && <DataTool client:load slug={tool.slug} />}
+{k === 'data' && tool.slug === 'text-encoding-fixer' && <EncodingTool client:load runLabel={runLabel} />}
+{k === 'units' && <UnitsTool client:load units={tool.units!} {...(pair ? { from: pair.from, to: pair.to } : {})} />}
+{k === 'bases' && <BasesTool client:load />}
+{k === 'words' && <WordsTool client:load />}
+{k === 'roman' && <RomanTool client:load />}
+{k === 'case' && <CaseTool client:load />}
+{k === 'colour' && <ColourTool client:load />}
+{k === 'timezone' && <TimeZoneTool client:load />}
+{k === 'dates' && <DatesTool client:load />}

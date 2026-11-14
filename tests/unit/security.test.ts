@@ -92,9 +92,10 @@ describe('risky patterns stay out of the source', () => {
     expect(source).not.toMatch(/\.(innerHTML|outerHTML)\s*=/);
     expect(source).not.toMatch(/insertAdjacentHTML|dangerouslySetInnerHTML|document\.write/);
   });
-  it('writes raw HTML only for JSON-LD, which escapes < first', () => {
+  it('writes raw HTML only for JSON-LD (which escapes < first) and the built-in flag pictures', () => {
     const uses = source.match(/set:html=\{[^}]+\}/g) ?? [];
-    expect(uses).toEqual(['set:html={serialize(item)}']);
+    // flagSvg() returns fixed SVG markup from src/i18n/flags.ts; it never takes visitor input.
+    expect([...new Set(uses)].sort()).toEqual(['set:html={flagSvg(l.locale.code)}', 'set:html={flagSvg(loc.code)}', 'set:html={serialize(item)}']);
   });
 });
 

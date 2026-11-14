@@ -1,0 +1,23 @@
+---
+/**
+ * A converter page in another language: /es/mp4-to-mp3/, /pt-br/csv-to-json/ and so on. One page per language and
+ * converter, with the same interactive converter as the English page. Unit pair pages (cm to inches) are English only for now.
+ */
+import LocalizedToolLayout from '../../components/LocalizedToolLayout.astro';
+import ToolIsland from '../../components/ToolIsland.astro';
+import { PAGE_TOOLS } from '../../lib/tools';
+import { OTHER_LOCALES, localeByPath, runLabelFor } from '../../i18n';
+
+export function getStaticPaths() {
+  return OTHER_LOCALES.flatMap((locale) => PAGE_TOOLS.map((tool) => ({ params: { lang: locale.path, slug: tool.slug }, props: { tool } })));
+}
+
+const { lang } = Astro.params as { lang: string };
+const { tool } = Astro.props;
+const locale = localeByPath(lang)!;
+const noFiles = ['units', 'bases', 'words', 'roman', 'case', 'colour', 'timezone', 'dates'].includes(tool.kind);
+---
+
+<LocalizedToolLayout tool={tool} locale={locale.code} usesFiles={!noFiles}>
+  <ToolIsland tool={tool} runLabel={runLabelFor(locale.code, tool)} />
+</LocalizedToolLayout>
