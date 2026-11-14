@@ -201,8 +201,10 @@ test.describe('languages: how-to guides', () => {
     await expect(page.locator('section[aria-label="Guides pratiques"] a').first()).toBeVisible();
   });
 
-  test('a guide that is not translated yet has no page in the language and is not linked from it', async ({ request }) => {
-    const res = await request.get('/es/guides/how-to-convert-psi-to-bar-tyre-pressure/');
-    expect(res.status()).toBe(404);
+  test('the last guide exists in every language, and an unknown guide has no page', async ({ request }) => {
+    for (const lang of ['es', 'hi', 'bn', 'pt-br']) {
+      expect((await request.get(`/${lang}/guides/how-to-convert-html-to-markdown/`)).status(), lang).toBe(200);
+    }
+    expect((await request.get('/es/guides/no-such-guide/')).status()).toBe(404);
   });
 });
