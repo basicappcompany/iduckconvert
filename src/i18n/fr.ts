@@ -65,6 +65,10 @@ export const fr: LocaleData = {
     descFiles: '{summary} Gratuit, sans inscription, sans filigrane, et vos fichiers ne sont jamais envoyés.',
     descNoFiles: '{summary} Gratuit, sans inscription et sans filigrane.',
     controlsEnglish: 'Le sélecteur de fichiers, les boutons et la zone de téléchargement ci-dessous sont traduits. Les options du convertisseur sont en anglais pour le moment.',
+    /** Contains {name}. The headings of the steps, the explanation and the questions under a converter. */
+    pageStepsHeading: 'Comment utiliser {name} ?',
+    pageAboutHeading: 'Que dois-je savoir sur {name} ?',
+    pageFaqHeading: 'Questions fréquentes sur {name}',
     homeTitle: 'iDuckConvert : des convertisseurs gratuits dans votre navigateur',
     homeDescription: 'Convertissez audio, vidéo, tableurs, JSON, unités, nombres et fuseaux horaires gratuitement dans votre navigateur. Sans envoi de fichiers, sans inscription, sans filigrane.',
     heroBefore: 'Vos fichiers,',

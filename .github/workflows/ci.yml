@@ -1,9 +1,17 @@
 name: CI
 
+# Runs once per pull request. Pushes to main are not re-run: main only receives merged pull requests
+# that already passed, and Cloudflare Pages builds main by itself. Docs-only changes skip the run.
 on:
   pull_request:
-  push:
-    branches: [main]
+    paths-ignore:
+      - 'docs/**'
+      - '*.md'
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read

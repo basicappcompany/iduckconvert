@@ -65,6 +65,10 @@ export const de: LocaleData = {
     descFiles: '{summary} Kostenlos, ohne Anmeldung, ohne Wasserzeichen, und Ihre Dateien werden nie hochgeladen.',
     descNoFiles: '{summary} Kostenlos, ohne Anmeldung und ohne Wasserzeichen.',
     controlsEnglish: 'Die Dateiauswahl, die Schaltflächen und der Download-Bereich unten sind übersetzt. Die Optionen im Konverter sind vorerst auf Englisch.',
+    /** Contains {name}. The headings of the steps, the explanation and the questions under a converter. */
+    pageStepsHeading: 'Wie verwende ich {name}?',
+    pageAboutHeading: 'Was sollte ich über {name} wissen?',
+    pageFaqHeading: 'Häufige Fragen zu {name}',
     homeTitle: 'iDuckConvert: kostenlose Konverter, die in Ihrem Browser laufen',
     homeDescription: 'Wandeln Sie Audio, Video, Tabellen, JSON, Einheiten, Zahlen und Zeitzonen kostenlos in Ihrem Browser um. Ohne Upload, ohne Anmeldung, ohne Wasserzeichen.',
     heroBefore: 'Dateien,',

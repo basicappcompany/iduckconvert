@@ -22,7 +22,7 @@ Resume here in a new session. The full picture is `docs/status.html`. Base = iDu
 - [x] Languages phase 1 (switch, hreflang, home page and every converter in 9 languages)
 - [x] Languages phase 2a: the helper in 9 languages
 - [x] Languages phase 2b: all 47 how-to guides in all nine languages
-- [ ] Languages phase 3: unit pair pages, long explanations, About, Privacy, Terms
+- [ ] Languages phase 3: converter page text done (664 sentences x 9 languages); still to do: unit pair pages and tables, About, Privacy, Terms, How it works, options inside converters, Ctrl K
 - [x] Cloudflare Pages project, domain, Email Routing (done 13 Nov; send a real test email to hello@ still to do)
 - [x] 46 how-to guides (42 added), grouped by topic
 - [x] Helper chat rebuilt (full height, inline sums, follow-ups); home page always light

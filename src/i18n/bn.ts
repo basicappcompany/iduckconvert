@@ -65,6 +65,10 @@ export const bn: LocaleData = {
     descFiles: '{summary} বিনামূল্যে, সাইন-আপ নেই, ওয়াটারমার্ক নেই, আর আপনার ফাইল কখনও আপলোড হয় না।',
     descNoFiles: '{summary} বিনামূল্যে, সাইন-আপ ও ওয়াটারমার্ক নেই।',
     controlsEnglish: 'নিচের ফাইল বাছাইয়ের অংশ, বোতাম ও ডাউনলোড এলাকা অনুবাদ করা। কনভার্টারের ভেতরের অপশন আপাতত ইংরেজিতে আছে।',
+    /** Contains {name}. The headings of the steps, the explanation and the questions under a converter. */
+    pageStepsHeading: '{name} কীভাবে ব্যবহার করবেন?',
+    pageAboutHeading: '{name} সম্পর্কে আমার কী জানা দরকার?',
+    pageFaqHeading: '{name} সম্পর্কে সাধারণ প্রশ্ন',
     homeTitle: 'iDuckConvert: ব্রাউজারে চলা বিনামূল্যের কনভার্টার',
     homeDescription: 'অডিও, ভিডিও, স্প্রেডশিট, JSON, একক, সংখ্যা ও টাইম জোন আপনার ব্রাউজারে বিনামূল্যে রূপান্তর করুন। আপলোড নেই, সাইন-আপ নেই, ওয়াটারমার্ক নেই।',
     heroBefore: 'আপনার ফাইল,',
