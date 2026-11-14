@@ -8,7 +8,7 @@ import { COMMUNITY, communityPath } from '../lib/community';
 import { OG_IMAGE, SITE_NAME, serialize } from '../lib/seo';
 import { LAST_UPDATED } from '../lib/site';
 import { flagSvg } from '../i18n/flags';
-import { dictFor, format, languageLinks, localeByCode, localePath, splitLocalePath, toolText, type Alternate } from '../i18n';
+import { dictFor, format, hasGuides, languageLinks, localeByCode, localePath, splitLocalePath, toolText, type Alternate } from '../i18n';
 
 interface Props {
   title: string;
@@ -33,6 +33,7 @@ const { rest: path } = splitLocalePath(fullPath);
 const langLinks = languageLinks(path);
 const englishHref = alternates.find((a) => a.locale.code === 'en')?.href;
 const isHome = path === '/';
+const guidesHref = hasGuides(locale) ? lp('/guides/') : '/guides/';
 // The group holding the current page starts open; the first group otherwise.
 const openGroup = toolForPath(path)?.group ?? TOOL_GROUPS[0];
 const POPULAR_FOOTER = ['mp4-to-mp3', 'video-to-gif', 'csv-to-excel', 'json-to-csv', 'number-to-words', 'length-converter', 'time-zone-converter'] as const;
@@ -113,7 +114,7 @@ const popularTools = POPULAR_FOOTER.map((slug) => TOOLS.find((t) => t.slug === s
             <a class="nav-item" href="/converters/" aria-current={path === '/converters/' ? 'page' : undefined}>
               <span class="nav-icon" aria-hidden="true">🧰</span><span class="nav-text">{d.navConverters}</span>
             </a>
-            <a class="nav-item" href="/guides/" aria-current={path.startsWith('/guides/') ? 'page' : undefined}>
+            <a class="nav-item" href={guidesHref} aria-current={path.startsWith('/guides/') ? 'page' : undefined}>
               <span class="nav-icon" aria-hidden="true">📖</span><span class="nav-text">{d.navGuides}</span>
             </a>
           </nav>
@@ -234,7 +235,7 @@ const popularTools = POPULAR_FOOTER.map((slug) => TOOLS.find((t) => t.slug === s
           </nav>
           <p class="mt-5 flex flex-wrap gap-x-4 [&_a]:inline-block [&_a]:py-1.5">
             <a class="link" href="/converters/">{d.footerAllConverters}</a>
-            <a class="link" href="/guides/">{d.footerGuides}</a>
+            <a class="link" href={guidesHref}>{d.footerGuides}</a>
             <a class="link" href="/about/">{d.footerAbout}</a>
             <a class="link" href="/how-it-works/">{d.footerHow}</a>
             <a class="link" href="/privacy/">{d.footerPrivacy}</a>

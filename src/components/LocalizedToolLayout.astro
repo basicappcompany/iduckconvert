@@ -9,6 +9,8 @@ import AppShell from './AppShell.astro';
 import { hrefFor, relatedTools, type ToolLink } from '../lib/tools';
 import { alternatesFor, dictFor, format, localeByCode, localePath, toolText } from '../i18n';
 import { breadcrumbLd, webApplicationLd } from '../lib/seo';
+import { guideForTool } from '../lib/guides';
+import { guideTextFor } from '../i18n/guides';
 
 interface Props {
   tool: ToolLink;
@@ -34,6 +36,8 @@ const trail = [
 const jsonLd = [webApplicationLd(heading, lp(path), description, loc.hreflang), breadcrumbLd(trail)];
 const related = relatedTools(tool).map((m) => ({ href: lp(hrefFor(m)), emoji: m.emoji, name: toolText(locale, m).name, summary: toolText(locale, m).summary }));
 const machine = loc.status === 'machine';
+const englishGuide = guideForTool(tool.slug);
+const guideText = englishGuide ? guideTextFor(locale, englishGuide.slug) : undefined;
 ---
 
 <AppShell locale={locale} alternates={alternatesFor(path)} title={title} description={description} jsonLd={jsonLd}>
@@ -49,6 +53,13 @@ const machine = loc.status === 'machine';
 
   <section aria-label={d.answerLabel} class="card mt-4 p-4" data-answer>
     <p class="leading-relaxed">{text.quick}</p>
+    {
+      englishGuide && guideText && (
+        <p class="mt-2 text-sm">
+          <span aria-hidden="true">📖</span> <a class="link" href={lp(`/guides/${englishGuide.slug}/`)}>{format(d.readGuide, { title: guideText.title })}</a>
+        </p>
+      )
+    }
   </section>
 
   <div class="mt-3 flex flex-wrap gap-2">
