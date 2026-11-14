@@ -87,6 +87,22 @@ export interface Dict {
   pageStepsHeading: string;
   pageAboutHeading: string;
   pageFaqHeading: string;
+  /** Unit pair pages (cm to inches) and the unit facts under a unit converter. */
+  pairHeading: string;
+  pairTitle: string;
+  pairDesc: string;
+  pairSummary: string;
+  unitFactorHeading: string;
+  unitFactorHeadingPair: string;
+  unitTableHeading: string;
+  unitTableCaption: string;
+  unitSourceHeading: string;
+  unitReference: string;
+  unitPopular: string;
+  bighaHeading: string;
+  bighaState: string;
+  bighaSqft: string;
+  bighaPerAcre: string;
 
   // Home page
   homeTitle: string;

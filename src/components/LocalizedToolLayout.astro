@@ -1,17 +1,19 @@
 ---
 /**
- * A converter page in another language (/es/mp4-to-mp3/ and so on). It shows what is translated so far: the
- * heading, the short answer, the trust line, the converter itself (shared controls and run buttons translated)
- * and links to related converters. The steps, the explanation and the questions appear once every sentence of them
- * is translated (src/i18n/pages); until then they are left off rather than shown in English under a translated address.
- * The unit table and factor are still left off.
+ * A converter page in another language (/es/mp4-to-mp3/ and so on). It shows what is translated: the heading, the
+ * short answer, the trust line, the converter itself (shared controls and run buttons translated), the steps, the
+ * explanation and the questions once every sentence of them is translated (src/i18n/pages), the exact factor and
+ * table of a unit converter, and links to related converters. Anything not translated yet is left off rather than
+ * shown in English under a translated address. A popular unit pair (cm to inches) passes `pair`.
  */
 import AppShell from './AppShell.astro';
 import { hrefFor, relatedTools, type ToolLink } from '../lib/tools';
-import { alternatesFor, dictFor, format, localeByCode, localePath, toolText } from '../i18n';
+import { alternatesFor, dictFor, format, localeByCode, localePath, pairHasText, toolText } from '../i18n';
 import { breadcrumbLd, faqLd, howToLd, webApplicationLd } from '../lib/seo';
-import { contentFor } from '../lib/content';
-import { pageTextFor } from '../i18n/pages';
+import { contentFor, pairContent } from '../lib/content';
+import { pageTextFor, pairTextFor, unitTextFor } from '../i18n/pages';
+import { UNIT_PAIRS, bighaRows, type UnitPair } from '../lib/unit-pages';
+import { UNIT_SETS } from '../convert/units';
 import { guideForTool } from '../lib/guides';
 import { guideTextFor } from '../i18n/guides';
 
@@ -20,29 +22,49 @@ interface Props {
   locale: string;
   /** False for calculators that take no file, so the "files never leave your device" line is left out. */
   usesFiles?: boolean;
+  /** A popular unit pair such as cm to inches: it has its own page, text and table. */
+  pair?: UnitPair;
 }
-const { tool, locale, usesFiles = true } = Astro.props;
+const { tool, locale, usesFiles = true, pair } = Astro.props;
 const loc = localeByCode(locale);
 const d = dictFor(locale);
 const lp = (p: string) => localePath(locale, p);
-const text = toolText(locale, tool);
-const path = `/${tool.slug}/`;
-const heading = text.name;
-const title = format(d.titleTool, { name: heading });
-const description = format(usesFiles ? d.descFiles : d.descNoFiles, { summary: text.summary }).slice(0, 200);
+const symbols = (p: UnitPair): string => {
+  const units = UNIT_SETS[p.set]!.units;
+  return `${units.find((u) => u.id === p.from)!.symbol} → ${units.find((u) => u.id === p.to)!.symbol}`;
+};
+const pairLabel = pair ? symbols(pair) : '';
 const groupName = d.groups[tool.group];
+const path = `/${tool.slug}/`;
+
+const english = pair ? pairContent(pair) : contentFor(tool);
+const pairText = pair ? pairTextFor(locale, english) : undefined;
+const content = pair ? pairText : pageTextFor(locale, english);
+const unitText = pair ? pairText?.unitText : unitTextFor(locale, english);
+const unit = english.unit;
+
+const heading = pair ? format(d.pairHeading, { name: pairLabel }) : toolText(locale, tool).name;
+const quick = pair ? (pairText?.answer ?? '') : toolText(locale, tool).quick;
+const title = pair ? format(d.pairTitle, { name: pairLabel }) : format(d.titleTool, { name: heading });
+const description = pair
+  ? format(d.pairDesc, { factor: unitText?.factor ?? '', name: pairLabel }).slice(0, 160)
+  : format(usesFiles ? d.descFiles : d.descNoFiles, { summary: toolText(locale, tool).summary }).slice(0, 200);
 const trail = [
   { name: d.breadcrumbHome, path: lp('/') },
   { name: groupName, path: lp('/') },
   { name: heading, path: lp(path) },
 ];
-// The steps, explanation and questions, when every sentence of them is translated for this language.
-const content = pageTextFor(locale, contentFor(tool));
-const lower = heading.toLocaleLowerCase(loc.hreflang);
-const jsonLd = [webApplicationLd(heading, lp(path), description, loc.hreflang), breadcrumbLd(trail), ...(content ? [howToLd(format(d.pageStepsHeading, { name: heading }), content.steps), faqLd(content.faqs)] : [])];
-const related = relatedTools(tool).map((m) => ({ href: lp(hrefFor(m)), emoji: m.emoji, name: toolText(locale, m).name, summary: toolText(locale, m).summary }));
+const lower = (pair ? pairLabel : heading).toLocaleLowerCase(loc.hreflang);
+const stepsName = pair ? pairLabel : heading;
+const jsonLd = [webApplicationLd(heading, lp(path), description, loc.hreflang), breadcrumbLd(trail), ...(content ? [howToLd(format(d.pageStepsHeading, { name: stepsName }), content.steps), faqLd(content.faqs)] : [])];
+const related = pair
+  ? UNIT_PAIRS.filter((p) => p.set === pair.set && p.slug !== pair.slug && pairHasText(locale, p.slug))
+      .slice(0, 3)
+      .map((p) => ({ href: lp(`/${p.slug}/`), emoji: tool.emoji, name: symbols(p), summary: d.pairSummary }))
+  : relatedTools(tool).map((m) => ({ href: lp(hrefFor(m)), emoji: m.emoji, name: toolText(locale, m).name, summary: toolText(locale, m).summary }));
+const popular = !pair && unit ? unit.pairs.filter((p) => pairHasText(locale, p.slug)).map((p) => ({ href: lp(`/${p.slug}/`), name: symbols(UNIT_PAIRS.find((x) => x.slug === p.slug)!) })) : [];
 const machine = loc.status === 'machine';
-const englishGuide = guideForTool(tool.slug);
+const englishGuide = pair ? undefined : guideForTool(tool.slug);
 const guideText = englishGuide ? guideTextFor(locale, englishGuide.slug) : undefined;
 ---
 
@@ -58,7 +80,7 @@ const guideText = englishGuide ? guideTextFor(locale, englishGuide.slug) : undef
   </h1>
 
   <section aria-label={d.answerLabel} class="card mt-4 p-4" data-answer>
-    <p class="leading-relaxed">{text.quick}</p>
+    <p class="leading-relaxed">{quick}</p>
     {
       englishGuide && guideText && (
         <p class="mt-2 text-sm">
@@ -82,25 +104,77 @@ const guideText = englishGuide ? guideTextFor(locale, englishGuide.slug) : undef
 
   {
     content && (
-      <>
-        <div class="prose mt-12">
-          <h2>{format(d.pageStepsHeading, { name: heading })}</h2>
-          <ol>{content.steps.map((step) => <li>{step}</li>)}</ol>
-          {content.sections.length === 0 && content.about && <><h2>{format(d.pageAboutHeading, { name: lower })}</h2><p class="mt-2">{content.about}</p></>}
-          {content.sections.map((sec) => <><h2>{sec.h}</h2><p class="mt-2">{sec.p}</p></>)}
+      <div class="prose mt-12">
+        <h2>{format(d.pageStepsHeading, { name: stepsName })}</h2>
+        <ol>{content.steps.map((step) => <li>{step}</li>)}</ol>
+        {unit && unitText && (
+          <>
+            <h2>{pair ? format(d.unitFactorHeadingPair, { name: pairLabel }) : d.unitFactorHeading}</h2>
+            <p class="mt-2 text-lg font-black">{unitText.factor}</p>
+          </>
+        )}
+        {content.sections.length === 0 && content.about && <><h2>{format(d.pageAboutHeading, { name: lower })}</h2><p class="mt-2">{content.about}</p></>}
+        {content.sections.map((sec) => <><h2>{sec.h}</h2><p class="mt-2">{sec.p}</p></>)}
+      </div>
+    )
+  }
+
+  {
+    unit && unitText && (
+      <section class="mt-10" aria-labelledby="table">
+        <h2 id="table" class="text-2xl font-black tracking-tight">{d.unitTableHeading}</h2>
+        <div class="card mt-3 overflow-x-auto p-4">
+          <table class="w-full min-w-[18rem] text-left text-sm">
+            <caption class="sr-only">{format(d.unitTableCaption, { from: unit.fromLabel, to: unit.toLabel })}</caption>
+            <thead><tr class="text-muted"><th scope="col" class="pb-2">{unit.fromLabel}</th><th scope="col" class="pb-2">{unit.toLabel}</th></tr></thead>
+            <tbody>
+              {unit.rows.map((r) => (
+                <tr class="border-t border-line/20"><th scope="row" class="py-1.5 pr-3 font-bold tabular-nums">{r.from}</th><td class="py-1.5 tabular-nums">{r.to}</td></tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-        <section class="mt-12" aria-labelledby="faq">
-          <h2 id="faq" class="text-3xl font-black tracking-tight">{format(d.pageFaqHeading, { name: lower })}</h2>
-          <div class="mt-4 grid gap-3">
-            {content.faqs.map((f) => (
-              <details class="card px-4 py-3">
-                <summary class="cursor-pointer text-lg font-black">{f.q}</summary>
-                <p class="mt-2 leading-relaxed">{f.a}</p>
-              </details>
-            ))}
-          </div>
-        </section>
-      </>
+        {
+          pair?.slug === 'acre-to-bigha' && (
+            <div class="card mt-4 overflow-x-auto p-4">
+              <h3 class="text-lg font-black">{d.bighaHeading}</h3>
+              <table class="mt-2 w-full min-w-[18rem] text-left text-sm">
+                <thead><tr class="text-muted"><th scope="col" class="pb-2">{d.bighaState}</th><th scope="col" class="pb-2">{d.bighaSqft}</th><th scope="col" class="pb-2">{d.bighaPerAcre}</th></tr></thead>
+                <tbody>{bighaRows().map((r) => <tr class="border-t border-line/20"><th scope="row" class="py-1.5 pr-3 font-bold">{r.state}</th><td class="py-1.5 tabular-nums">{r.sqft}</td><td class="py-1.5 tabular-nums">{r.perAcre}</td></tr>)}</tbody>
+              </table>
+            </div>
+          )
+        }
+        <h3 class="mt-6 text-lg font-black">{d.unitSourceHeading}</h3>
+        <p class="mt-1 text-sm leading-relaxed">
+          {unitText.sourceText}
+          {unit.source.url && <> <a class="link" href={unit.source.url} rel="noopener">{d.unitReference}</a></>}
+        </p>
+        {
+          popular.length > 0 && (
+            <>
+              <h3 class="mt-6 text-lg font-black">{d.unitPopular}</h3>
+              <ul class="mt-2 flex flex-wrap gap-2">{popular.map((p) => <li><a class="chip" href={p.href}>{p.name}</a></li>)}</ul>
+            </>
+          )
+        }
+      </section>
+    )
+  }
+
+  {
+    content && (
+      <section class="mt-12" aria-labelledby="faq">
+        <h2 id="faq" class="text-3xl font-black tracking-tight">{format(d.pageFaqHeading, { name: lower })}</h2>
+        <div class="mt-4 grid gap-3">
+          {content.faqs.map((f) => (
+            <details class="card px-4 py-3">
+              <summary class="cursor-pointer text-lg font-black">{f.q}</summary>
+              <p class="mt-2 leading-relaxed">{f.a}</p>
+            </details>
+          ))}
+        </div>
+      </section>
     )
   }
 

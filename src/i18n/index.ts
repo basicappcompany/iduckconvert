@@ -5,6 +5,9 @@ import { LOCALES, localePath, type LocaleInfo } from './locales';
 import { uiFor } from './ui';
 import type { Dict, LocaleData, ToolText, UiText } from './types';
 import { guideSlugsFor, hasGuides, localesWithGuide } from './guides';
+import { pairTextFor } from './pages';
+import { UNIT_PAIRS } from '../lib/unit-pages';
+import { pairContent } from '../lib/content';
 import { bn } from './bn';
 import { de } from './de';
 import { es } from './es';
@@ -95,10 +98,30 @@ export interface Alternate {
 /** The English paths that have a translated version in every published language. */
 const TRANSLATED_PATHS = new Set<string>(['/', '/chat/', ...PAGE_TOOLS.map((t) => toolPath(t.slug))]);
 
+const PAIRS = new Map(UNIT_PAIRS.map((p) => [p.slug, p]));
+const pairDone = new Map<string, boolean>();
+
+/** True when a popular pair page (cm to inches) is fully translated into a language. */
+export function pairHasText(code: string, slug: string): boolean {
+  const key = `${code}/${slug}`;
+  let done = pairDone.get(key);
+  if (done === undefined) {
+    const pair = PAIRS.get(slug);
+    done = pair !== undefined && pairTextFor(code, pairContent(pair)) !== undefined;
+    pairDone.set(key, done);
+  }
+  return done;
+}
+
 /** The language codes (English included) that have a version of this English path. Empty when only English has it. */
 function codesFor(englishPath: string): string[] {
   const published = LOCALES.filter((l) => l.status !== 'planned').map((l) => l.code);
   if (TRANSLATED_PATHS.has(englishPath)) return published;
+  const pairSlug = /^\/([^/]+)\/$/.exec(englishPath)?.[1];
+  if (pairSlug && PAIRS.has(pairSlug)) {
+    const have = published.filter((c) => c === 'en' || pairHasText(c, pairSlug));
+    return have.length > 1 ? have : [];
+  }
   if (englishPath === '/guides/') return published.filter((c) => c === 'en' || hasGuides(c));
   const guide = /^\/guides\/([^/]+)\/$/.exec(englishPath)?.[1];
   if (guide) {
