@@ -4,6 +4,8 @@ import { en, enTemplates } from '../../src/i18n/en';
 import { UI_TEXT } from '../../src/i18n/ui';
 import { PAGE_TOOLS, TOOLS, toolPath } from '../../src/lib/tools';
 import { UNIT_PAIRS } from '../../src/lib/unit-pages';
+import { ENGLISH_CONTEXT, respond } from '../../src/lib/helper';
+import { helperContext } from '../../src/i18n/helper';
 
 /** Every string in a value, with a path to it, so two languages can be compared key by key. */
 function flat(value: unknown, prefix = ''): Record<string, string> {
@@ -127,5 +129,66 @@ describe('addresses and hreflang', () => {
     expect(languageLinks('/csv-to-json/').find((l) => l.locale.code === 'de')!.href).toBe('/de/csv-to-json/');
     expect(languageLinks('/about/').find((l) => l.locale.code === 'de')!.href).toBe('/de/');
     expect(languageLinks('/about/').find((l) => l.locale.code === 'en')!.href).toBe('/');
+  });
+});
+
+describe.each(MACHINE.map((l) => [l.code]))('%s helper', (code) => {
+  const ctx = helperContext(code!);
+  const mine = flat({ ...ctx.text, starters: undefined });
+  const base = flat({ ...ENGLISH_CONTEXT.text, starters: undefined });
+
+  it('has every sentence, none empty, with the same {placeholders} as English', () => {
+    const keys = Object.keys(base).filter((k) => !k.startsWith('keywords') && !k.startsWith('labels'));
+    for (const key of keys) {
+      expect(mine[key], key).toBeDefined();
+      expect(mine[key]!.trim(), key).not.toBe('');
+      expect(holes(mine[key]!), key).toEqual(holes(base[key]!));
+    }
+    // A few words are spelled the same in some languages (Roadmap, international, Base N).
+    const same = keys.filter((k) => mine[k] === base[k]);
+    expect(same.length, same.join(', ')).toBeLessThanOrEqual(4);
+  });
+  it('labels every button the helper can show', () => {
+    const english = new Set<string>(['Extract audio from a video', 'Make a GIF from a video', 'Open a CSV in Excel', '5 km in miles', '1250000 in words', 'Is my file safe?', 'Show it in every unit', 'Write it in international style', 'Write it in Indian style', '1250000 in international words', '1250000 in indian words', 'How do I use it?', 'Is my file uploaded?', 'How big a file can I use?']);
+    expect(Object.keys(ctx.text.labels).sort()).toEqual([...english].sort());
+    for (const s of ENGLISH_CONTEXT.text.starters) expect(ctx.text.labels[s], s).toBeDefined();
+    for (const [k, v] of Object.entries(ctx.text.labels)) expect(v.trim(), k).not.toBe('');
+  });
+  it('knows every converter by its name in the language, and the language path', () => {
+    for (const tool of TOOLS) expect(ctx.tools![tool.slug]?.name, tool.slug).toBe(toolText(code!, tool).name);
+    expect(ctx.prefix).toBe(`/${LOCALES.find((l) => l.code === code)!.path}`);
+  });
+  it('still answers a sum, a converter name and the easy questions', () => {
+    expect(respond('5 km to miles', ctx).answer?.big).toBe('3.106855961 mi');
+    expect(respond('mp4 to mp3', ctx).tools[0]).toMatchObject({ slug: 'mp4-to-mp3', href: `${ctx.prefix}/mp4-to-mp3/`, name: toolText(code!, TOOLS.find((t) => t.slug === 'mp4-to-mp3')!).name });
+    expect(respond('is it safe', ctx).text).toBe(ctx.text.replies.safe);
+    expect(respond('', ctx).text).toBe(ctx.text.replies.empty);
+    expect(respond('qqqqzzzz', ctx).tools).toHaveLength(0);
+    // The follow-up works through the English message a button sends, and answers in the language.
+    const first = respond('mp4 to mp3', ctx);
+    expect(respond('How do I use it?', ctx, first.focus).steps?.[0]).toBe(toolText(code!, TOOLS.find((t) => t.slug === 'mp4-to-mp3')!).quick);
+    expect(respond('How big a file can I use?', ctx, first.focus).text).toBe(ctx.text.replies.sizeAnswer);
+  });
+  it('understands words typed in the language', () => {
+    const k = ctx.text.keywords;
+    expect(respond(`${k.hello[0]}`, ctx).text).toBe(ctx.text.replies.hello);
+    expect(respond(`${k.thanks[0]}`, ctx).text).toBe(ctx.text.replies.thanks);
+    // A converter named in the language is found.
+    const length = toolText(code!, TOOLS.find((t) => t.slug === 'length-converter')!).name;
+    expect(respond(length.toLowerCase(), ctx).tools[0]?.slug).toBe('length-converter');
+    // "5 km <in> <miles>" with the unit word in the language.
+    const miles = k.units.find(([, english]) => english === 'miles')![0];
+    const sum = `5 km ${k.connectors[0]} ${miles}`;
+    expect(respond(sum, ctx).answer?.big, sum).toBe('3.106855961 mi');
+    // "1250 <in> <words>" and "14 <in> <roman>" in the language.
+    const wordsQ = `1250 ${k.connectors[0]} ${k.words[0]}`;
+    expect(respond(wordsQ, ctx).answer?.big, wordsQ).toMatch(/thousand|lakh/i);
+  });
+});
+
+describe('the English helper is untouched', () => {
+  it('has no translated tools and keeps its own addresses', () => {
+    expect(respond('mp4 to mp3').tools[0]?.href).toBe('/mp4-to-mp3/');
+    expect(respond('hello').text).toBe(ENGLISH_CONTEXT.text.replies.hello);
   });
 });

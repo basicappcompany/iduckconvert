@@ -107,7 +107,7 @@ const popularTools = POPULAR_FOOTER.map((slug) => TOOLS.find((t) => t.slug === s
             <a class="nav-item" href={lp('/')} aria-current={isHome ? 'page' : undefined}>
               <span class="nav-icon" aria-hidden="true">🏠</span><span class="nav-text">{d.navHome}</span>
             </a>
-            <a class="nav-item" href="/chat/" aria-current={path === '/chat/' ? 'page' : undefined}>
+            <a class="nav-item" href={lp('/chat/')} aria-current={path === '/chat/' ? 'page' : undefined}>
               <span class="nav-icon" aria-hidden="true">💬</span><span class="nav-text">{d.navHelper}</span>
             </a>
             <a class="nav-item" href="/converters/" aria-current={path === '/converters/' ? 'page' : undefined}>

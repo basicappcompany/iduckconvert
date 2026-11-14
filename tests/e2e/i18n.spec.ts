@@ -130,3 +130,35 @@ test.describe('languages: theme', () => {
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   });
 });
+
+test.describe('languages: the helper', () => {
+  test('the Spanish helper answers in Spanish, does a sum and links to the Spanish converter pages', async ({ page }) => {
+    await page.goto('/es/chat/');
+    await page.waitForFunction(() => document.querySelector('astro-island[client="load"]:not([ssr])') !== null);
+    await expect(page.locator('h1')).toContainText('asistente');
+    await expect(page.getByRole('log')).toContainText('Cuac');
+    // Starter buttons show Spanish labels.
+    await expect(page.getByRole('button', { name: 'Extraer el audio de un vídeo' })).toBeVisible();
+    await page.getByLabel('Pregunta al asistente').fill('5 km en millas');
+    await page.getByRole('button', { name: 'Enviar' }).click();
+    await expect(page.getByRole('log')).toContainText('3.106855961 mi', { timeout: 20_000 });
+    await page.getByLabel('Pregunta al asistente').fill('mp4 a mp3');
+    await page.getByRole('button', { name: 'Enviar' }).click();
+    const card = page.getByRole('log').locator('a[href="/es/mp4-to-mp3/"]');
+    await expect(card).toBeVisible({ timeout: 20_000 });
+    await expect(card).toContainText('MP4 a MP3');
+    // The follow-up button sends the English question but shows the Spanish label.
+    await page.getByRole('button', { name: '¿Cómo se usa?' }).click();
+    await expect(page.getByRole('log')).toContainText('Así se usa MP4 a MP3', { timeout: 20_000 });
+  });
+
+  test('every language has a helper page, and the sidebar and home link to it in the language', async ({ page }) => {
+    for (const { path } of LANGS) {
+      await page.goto(`/${path}/`);
+      await expect(page.locator(`a[href="/${path}/chat/"]`).first()).toBeVisible();
+      const res = await page.goto(`/${path}/chat/`);
+      expect(res?.status(), path).toBe(200);
+      await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex');
+    }
+  });
+});

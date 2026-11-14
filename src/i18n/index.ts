@@ -92,7 +92,7 @@ export interface Alternate {
 }
 
 /** The English paths that have a translated version in every published language. */
-const TRANSLATED_PATHS = new Set<string>(['/', ...PAGE_TOOLS.map((t) => toolPath(t.slug))]);
+const TRANSLATED_PATHS = new Set<string>(['/', '/chat/', ...PAGE_TOOLS.map((t) => toolPath(t.slug))]);
 
 /** True when this English path has a translated version in every published language. */
 export function hasTranslations(englishPath: string): boolean {

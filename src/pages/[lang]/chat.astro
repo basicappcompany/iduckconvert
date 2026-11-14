@@ -1,0 +1,23 @@
+---
+/** The helper in another language: /es/chat/ and so on. Same matcher as the English helper, with its sentences and the converter names translated. */
+import AppShell from '../../components/AppShell.astro';
+import ChatHelper from '../../components/ChatHelper';
+import { OTHER_LOCALES, alternatesFor, localeByPath } from '../../i18n';
+import { helperContext, helperPage } from '../../i18n/helper';
+
+export function getStaticPaths() {
+  return OTHER_LOCALES.map((locale) => ({ params: { lang: locale.path } }));
+}
+
+const { lang } = Astro.params as { lang: string };
+const locale = localeByPath(lang)!;
+const page = helperPage(locale.code);
+---
+
+<AppShell locale={locale.code} alternates={alternatesFor('/chat/')} title={page.title} description={page.description} noindex>
+  <div class="flex flex-wrap items-baseline justify-between gap-x-4">
+    <h1 class="text-3xl font-black tracking-tight sm:text-4xl">{page.headingBefore} <span class="mark">{page.headingMark}</span> {page.headingAfter}</h1>
+    <p class="text-sm text-muted">{page.sub}</p>
+  </div>
+  <ChatHelper client:load ctx={helperContext(locale.code)} />
+</AppShell>

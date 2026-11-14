@@ -176,8 +176,8 @@ export default function ChatHelper({ ctx = ENGLISH_CONTEXT }: { ctx?: HelperCont
         {suggestions && suggestions.length > 0 && (
           <div class="flex flex-wrap gap-2 pl-10" role="group" aria-label={ui.things}>
             {suggestions.map((s) => (
-              <button key={s} type="button" class="chip !rounded-2xl text-left" onClick={() => send(s)}>
-                {s}
+              <button key={s} type="button" class="chip !rounded-2xl text-left" onClick={() => send(s, ctx.text.labels[s])}>
+                {ctx.text.labels[s] ?? s}
               </button>
             ))}
           </div>
