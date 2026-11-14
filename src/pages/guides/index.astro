@@ -3,6 +3,7 @@ import AppShell from '../../components/AppShell.astro';
 import { GUIDES, GUIDE_CATEGORIES, guidePath } from '../../lib/guides';
 import { GROUP_EMOJI } from '../../lib/tools';
 import { breadcrumbLd, collectionLd } from '../../lib/seo';
+import { alternatesFor } from '../../i18n';
 
 const description = `${GUIDES.length} short how-to guides for converting audio, video, spreadsheets, pictures and units without mistakes. Each gives the answer first.`;
 const slug = (c: string) => c.replace(/\W+/g, '-').toLowerCase();
@@ -10,6 +11,7 @@ const groups = GUIDE_CATEGORIES.map((category) => ({ category, guides: GUIDES.fi
 ---
 
 <AppShell
+  alternates={alternatesFor('/guides/')}
   title="How-to guides for converting files | iDuckConvert"
   description={description}
   jsonLd={[

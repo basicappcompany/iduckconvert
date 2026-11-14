@@ -7,6 +7,8 @@
 import AppShell from '../../components/AppShell.astro';
 import DuckMark from '../../components/DuckMark.astro';
 import { PAGE_TOOLS, POPULAR_SLUGS, TOOLS, TOOL_GROUPS, hrefFor, toolBySlug, toolsInGroup } from '../../lib/tools';
+import { GUIDES } from '../../lib/guides';
+import { guideTextFor } from '../../i18n/guides';
 import { faqLd, organizationLd, websiteLd } from '../../lib/seo';
 import { OTHER_LOCALES, alternatesFor, dictFor, format, localeByPath, localePath, toolText } from '../../i18n';
 
@@ -23,6 +25,8 @@ const site = { ...(websiteLd() as Record<string, unknown>), inLanguage: locale.h
 const popular = POPULAR_SLUGS.map((s) => toolBySlug(s)!).filter(Boolean);
 const cardHref = (t: (typeof TOOLS)[number]) => (t.site ? hrefFor(t) : lp(hrefFor(t)));
 const whyEmoji = ['🔒', '🎁', '📱'];
+const haveGuides = GUIDES.filter((g) => guideTextFor(locale.code, g.slug));
+const guidesTitle = `${d.guidesHeadingBefore} ${d.guidesHeadingMark} ${d.guidesHeadingAfter}`.replace(/\s+/g, ' ').trim();
 ---
 
 <AppShell locale={locale.code} alternates={alternatesFor('/')} jsonLd={[site, organizationLd(), faqLd(d.faqs)]} title={d.homeTitle} description={d.homeDescription}>
@@ -55,7 +59,7 @@ const whyEmoji = ['🔒', '🎁', '📱'];
         <h2 class="text-xl font-black tracking-tight">{d.helperTitle}</h2>
         <p class="opacity-80">{d.helperText}</p>
       </div>
-      <a href="/chat/" class="btn btn-ink">{d.helperButton}</a>
+      <a href={lp('/chat/')} class="btn btn-ink">{d.helperButton}</a>
     </div>
   </section>
 
@@ -159,6 +163,29 @@ const whyEmoji = ['🔒', '🎁', '📱'];
       }
     </ul>
   </section>
+
+  {
+    haveGuides.length > 0 && (
+      <section class="mt-14" aria-label={guidesTitle}>
+        <h2 class="text-3xl font-black tracking-tight">{guidesTitle}</h2>
+        <p class="mt-1 text-muted">{d.guidesHomeIntro}</p>
+        <ul class="card-grid mt-3">
+          {haveGuides.slice(0, 6).map((g) => {
+            const text = guideTextFor(locale.code, g.slug)!;
+            return (
+              <li>
+                <a href={lp(`/guides/${g.slug}/`)} class="card card-link h-full p-4">
+                  <span class="block text-[17px] font-black">{text.title}</span>
+                  <span class="mt-1 block text-sm leading-[19px] text-muted">{text.description}</span>
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+        <p class="mt-3"><a class="link" href={lp('/guides/')}>{format(d.guidesAll, { n: haveGuides.length })}</a></p>
+      </section>
+    )
+  }
 
   <section class="mt-14" aria-label={d.faqHeading}>
     <h2 class="text-3xl font-black tracking-tight">{d.faqHeading}</h2>

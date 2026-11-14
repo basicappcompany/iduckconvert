@@ -4,6 +4,7 @@ import { en } from './en';
 import { LOCALES, localePath, type LocaleInfo } from './locales';
 import { uiFor } from './ui';
 import type { Dict, LocaleData, ToolText, UiText } from './types';
+import { guideSlugsFor, hasGuides, localesWithGuide } from './guides';
 import { bn } from './bn';
 import { de } from './de';
 import { es } from './es';
@@ -92,31 +93,48 @@ export interface Alternate {
 }
 
 /** The English paths that have a translated version in every published language. */
-const TRANSLATED_PATHS = new Set<string>(['/', ...PAGE_TOOLS.map((t) => toolPath(t.slug))]);
+const TRANSLATED_PATHS = new Set<string>(['/', '/chat/', ...PAGE_TOOLS.map((t) => toolPath(t.slug))]);
 
-/** True when this English path has a translated version in every published language. */
+/** The language codes (English included) that have a version of this English path. Empty when only English has it. */
+function codesFor(englishPath: string): string[] {
+  const published = LOCALES.filter((l) => l.status !== 'planned').map((l) => l.code);
+  if (TRANSLATED_PATHS.has(englishPath)) return published;
+  if (englishPath === '/guides/') return published.filter((c) => c === 'en' || hasGuides(c));
+  const guide = /^\/guides\/([^/]+)\/$/.exec(englishPath)?.[1];
+  if (guide) {
+    const have = new Set(['en', ...localesWithGuide(guide)]);
+    return have.size > 1 ? published.filter((c) => have.has(c)) : [];
+  }
+  return [];
+}
+
+/** True when this English path has a translated version in at least one other language. */
 export function hasTranslations(englishPath: string): boolean {
-  return TRANSLATED_PATHS.has(englishPath);
+  return codesFor(englishPath).length > 1;
 }
 
 /** Every language version of an English path, as absolute URLs, or nothing when it has none. */
 export function alternatesFor(englishPath: string): Alternate[] {
-  if (!hasTranslations(englishPath)) return [];
-  return LOCALES.filter((l) => l.status !== 'planned').map((locale) => ({
+  const codes = codesFor(englishPath);
+  if (codes.length < 2) return [];
+  return LOCALES.filter((l) => codes.includes(l.code)).map((locale) => ({
     hreflang: locale.hreflang,
     href: `${SITE_URL}${localePath(locale.code, englishPath)}`,
     locale,
   }));
 }
 
-/** Where the language menu sends the visitor: the same page in each language, or that language's home page. */
+/** Where the language menu sends the visitor: the same page in each language, or that language's closest page (its guides, else its home page). */
 export function languageLinks(englishPath: string): { locale: LocaleInfo; href: string }[] {
-  const translated = hasTranslations(englishPath);
-  return LOCALES.filter((l) => l.status !== 'planned').map((locale) => ({
-    locale,
-    href: translated ? localePath(locale.code, englishPath) : localePath(locale.code, '/'),
-  }));
+  const codes = codesFor(englishPath);
+  return LOCALES.filter((l) => l.status !== 'planned').map((locale) => {
+    if (codes.includes(locale.code)) return { locale, href: localePath(locale.code, englishPath) };
+    if (englishPath.startsWith('/guides/') && hasGuides(locale.code)) return { locale, href: localePath(locale.code, '/guides/') };
+    return { locale, href: localePath(locale.code, '/') };
+  });
 }
+
+export { guideSlugsFor, hasGuides };
 
 /** Every tool, for the checks that make sure no language misses one. */
 export const ALL_TOOLS = TOOLS;

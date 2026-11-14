@@ -20,7 +20,8 @@ Resume here in a new session. The full picture is `docs/status.html`. Base = iDu
 - [x] Site pages, 4 guides, sitemap, robots, canonical, OG/Twitter, og.png, favicon
 - [x] Unit tests (42) and browser tests (26)
 - [x] Languages phase 1 (switch, hreflang, home page and every converter in 9 languages)
-- [ ] Languages phase 2: how-to guides and the helper
+- [x] Languages phase 2a: the helper in 9 languages
+- [ ] Languages phase 2b: how-to guides (5 of 47 done in all nine languages)
 - [ ] Languages phase 3: unit pair pages, long explanations, About, Privacy, Terms
 - [x] Cloudflare Pages project, domain, Email Routing (done 13 Nov; send a real test email to hello@ still to do)
 - [x] 46 how-to guides (42 added), grouped by topic
