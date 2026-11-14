@@ -31,6 +31,11 @@ test.describe('languages: pages', () => {
       await expect(page.locator('[data-answer]')).not.toContainText('To convert CSV');
       await expect(page.locator('h1')).not.toHaveText('CSV to JSON converter');
       await expect(page.locator('[data-more-nav] a').first()).toHaveAttribute('href', new RegExp(`^/${path}/`));
+      // The steps, the explanation and the questions are in the language too, not English.
+      await expect(page.locator('.prose ol li').first()).toBeVisible();
+      expect(await page.locator('#faq ~ div details').count()).toBeGreaterThanOrEqual(3);
+      await expect(page.locator('.prose')).not.toContainText('Press Convert');
+      await expect(page.locator('#faq')).not.toContainText('Common questions');
       expect(errors).toEqual([]);
     });
 
