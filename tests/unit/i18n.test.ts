@@ -7,7 +7,7 @@ import { UNIT_PAIRS } from '../../src/lib/unit-pages';
 import { ENGLISH_CONTEXT, respond } from '../../src/lib/helper';
 import { helperContext } from '../../src/i18n/helper';
 import { guideSlugsFor, guideTextFor, localesWithGuide } from '../../src/i18n/guides';
-import { guideBySlug } from '../../src/lib/guides';
+import { GUIDES, guideBySlug } from '../../src/lib/guides';
 
 /** Every string in a value, with a path to it, so two languages can be compared key by key. */
 function flat(value: unknown, prefix = ''): Record<string, string> {
@@ -199,6 +199,9 @@ describe('the English helper is untouched', () => {
 
 describe.each(MACHINE.map((l) => [l.code]))('%s guides', (code) => {
   const slugs = guideSlugsFor(code!);
+  it('has every English guide', () => {
+    expect([...slugs].sort()).toEqual(GUIDES.map((g) => g.slug).sort());
+  });
   it('has translated guides, and only for guides that exist', () => {
     expect(slugs.length).toBeGreaterThan(0);
     for (const slug of slugs) expect(guideBySlug(slug), slug).toBeDefined();
