@@ -1,0 +1,101 @@
+---
+/** One how-to guide in another language: /es/guides/how-to-convert-mov-to-mp4/. Only guides that are translated into that language get a page. */
+import AppShell from '../../../components/AppShell.astro';
+import { GUIDES, guideBySlug } from '../../../lib/guides';
+import { hrefFor, toolBySlug } from '../../../lib/tools';
+import { articleLd, breadcrumbLd, faqLd, howToLd } from '../../../lib/seo';
+import { OTHER_LOCALES, alternatesFor, dictFor, format, localeByPath, localePath, toolText } from '../../../i18n';
+import { guideSlugsFor, guideTextFor } from '../../../i18n/guides';
+
+export function getStaticPaths() {
+  return OTHER_LOCALES.flatMap((locale) => guideSlugsFor(locale.code).filter((slug) => guideBySlug(slug)).map((slug) => ({ params: { lang: locale.path, slug } })));
+}
+
+const { lang, slug } = Astro.params as { lang: string; slug: string };
+const locale = localeByPath(lang)!;
+const d = dictFor(locale.code);
+const lp = (p: string) => localePath(locale.code, p);
+const guide = guideBySlug(slug)!;
+const text = guideTextFor(locale.code, slug)!;
+const tools = guide.tools.map((s) => toolBySlug(s)!).filter(Boolean);
+const rest = GUIDES.filter((g) => g.slug !== slug && guideTextFor(locale.code, g.slug));
+const others = [...rest.filter((g) => g.category === guide.category), ...rest.filter((g) => g.category !== guide.category)].slice(0, 3);
+const path = `/guides/${slug}/`;
+const guidesTitle = `${d.guidesHeadingBefore} ${d.guidesHeadingMark} ${d.guidesHeadingAfter}`.replace(/\s+/g, ' ').trim();
+---
+
+<AppShell
+  locale={locale.code}
+  alternates={alternatesFor(path)}
+  title={`${text.title} | iDuckConvert`}
+  description={text.description}
+  jsonLd={[
+    articleLd({ headline: text.title, description: text.description, path: lp(path), datePublished: guide.published, dateModified: guide.updated, lang: locale.hreflang }),
+    howToLd(text.title, text.steps),
+    faqLd(text.faqs),
+    breadcrumbLd([{ name: d.breadcrumbHome, path: lp('/') }, { name: guidesTitle, path: lp('/guides/') }, { name: text.title, path: lp(path) }]),
+  ]}
+>
+  <p class="eyebrow"><a href={lp('/guides/')} class="underline decoration-2 underline-offset-2">{guidesTitle}</a></p>
+  <h1 class="display mt-2 text-3xl min-[400px]:text-4xl sm:text-5xl [overflow-wrap:anywhere]">{text.title}</h1>
+  <p class="mt-3 text-sm text-muted">{format(d.guideUpdated, { date: guide.updated })}</p>
+  {locale.status === 'machine' && <p class="mt-1 text-sm text-muted" data-machine-note>{d.machineShort}</p>}
+  <section class="card mt-5 p-4" aria-label={d.guideQuick}>
+    <p class="eyebrow">{d.guideQuick}</p>
+    <p class="mt-1 leading-relaxed">{text.intro}</p>
+  </section>
+
+  <div class="prose mt-8">
+    <h2>{d.guideSteps}</h2>
+    <ol>{text.steps.map((s) => <li>{s}</li>)}</ol>
+    {text.sections.map((s) => (
+      <>
+        <h2>{s.heading}</h2>
+        {s.paragraphs.map((p) => <p>{p}</p>)}
+      </>
+    ))}
+  </div>
+
+  <section class="mt-10" aria-label={d.guideTryIt}>
+    <h2 class="text-2xl font-black tracking-tight">{d.guideTryIt}</h2>
+    <ul class="mt-3 grid gap-4 sm:grid-cols-3">
+      {tools.map((t) => {
+        const x = toolText(locale.code, t);
+        return (
+          <li>
+            <a href={t.site ? hrefFor(t) : lp(hrefFor(t))} class="card card-link h-full p-4" {...(t.site ? { rel: 'noopener' } : {})}>
+              <span class="flex items-center gap-2 text-lg font-black"><span aria-hidden="true">{t.emoji}</span>{x.name}</span>
+              <span class="mt-1 block text-sm text-muted">{x.summary}</span>
+              {t.site && <span class="pill mt-2 w-fit">{format(d.onSite, { site: t.site })} ↗</span>}
+            </a>
+          </li>
+        );
+      })}
+    </ul>
+  </section>
+
+  <section class="mt-10" aria-labelledby="faq">
+    <h2 id="faq" class="text-2xl font-black tracking-tight">{d.guideQuestions}</h2>
+    <div class="mt-3 grid gap-3">
+      {text.faqs.map((f) => (
+        <details class="card px-4 py-3">
+          <summary class="cursor-pointer text-lg font-black">{f.q}</summary>
+          <p class="mt-2 leading-relaxed">{f.a}</p>
+        </details>
+      ))}
+    </div>
+  </section>
+
+  {
+    others.length > 0 && (
+      <section class="mt-10" aria-label={d.guideMore}>
+        <h2 class="text-2xl font-black tracking-tight">{d.guideMore}</h2>
+        <ul class="mt-3 grid gap-4 sm:grid-cols-3">
+          {others.map((g) => (
+            <li><a href={lp(`/guides/${g.slug}/`)} class="card card-link h-full p-4"><span class="block text-[17px] font-black">{guideTextFor(locale.code, g.slug)!.title}</span></a></li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
+</AppShell>

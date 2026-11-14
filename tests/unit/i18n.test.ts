@@ -4,6 +4,10 @@ import { en, enTemplates } from '../../src/i18n/en';
 import { UI_TEXT } from '../../src/i18n/ui';
 import { PAGE_TOOLS, TOOLS, toolPath } from '../../src/lib/tools';
 import { UNIT_PAIRS } from '../../src/lib/unit-pages';
+import { ENGLISH_CONTEXT, respond } from '../../src/lib/helper';
+import { helperContext } from '../../src/i18n/helper';
+import { guideSlugsFor, guideTextFor, localesWithGuide } from '../../src/i18n/guides';
+import { guideBySlug } from '../../src/lib/guides';
 
 /** Every string in a value, with a path to it, so two languages can be compared key by key. */
 function flat(value: unknown, prefix = ''): Record<string, string> {
@@ -43,7 +47,8 @@ describe.each(MACHINE.map((l) => [l.code]))('%s page text', (code) => {
   it('has every key, none empty, with the same {placeholders} as English', () => {
     expect(Object.keys(mine).sort()).toEqual(Object.keys(source).sort());
     for (const [key, text] of Object.entries(mine)) {
-      expect(text.trim(), key).not.toBe('');
+      // A heading may have nothing before or after its highlighted word.
+      if (!/HeadingBefore$|HeadingAfter$/.test(key)) expect(text.trim(), key).not.toBe('');
       expect(holes(text), key).toEqual(holes(source[key]!));
     }
   });
@@ -115,7 +120,8 @@ describe('addresses and hreflang', () => {
     expect(hasTranslations('/')).toBe(true);
     for (const tool of PAGE_TOOLS) expect(hasTranslations(toolPath(tool.slug)), tool.slug).toBe(true);
     expect(hasTranslations('/about/')).toBe(false);
-    expect(hasTranslations('/guides/')).toBe(false);
+    // The guides list exists in the languages that have translated guides.
+    expect(hasTranslations('/guides/')).toBe(true);
     for (const pair of UNIT_PAIRS) expect(hasTranslations(`/${pair.slug}/`), pair.slug).toBe(false);
     expect(alternatesFor('/about/')).toEqual([]);
     const alts = alternatesFor('/mp4-to-mp3/');
@@ -127,5 +133,115 @@ describe('addresses and hreflang', () => {
     expect(languageLinks('/csv-to-json/').find((l) => l.locale.code === 'de')!.href).toBe('/de/csv-to-json/');
     expect(languageLinks('/about/').find((l) => l.locale.code === 'de')!.href).toBe('/de/');
     expect(languageLinks('/about/').find((l) => l.locale.code === 'en')!.href).toBe('/');
+  });
+});
+
+describe.each(MACHINE.map((l) => [l.code]))('%s helper', (code) => {
+  const ctx = helperContext(code!);
+  const mine = flat({ ...ctx.text, starters: undefined });
+  const base = flat({ ...ENGLISH_CONTEXT.text, starters: undefined });
+
+  it('has every sentence, none empty, with the same {placeholders} as English', () => {
+    const keys = Object.keys(base).filter((k) => !k.startsWith('keywords') && !k.startsWith('labels'));
+    for (const key of keys) {
+      expect(mine[key], key).toBeDefined();
+      expect(mine[key]!.trim(), key).not.toBe('');
+      expect(holes(mine[key]!), key).toEqual(holes(base[key]!));
+    }
+    // A few words are spelled the same in some languages (Roadmap, international, Base N).
+    const same = keys.filter((k) => mine[k] === base[k]);
+    expect(same.length, same.join(', ')).toBeLessThanOrEqual(4);
+  });
+  it('labels every button the helper can show', () => {
+    const english = new Set<string>(['Extract audio from a video', 'Make a GIF from a video', 'Open a CSV in Excel', '5 km in miles', '1250000 in words', 'Is my file safe?', 'Show it in every unit', 'Write it in international style', 'Write it in Indian style', '1250000 in international words', '1250000 in indian words', 'How do I use it?', 'Is my file uploaded?', 'How big a file can I use?']);
+    expect(Object.keys(ctx.text.labels).sort()).toEqual([...english].sort());
+    for (const s of ENGLISH_CONTEXT.text.starters) expect(ctx.text.labels[s], s).toBeDefined();
+    for (const [k, v] of Object.entries(ctx.text.labels)) expect(v.trim(), k).not.toBe('');
+  });
+  it('knows every converter by its name in the language, and the language path', () => {
+    for (const tool of TOOLS) expect(ctx.tools![tool.slug]?.name, tool.slug).toBe(toolText(code!, tool).name);
+    expect(ctx.prefix).toBe(`/${LOCALES.find((l) => l.code === code)!.path}`);
+  });
+  it('still answers a sum, a converter name and the easy questions', () => {
+    expect(respond('5 km to miles', ctx).answer?.big).toBe('3.106855961 mi');
+    expect(respond('mp4 to mp3', ctx).tools[0]).toMatchObject({ slug: 'mp4-to-mp3', href: `${ctx.prefix}/mp4-to-mp3/`, name: toolText(code!, TOOLS.find((t) => t.slug === 'mp4-to-mp3')!).name });
+    expect(respond('is it safe', ctx).text).toBe(ctx.text.replies.safe);
+    expect(respond('', ctx).text).toBe(ctx.text.replies.empty);
+    expect(respond('qqqqzzzz', ctx).tools).toHaveLength(0);
+    // The follow-up works through the English message a button sends, and answers in the language.
+    const first = respond('mp4 to mp3', ctx);
+    expect(respond('How do I use it?', ctx, first.focus).steps?.[0]).toBe(toolText(code!, TOOLS.find((t) => t.slug === 'mp4-to-mp3')!).quick);
+    expect(respond('How big a file can I use?', ctx, first.focus).text).toBe(ctx.text.replies.sizeAnswer);
+  });
+  it('understands words typed in the language', () => {
+    const k = ctx.text.keywords;
+    expect(respond(`${k.hello[0]}`, ctx).text).toBe(ctx.text.replies.hello);
+    expect(respond(`${k.thanks[0]}`, ctx).text).toBe(ctx.text.replies.thanks);
+    // A converter named in the language is found.
+    const length = toolText(code!, TOOLS.find((t) => t.slug === 'length-converter')!).name;
+    expect(respond(length.toLowerCase(), ctx).tools[0]?.slug).toBe('length-converter');
+    // "5 km <in> <miles>" with the unit word in the language.
+    const miles = k.units.find(([, english]) => english === 'miles')![0];
+    const sum = `5 km ${k.connectors[0]} ${miles}`;
+    expect(respond(sum, ctx).answer?.big, sum).toBe('3.106855961 mi');
+    // "1250 <in> <words>" and "14 <in> <roman>" in the language.
+    const wordsQ = `1250 ${k.connectors[0]} ${k.words[0]}`;
+    expect(respond(wordsQ, ctx).answer?.big, wordsQ).toMatch(/thousand|lakh/i);
+  });
+});
+
+describe('the English helper is untouched', () => {
+  it('has no translated tools and keeps its own addresses', () => {
+    expect(respond('mp4 to mp3').tools[0]?.href).toBe('/mp4-to-mp3/');
+    expect(respond('hello').text).toBe(ENGLISH_CONTEXT.text.replies.hello);
+  });
+});
+
+describe.each(MACHINE.map((l) => [l.code]))('%s guides', (code) => {
+  const slugs = guideSlugsFor(code!);
+  it('has translated guides, and only for guides that exist', () => {
+    expect(slugs.length).toBeGreaterThan(0);
+    for (const slug of slugs) expect(guideBySlug(slug), slug).toBeDefined();
+  });
+  it.each(slugs.map((s) => [s]))('%s matches the English guide piece by piece', (slug) => {
+    const en = guideBySlug(slug!)!;
+    const t = guideTextFor(code!, slug!)!;
+    expect(t.steps, 'steps').toHaveLength(en.steps.length);
+    expect(t.sections, 'sections').toHaveLength(en.sections.length);
+    expect(t.faqs, 'faqs').toHaveLength(en.faqs.length);
+    t.sections.forEach((s, i) => expect(s.paragraphs, `section ${i}`).toHaveLength(en.sections[i]!.paragraphs.length));
+    const all = [t.title, t.description, t.intro, ...t.steps, ...t.sections.flatMap((s) => [s.heading, ...s.paragraphs]), ...t.faqs.flatMap((f) => [f.q, f.a])];
+    for (const text of all) {
+      expect(text.trim(), 'empty text').not.toBe('');
+      expect(text, text.slice(0, 40)).not.toMatch(/\{\w+\}/);
+    }
+    // Nothing is left in English, and the sizes stay sensible for a search result.
+    expect(t.title).not.toBe(en.title);
+    expect(t.intro).not.toBe(en.intro);
+    expect(t.title.length, 'title').toBeLessThanOrEqual(90);
+    expect(t.description.length, 'description').toBeGreaterThanOrEqual(50);
+    expect(t.description.length, 'description').toBeLessThanOrEqual(260);
+    // The numbers in the steps survive translation (a size, a bit rate, a width).
+    const digits = (s: string) => (s.match(/\d+/g) ?? []).filter((d) => d.length >= 3).sort();
+    for (const [i, step] of en.steps.entries()) {
+      for (const d of digits(step)) expect(t.steps[i], `step ${i + 1} keeps ${d}`).toContain(d);
+    }
+  });
+});
+
+describe('guide pages and hreflang', () => {
+  it('a guide with translations lists exactly the languages that have it', () => {
+    const slug = 'how-to-make-a-gif-from-a-video';
+    const have = localesWithGuide(slug).length;
+    expect(have).toBeGreaterThan(0);
+    const alts = alternatesFor(`/guides/${slug}/`);
+    expect(alts).toHaveLength(have + 1);
+    expect(alts.some((a) => a.hreflang === 'en-US')).toBe(true);
+    // A guide nobody has translated sends no hreflang at all.
+    expect(alternatesFor('/guides/not-a-real-guide/')).toEqual([]);
+  });
+  it('the language menu sends a language without the guide to its guides list', () => {
+    const links = languageLinks('/guides/not-translated-anywhere/');
+    expect(links.find((l) => l.locale.code === 'es')!.href).toBe('/es/guides/');
   });
 });

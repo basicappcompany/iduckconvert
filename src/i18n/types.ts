@@ -41,6 +41,28 @@ export interface Dict {
   footerLine: string;
   /** Says the page is machine-translated and what is still English. */
   machineNote: string;
+  /** A short form for pages that are fully translated, such as a guide. */
+  machineShort: string;
+  guidesPageTitle: string;
+  /** Contains {n}. */
+  guidesPageDescription: string;
+  guidesHeadingBefore: string;
+  /** The highlighted word of the guides heading. */
+  guidesHeadingMark: string;
+  guidesHeadingAfter: string;
+  guidesTopics: string;
+  guidesHomeIntro: string;
+  /** Contains {n}. */
+  guidesAll: string;
+  /** Contains {date}. */
+  guideUpdated: string;
+  guideQuick: string;
+  guideSteps: string;
+  guideTryIt: string;
+  guideQuestions: string;
+  guideMore: string;
+  /** Contains {title}. */
+  readGuide: string;
 
   // Converter pages
   breadcrumbHome: string;

@@ -1,0 +1,61 @@
+---
+/** The how-to guides in another language: /es/guides/. It lists only the guides that are translated into that language so far. */
+import AppShell from '../../../components/AppShell.astro';
+import { GUIDES, GUIDE_CATEGORIES } from '../../../lib/guides';
+import { GROUP_EMOJI } from '../../../lib/tools';
+import { breadcrumbLd, collectionLd } from '../../../lib/seo';
+import { OTHER_LOCALES, alternatesFor, dictFor, format, localeByPath, localePath } from '../../../i18n';
+import { guideTextFor, hasGuides } from '../../../i18n/guides';
+
+export function getStaticPaths() {
+  return OTHER_LOCALES.filter((l) => hasGuides(l.code)).map((locale) => ({ params: { lang: locale.path } }));
+}
+
+const { lang } = Astro.params as { lang: string };
+const locale = localeByPath(lang)!;
+const d = dictFor(locale.code);
+const lp = (p: string) => localePath(locale.code, p);
+const have = GUIDES.filter((g) => guideTextFor(locale.code, g.slug));
+const description = format(d.guidesPageDescription, { n: have.length });
+const slug = (c: string) => c.replace(/\W+/g, '-').toLowerCase();
+const groups = GUIDE_CATEGORIES.map((category) => ({ category, guides: have.filter((g) => g.category === category) })).filter((g) => g.guides.length > 0);
+const heading = `${d.guidesHeadingBefore} ${d.guidesHeadingMark} ${d.guidesHeadingAfter}`.replace(/\s+/g, ' ').trim();
+---
+
+<AppShell
+  locale={locale.code}
+  alternates={alternatesFor('/guides/')}
+  title={d.guidesPageTitle}
+  description={description}
+  jsonLd={[
+    collectionLd(heading, lp('/guides/'), description, have.map((g) => ({ name: guideTextFor(locale.code, g.slug)!.title, path: lp(`/guides/${g.slug}/`) }))),
+    breadcrumbLd([{ name: d.breadcrumbHome, path: lp('/') }, { name: heading, path: lp('/guides/') }]),
+  ]}
+>
+  <h1 class="display text-4xl sm:text-5xl">{d.guidesHeadingBefore} <span class="mark">{d.guidesHeadingMark}</span> {d.guidesHeadingAfter}</h1>
+  <p class="mt-3 max-w-2xl text-lg text-muted">{description}</p>
+  {locale.status === 'machine' && <p class="mt-2 text-sm text-muted" data-machine-note>{d.machineShort}</p>}
+  <nav aria-label={d.guidesTopics} class="mt-4 flex flex-wrap gap-2">
+    {groups.map((g) => <a class="chip" href={`#${slug(g.category)}`}>{GROUP_EMOJI[g.category]} {d.groups[g.category]} ({g.guides.length})</a>)}
+  </nav>
+  {
+    groups.map((g) => (
+      <section class="mt-10" aria-labelledby={slug(g.category)}>
+        <h2 id={slug(g.category)} class="text-2xl font-black tracking-tight">{GROUP_EMOJI[g.category]} {d.groups[g.category]}</h2>
+        <ul class="card-grid mt-3">
+          {g.guides.map((guide) => {
+            const text = guideTextFor(locale.code, guide.slug)!;
+            return (
+              <li>
+                <a href={lp(`/guides/${guide.slug}/`)} class="card card-link h-full p-4">
+                  <span class="block text-[17px] font-black">{text.title}</span>
+                  <span class="mt-1 block text-sm leading-[19px] text-muted">{text.description}</span>
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+      </section>
+    ))
+  }
+</AppShell>

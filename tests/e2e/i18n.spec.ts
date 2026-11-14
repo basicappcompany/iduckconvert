@@ -130,3 +130,79 @@ test.describe('languages: theme', () => {
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   });
 });
+
+test.describe('languages: the helper', () => {
+  test('the Spanish helper answers in Spanish, does a sum and links to the Spanish converter pages', async ({ page }) => {
+    await page.goto('/es/chat/');
+    await page.waitForFunction(() => document.querySelector('astro-island[client="load"]:not([ssr])') !== null);
+    await expect(page.locator('h1')).toContainText('asistente');
+    await expect(page.getByRole('log')).toContainText('Cuac');
+    // Starter buttons show Spanish labels.
+    await expect(page.getByRole('button', { name: 'Extraer el audio de un vídeo' })).toBeVisible();
+    await page.getByLabel('Pregunta al asistente').fill('5 km en millas');
+    await page.getByRole('button', { name: 'Enviar' }).click();
+    await expect(page.getByRole('log')).toContainText('3.106855961 mi', { timeout: 20_000 });
+    await page.getByLabel('Pregunta al asistente').fill('mp4 a mp3');
+    await page.getByRole('button', { name: 'Enviar' }).click();
+    const card = page.getByRole('log').locator('a[href="/es/mp4-to-mp3/"]');
+    await expect(card).toBeVisible({ timeout: 20_000 });
+    await expect(card).toContainText('MP4 a MP3');
+    // The follow-up button sends the English question but shows the Spanish label.
+    await page.getByRole('button', { name: '¿Cómo se usa?' }).click();
+    await expect(page.getByRole('log')).toContainText('Así se usa MP4 a MP3', { timeout: 20_000 });
+  });
+
+  test('every language has a helper page, and the sidebar and home link to it in the language', async ({ page }) => {
+    for (const { path } of LANGS) {
+      await page.goto(`/${path}/`);
+      await expect(page.locator(`a[href="/${path}/chat/"]`).first()).toBeVisible();
+      const res = await page.goto(`/${path}/chat/`);
+      expect(res?.status(), path).toBe(200);
+      await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex');
+    }
+  });
+});
+
+test.describe('languages: how-to guides', () => {
+  const GUIDE = 'how-to-make-a-gif-from-a-video';
+
+  for (const { path, tag } of LANGS) {
+    test(`${path}: the guides list and a guide are in the language and fit a 320 px phone`, async ({ page }) => {
+      await page.setViewportSize({ width: 320, height: 700 });
+      await page.goto(`/${path}/guides/`);
+      await expect(page.locator('html')).toHaveAttribute('lang', tag);
+      expect(await page.locator(`.card-grid a[href^="/${path}/guides/"]`).count()).toBeGreaterThanOrEqual(5);
+      await page.goto(`/${path}/guides/${GUIDE}/`);
+      await expect(page.locator('html')).toHaveAttribute('lang', tag);
+      await expect(page.locator('h1')).not.toHaveText('How to make a GIF from a video');
+      await expect(page.locator('[data-machine-note]')).toBeVisible();
+      expect(await page.locator('.prose h2').count()).toBeGreaterThanOrEqual(3);
+      expect(await page.locator('.prose li').count()).toBe(5);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1)).toBe(false);
+      // The "Try it now" cards link to the converters in the language.
+      await expect(page.locator('section[aria-label] ul a[href^="/' + path + '/video-to-gif/"]').first()).toBeVisible();
+    });
+  }
+
+  test('a guide lists its translations for search engines, and the converter page links to it in the language', async ({ page }) => {
+    await page.goto(`/guides/${GUIDE}/`);
+    const hrefs = await page.locator('link[rel="alternate"][hreflang]').evaluateAll((els) => els.map((e) => `${e.getAttribute('hreflang')} ${e.getAttribute('href')}`));
+    expect(hrefs).toContain(`es https://iduckconvert.com/es/guides/${GUIDE}/`);
+    expect(hrefs).toContain(`x-default https://iduckconvert.com/guides/${GUIDE}/`);
+    // The language menu keeps you on the same guide.
+    await page.locator('[data-lang-menu] summary').click();
+    await page.locator('.lang-list a[hreflang="de"]').click();
+    await expect(page).toHaveURL(new RegExp(`/de/guides/${GUIDE}/$`));
+    // A converter page offers its guide in the language.
+    await page.goto('/es/video-to-gif/');
+    await expect(page.locator('[data-answer] a.link')).toHaveAttribute('href', `/es/guides/${GUIDE}/`);
+    // The home page shows the guides in the language.
+    await page.goto('/fr/');
+    await expect(page.locator('section[aria-label="Guides pratiques"] a').first()).toBeVisible();
+  });
+
+  test('a guide that is not translated yet has no page in the language and is not linked from it', async ({ request }) => {
+    const res = await request.get('/es/guides/how-to-convert-psi-to-bar-tyre-pressure/');
+    expect(res.status()).toBe(404);
+  });
+});
