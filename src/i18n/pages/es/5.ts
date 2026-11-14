@@ -30,7 +30,7 @@ export default {
   mrgndw: `¿Arreglará un AVI dañado?`,
   '1q3vhng': `No siempre. Un archivo ligeramente dañado puede convertirse con fallos, y uno muy dañado fallará con un mensaje claro.`,
   e23dzo: `¿Qué son AVI y MP4?`,
-  '1ccahlq': `AVI es un antiguo formato de vídeo de Microsoft de los años 90. Todavía aparece en clips de cámaras antiguas y descargas, y muchos dispositivos modernos lo rechazan. MP4 es el formato de vídeo que funciona casi en todas partes: móviles, televisores, navegadores y aplicaciones sociales.`,
+  '1ccahlq': `AVI es un antiguo formato de vídeo de Microsoft de 1990. Todavía aparece en clips de cámaras antiguas y descargas, y muchos dispositivos modernos lo rechazan. MP4 es el formato de vídeo que funciona casi en todas partes: móviles, televisores, navegadores y aplicaciones sociales.`,
   hc2e1l: `¿Quién necesita convertir AVI a MP4?`,
   '1h8snq6': `¿Pierde calidad convertir AVI a MP4?`,
   '1myqvmx': `Muchos archivos AVI usan códecs más antiguos y menos eficientes, así que el MP4 suele ser menor. La imagen se codifica de nuevo con una pequeña pérdida, y el metraje antiguo de baja resolución no se verá más nítido, porque convertir no puede añadir detalle.`,
@@ -66,6 +66,6 @@ export default {
   zp4rvs: `¿Conservará el sonido?`,
   '7r3tp2': `Sí, convertido a Vorbis. Si el AVI no tiene una pista de audio legible, la página te avisa cuando no puede leerla.`,
   '11x9jm6': `¿Qué son AVI y WEBM?`,
-  '1ixjzim': `AVI es un antiguo formato de vídeo de Microsoft de los años 90. Todavía aparece en clips de cámaras antiguas y descargas, y muchos dispositivos modernos lo rechazan. WEBM es un formato de vídeo abierto hecho para la web. Los navegadores lo reproducen directamente y los archivos son pequeños, pero los televisores antiguos y algunos editores no lo aceptan.`,
+  '1ixjzim': `AVI es un antiguo formato de vídeo de Microsoft de 1990. Todavía aparece en clips de cámaras antiguas y descargas, y muchos dispositivos modernos lo rechazan. WEBM es un formato de vídeo abierto hecho para la web. Los navegadores lo reproducen directamente y los archivos son pequeños, pero los televisores antiguos y algunos editores no lo aceptan.`,
   '404hf7': `¿Quién necesita convertir AVI a WEBM?`,
 };
