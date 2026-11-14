@@ -65,6 +65,10 @@ export const ru: LocaleData = {
     descFiles: '{summary} Бесплатно, без регистрации, без водяных знаков, а ваши файлы никогда не загружаются.',
     descNoFiles: '{summary} Бесплатно, без регистрации и без водяных знаков.',
     controlsEnglish: 'Выбор файлов, кнопки и область скачивания ниже переведены. Параметры внутри конвертера пока на английском.',
+    /** Contains {name}. The headings of the steps, the explanation and the questions under a converter. */
+    pageStepsHeading: 'Как пользоваться: {name}?',
+    pageAboutHeading: 'Что нужно знать о: {name}?',
+    pageFaqHeading: 'Частые вопросы: {name}',
     homeTitle: 'iDuckConvert: бесплатные конвертеры в вашем браузере',
     homeDescription: 'Конвертируйте аудио, видео, таблицы, JSON, единицы измерения, числа и часовые пояса бесплатно в браузере. Без загрузки, без регистрации, без водяных знаков.',
     heroBefore: 'Ваши файлы,',

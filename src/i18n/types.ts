@@ -83,6 +83,10 @@ export interface Dict {
   descNoFiles: string;
   /** Says the options inside the converter are English for now. */
   controlsEnglish: string;
+  /** Contains {name}. The headings of the steps, the explanation and the questions under a converter. */
+  pageStepsHeading: string;
+  pageAboutHeading: string;
+  pageFaqHeading: string;
 
   // Home page
   homeTitle: string;

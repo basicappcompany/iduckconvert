@@ -65,6 +65,10 @@ export const hi: LocaleData = {
     descFiles: '{summary} मुफ़्त, साइन-अप नहीं, वॉटरमार्क नहीं, और आपकी फ़ाइलें कभी अपलोड नहीं होतीं।',
     descNoFiles: '{summary} मुफ़्त, साइन-अप और वॉटरमार्क नहीं।',
     controlsEnglish: 'नीचे का फ़ाइल चुनने वाला हिस्सा, बटन और डाउनलोड वाला क्षेत्र अनुवादित हैं। कन्वर्टर के अंदर के विकल्प फ़िलहाल अंग्रेज़ी में हैं।',
+    /** Contains {name}. The headings of the steps, the explanation and the questions under a converter. */
+    pageStepsHeading: '{name} का इस्तेमाल कैसे करें?',
+    pageAboutHeading: '{name} के बारे में मुझे क्या जानना चाहिए?',
+    pageFaqHeading: '{name} के बारे में आम सवाल',
     homeTitle: 'iDuckConvert: मुफ़्त कन्वर्टर जो आपके ब्राउज़र में चलते हैं',
     homeDescription: 'ऑडियो, वीडियो, स्प्रेडशीट, JSON, इकाइयाँ, संख्याएँ और टाइम ज़ोन अपने ब्राउज़र में मुफ़्त कन्वर्ट करें। अपलोड नहीं, साइन-अप नहीं, वॉटरमार्क नहीं।',
     heroBefore: 'आपकी फ़ाइलें,',

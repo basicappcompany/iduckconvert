@@ -72,6 +72,10 @@ export const en: Dict = {
   descFiles: '{summary} Free, no sign-up, no watermark, and your files are never uploaded.',
   descNoFiles: '{summary} Free, no sign-up, no watermark.',
   controlsEnglish: 'The file picker, the buttons and the download area below are translated. The options inside the converter are in English for now.',
+  /** Contains {name}. The headings of the steps, the explanation and the questions under a converter. */
+  pageStepsHeading: 'How do I use {name}?',
+  pageAboutHeading: 'What should I know about {name}?',
+  pageFaqHeading: 'Common questions about {name}',
 
   homeTitle: 'iDuckConvert: free converters that run in your browser',
   homeDescription: 'Convert audio, video, spreadsheets, JSON, units, numbers and time zones free in your browser. No upload, no sign-up, no watermark.',

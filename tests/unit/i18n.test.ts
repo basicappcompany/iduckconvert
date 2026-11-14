@@ -8,6 +8,8 @@ import { ENGLISH_CONTEXT, respond } from '../../src/lib/helper';
 import { helperContext } from '../../src/i18n/helper';
 import { guideSlugsFor, guideTextFor, localesWithGuide } from '../../src/i18n/guides';
 import { GUIDES, guideBySlug } from '../../src/lib/guides';
+import { contentFor } from '../../src/lib/content';
+import { pageKey, pageKeysFor, pageStrings, pageTextFor, translationFor } from '../../src/i18n/pages';
 
 /** Every string in a value, with a path to it, so two languages can be compared key by key. */
 function flat(value: unknown, prefix = ''): Record<string, string> {
@@ -246,5 +248,43 @@ describe('guide pages and hreflang', () => {
   it('the language menu sends a language without the guide to its guides list', () => {
     const links = languageLinks('/guides/not-translated-anywhere/');
     expect(links.find((l) => l.locale.code === 'es')!.href).toBe('/es/guides/');
+  });
+});
+
+describe.each(MACHINE.map((l) => [l.code]))('%s converter page text', (code) => {
+  const english = new Map<string, string>();
+  for (const t of PAGE_TOOLS) for (const s of pageStrings(contentFor(t))) english.set(pageKey(s), s);
+  const have = pageKeysFor(code!);
+
+  it('translates only sentences that exist in English', () => {
+    expect(have.filter((k) => !english.has(k))).toEqual([]);
+  });
+  it('keeps the numbers and names no placeholder', () => {
+    for (const k of have) {
+      const en = english.get(k)!;
+      const tr = translationFor(code!, en)!;
+      expect(tr.length, k).toBeGreaterThan(2);
+      expect(tr, k).not.toMatch(/\{\w+\}/);
+      for (const n of en.match(/\d{3,}/g) ?? []) expect(tr.replace(/[\s,.’']/g, ''), `${k}: ${n}`).toContain(n.replace(/[\s,.’']/g, ''));
+    }
+  });
+  it('shows a page only when every sentence of it is translated', () => {
+    for (const t of PAGE_TOOLS) {
+      const c = contentFor(t);
+      const complete = pageStrings(c).every((s) => translationFor(code!, s) !== undefined);
+      expect(pageTextFor(code!, c) !== undefined, t.slug).toBe(complete);
+    }
+  });
+});
+
+describe.each(MACHINE.map((l) => [l.code]))('%s converter page text is complete', (code) => {
+  it('translates every sentence of every converter page', () => {
+    const missing: string[] = [];
+    for (const t of PAGE_TOOLS) {
+      const c = contentFor(t);
+      const gap = pageStrings(c).filter((s) => translationFor(code!, s) === undefined);
+      if (gap.length) missing.push(`${t.slug}: ${gap.length} missing, first: ${gap[0]}`);
+    }
+    expect(missing).toEqual([]);
   });
 });
