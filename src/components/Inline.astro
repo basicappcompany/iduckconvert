@@ -1,0 +1,13 @@
+---
+import { parseInline, type Inline } from '../lib/inline';
+
+interface Props {
+  /** A sentence with the small markup of src/lib/inline.ts, values already filled in. */
+  text: string;
+  /** Turns an internal link target (/privacy/) into the address in this page's language. */
+  href?: (path: string) => string;
+}
+const { text, href = (p: string) => p } = Astro.props;
+const parts: Inline[] = parseInline(text);
+---
+{parts.map((i) => i.t === 'b' ? <strong>{i.s}</strong> : i.t === 'code' ? <code class={i.s.length > 40 ? 'break-all' : undefined}>{i.s}</code> : i.t === 'a' ? (i.href.startsWith('http') ? <a class="link" href={i.href} rel="noopener">{i.s}</a> : <a class="link" href={href(i.href)}>{i.s}</a>) : i.s)}

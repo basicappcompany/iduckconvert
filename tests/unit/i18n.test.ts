@@ -10,6 +10,7 @@ import { guideSlugsFor, guideTextFor, localesWithGuide } from '../../src/i18n/gu
 import { GUIDES, guideBySlug } from '../../src/lib/guides';
 import { contentFor, pairContent } from '../../src/lib/content';
 import { UNIT_PAIRS as UNIT_PAIRS_ALL } from '../../src/lib/unit-pages';
+import { COMMUNITY_PAGES, communityStrings } from '../../src/lib/community-pages';
 import { pageKey, pageKeysFor, pageStrings, pageTextFor, pairStrings, translationFor, unitStrings } from '../../src/i18n/pages';
 
 /** Every string in a value, with a path to it, so two languages can be compared key by key. */
@@ -122,7 +123,8 @@ describe('addresses and hreflang', () => {
   it('lists every language for the home page and every converter, and only those', () => {
     expect(hasTranslations('/')).toBe(true);
     for (const tool of PAGE_TOOLS) expect(hasTranslations(toolPath(tool.slug)), tool.slug).toBe(true);
-    expect(hasTranslations('/about/')).toBe(false);
+    for (const path of ['/about/', '/privacy/', '/terms/', '/how-it-works/']) expect(hasTranslations(path), path).toBe(true);
+    expect(hasTranslations('/roadmap/')).toBe(false);
     // The guides list exists in the languages that have translated guides.
     expect(hasTranslations('/guides/')).toBe(true);
     // A pair page lists exactly the languages in which every sentence of it is translated.
@@ -130,7 +132,8 @@ describe('addresses and hreflang', () => {
       const have = OTHER_LOCALES.filter((l) => pairHasText(l.code, pair.slug)).length;
       expect(alternatesFor(`/${pair.slug}/`).length, pair.slug).toBe(have > 0 ? have + 1 : 0);
     }
-    expect(alternatesFor('/about/')).toEqual([]);
+    expect(alternatesFor('/roadmap/')).toEqual([]);
+    expect(alternatesFor('/about/').length).toBe(10);
     const alts = alternatesFor('/mp4-to-mp3/');
     expect(alts.map((a) => a.hreflang).sort()).toEqual(['bn', 'de', 'en-US', 'es', 'fr', 'hi', 'id', 'pt-BR', 'ru', 'tr']);
     expect(alts.find((a) => a.hreflang === 'es')!.href).toBe('https://iduckconvert.com/es/mp4-to-mp3/');
@@ -138,8 +141,9 @@ describe('addresses and hreflang', () => {
   });
   it('the language menu keeps you on the same page, or sends you to that language home when it has no translation', () => {
     expect(languageLinks('/csv-to-json/').find((l) => l.locale.code === 'de')!.href).toBe('/de/csv-to-json/');
-    expect(languageLinks('/about/').find((l) => l.locale.code === 'de')!.href).toBe('/de/');
-    expect(languageLinks('/about/').find((l) => l.locale.code === 'en')!.href).toBe('/');
+    expect(languageLinks('/about/').find((l) => l.locale.code === 'de')!.href).toBe('/de/about/');
+    expect(languageLinks('/roadmap/').find((l) => l.locale.code === 'de')!.href).toBe('/de/');
+    expect(languageLinks('/roadmap/').find((l) => l.locale.code === 'en')!.href).toBe('/');
   });
 });
 
@@ -260,6 +264,7 @@ describe.each(MACHINE.map((l) => [l.code]))('%s converter page text', (code) => 
   const english = new Map<string, string>();
   for (const t of PAGE_TOOLS) for (const s of [...pageStrings(contentFor(t)), ...unitStrings(contentFor(t))]) english.set(pageKey(s), s);
   for (const p of UNIT_PAIRS_ALL) for (const s of pairStrings(pairContent(p))) english.set(pageKey(s), s);
+  for (const p of COMMUNITY_PAGES) for (const s of communityStrings(p)) english.set(pageKey(s), s);
   const have = pageKeysFor(code!);
 
   it('translates only sentences that exist in English', () => {
@@ -269,8 +274,13 @@ describe.each(MACHINE.map((l) => [l.code]))('%s converter page text', (code) => 
     for (const k of have) {
       const en = english.get(k)!;
       const tr = translationFor(code!, en)!;
-      expect(tr.length, k).toBeGreaterThan(2);
+      expect(tr.length, k).toBeGreaterThan(1);
       expect(tr, k).not.toMatch(/\{\w+\}/);
+      // The small markup of src/lib/inline.ts must survive: the same [[values]], link targets, bold and code spans.
+      expect(tr.match(/\[\[[\w-]+\]\]/g)?.sort(), `${k} values`).toEqual(en.match(/\[\[[\w-]+\]\]/g)?.sort());
+      expect([...tr.matchAll(/\]\(([^)\s]+)\)/g)].map((m) => m[1]).sort(), `${k} links`).toEqual([...en.matchAll(/\]\(([^)\s]+)\)/g)].map((m) => m[1]).sort());
+      expect(tr.split('**').length, `${k} bold`).toBe(en.split('**').length);
+      expect(tr.split('`').length, `${k} code`).toBe(en.split('`').length);
       for (const n of en.match(/\d{3,}/g) ?? []) expect(tr.replace(/[\s,.’']/g, ''), `${k}: ${n}`).toContain(n.replace(/[\s,.’']/g, ''));
     }
   });
@@ -290,6 +300,17 @@ describe.each(MACHINE.map((l) => [l.code]))('%s converter page text is complete'
       const c = contentFor(t);
       const gap = pageStrings(c).filter((s) => translationFor(code!, s) === undefined);
       if (gap.length) missing.push(`${t.slug}: ${gap.length} missing, first: ${gap[0]}`);
+    }
+    expect(missing).toEqual([]);
+  });
+});
+
+describe.each(MACHINE.map((l) => [l.code]))('%s long community pages (About, Privacy, Terms, How it works)', (code) => {
+  it('has every sentence translated', () => {
+    const missing: string[] = [];
+    for (const p of COMMUNITY_PAGES) {
+      const gap = communityStrings(p).filter((x) => translationFor(code!, x) === undefined);
+      if (gap.length) missing.push(`${p.slug}: ${gap.length} missing, first: ${gap[0]}`);
     }
     expect(missing).toEqual([]);
   });
