@@ -96,8 +96,8 @@ export interface Alternate {
 }
 
 /** The English paths that have a translated version in every published language. */
-/** The long community pages that every language has (src/lib/community-pages.ts). */
-export const COMMUNITY_TRANSLATED = ['/about/', '/privacy/', '/terms/', '/how-it-works/'] as const;
+/** The community pages that every language has: the long ones (src/lib/community-pages.ts) and the shorter ones whose words are in src/i18n/options. */
+export const COMMUNITY_TRANSLATED = ['/about/', '/privacy/', '/terms/', '/how-it-works/', '/donate/', '/roadmap/', '/feedback/', '/request/', '/settings/', '/converters/'] as const;
 const TRANSLATED_PATHS = new Set<string>(['/', '/chat/', ...COMMUNITY_TRANSLATED, ...PAGE_TOOLS.map((t) => toolPath(t.slug))]);
 
 const PAIRS = new Map(UNIT_PAIRS.map((p) => [p.slug, p]));

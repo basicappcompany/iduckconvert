@@ -1,19 +1,5 @@
 ---
-import CommunityLayout from '../components/CommunityLayout.astro';
-import FeedbackForm from '../components/FeedbackForm';
+import MorePage from '../components/MorePage.astro';
 ---
 
-<CommunityLayout
-  title="Request a feature | iDuckConvert"
-  description="Tell us about a converter or improvement you would like to see on iDuckConvert."
-  before="Got an"
-  mark="idea"
-  after="?"
-  intro="Describe a new tool, or a way an existing one could work better, with a real example if you can. Everything we have announced is already built, so your ideas shape what comes next."
-  noindex
->
-  <FeedbackForm mode="request" client:load />
-  <p class="text-sm text-muted">
-    You can also look at the <a class="link" href="/roadmap/">roadmap</a> to see what is already on our list.
-  </p>
-</CommunityLayout>
+<MorePage slug="request" />

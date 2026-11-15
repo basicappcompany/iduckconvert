@@ -51,7 +51,7 @@ test.describe('languages: pages', () => {
 });
 
 test.describe('languages: search engines and menu', () => {
-  test('a converter page lists every language and x-default; a page without translations lists none', async ({ page }) => {
+  test('a converter page lists every language and x-default; so does a translated community page', async ({ page }) => {
     await page.goto('/mp4-to-mp3/');
     const hrefs = await page.locator('link[rel="alternate"][hreflang]').evaluateAll((els) => els.map((e) => `${e.getAttribute('hreflang')} ${e.getAttribute('href')}`));
     expect(hrefs).toHaveLength(11);
@@ -59,7 +59,7 @@ test.describe('languages: search engines and menu', () => {
     expect(hrefs).toContain('en-US https://iduckconvert.com/mp4-to-mp3/');
     expect(hrefs).toContain('x-default https://iduckconvert.com/mp4-to-mp3/');
     await page.goto('/roadmap/');
-    await expect(page.locator('link[rel="alternate"][hreflang]')).toHaveCount(0);
+    await expect(page.locator('link[rel="alternate"][hreflang]')).toHaveCount(11);
     // A translated page is its own canonical address.
     await page.goto('/es/mp4-to-mp3/');
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://iduckconvert.com/es/mp4-to-mp3/');
@@ -78,7 +78,7 @@ test.describe('languages: search engines and menu', () => {
     await expect(page.locator('html')).toHaveAttribute('lang', 'en-US');
   });
 
-  test('the menu closes on Escape and on a tap elsewhere; a page with no translation sends you to that language home', async ({ page }) => {
+  test('the menu closes on Escape and on a tap elsewhere; the menu keeps a community page in the new language', async ({ page }) => {
     await page.goto('/roadmap/');
     const menu = page.locator('[data-lang-menu]');
     await menu.locator('summary').click();
@@ -90,7 +90,7 @@ test.describe('languages: search engines and menu', () => {
     await expect(page.locator('.lang-list')).toBeHidden();
     await menu.locator('summary').click();
     await page.locator('.lang-list a[hreflang="fr"]').click();
-    await expect(page).toHaveURL(/\/fr\/$/);
+    await expect(page).toHaveURL(/\/fr\/roadmap\/$/);
   });
 
   test('the sitemap lists the translated pages with their language links', async ({ request }) => {

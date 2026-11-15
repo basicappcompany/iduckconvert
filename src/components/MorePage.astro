@@ -1,0 +1,201 @@
+---
+/**
+ * The shorter community pages (Donate, Roadmap, Feedback, Request, Settings) and the all-converters list, in any
+ * language. Their words are the `donate*`, `road*`, `fb*`, `req*`, `set*` and `conv*` keys of src/i18n/options (the same
+ * files the converters read), so English and every translation share one layout and a test keeps the languages level.
+ */
+import CommunityLayout from './CommunityLayout.astro';
+import ShareButton from './ShareButton';
+import FeedbackForm from './FeedbackForm';
+import SettingsPanel from './SettingsPanel';
+import { PAGE_TOOLS, TOOLS, TOOL_GROUPS, GROUP_EMOJI, hrefFor, toolPath, toolsInGroup } from '../lib/tools';
+import { breadcrumbLd, collectionLd } from '../lib/seo';
+import { alternatesFor, dictFor, localePath, toolText } from '../i18n';
+import { fill, optsFor } from '../i18n/options';
+
+interface Props {
+  slug: 'donate' | 'roadmap' | 'feedback' | 'request' | 'settings' | 'converters';
+  locale?: string;
+}
+const { slug, locale = 'en' } = Astro.props;
+const o = optsFor(locale);
+const d = dictFor(locale);
+const english = locale === 'en';
+const lp = (p: string) => localePath(locale, p);
+const here = `/${slug}/`;
+const alternates = alternatesFor(here);
+const n = PAGE_TOOLS.length;
+const m = TOOLS.length - PAGE_TOOLS.length;
+const groupName = (g: (typeof TOOL_GROUPS)[number]): string => (english ? g : d.groups[g]);
+const anchor = (g: string): string => g.replace(/\W+/g, '-').toLowerCase();
+const [roadPre = '', roadPost = ''] = o.reqRoadmap.split('{link}');
+const [pdfPre = '', pdfPost = ''] = o.convPdf.split('{link}');
+const nameOf = (t: (typeof TOOLS)[number]): string => toolText(locale, t).name;
+
+const upcoming = [
+  { emoji: '🌍', title: o.roadLangT, text: o.roadLangP },
+  { emoji: '🌀', title: o.roadWebpT, text: o.roadWebpP },
+  { emoji: '💱', title: o.roadCurT, text: o.roadCurP },
+  { emoji: '🎚️', title: o.roadAudioT, text: o.roadAudioP },
+];
+const donateLinks = [
+  { href: '/feedback/', emoji: '🐞', title: o.donateReportT, text: o.donateReportP },
+  { href: '/request/', emoji: '💡', title: o.donateSuggestT, text: o.donateSuggestP },
+  { href: '/roadmap/', emoji: '🗺️', title: o.donateRoadT, text: o.donateRoadP },
+  { href: '/about/', emoji: '🦆', title: o.donateAboutT, text: o.donateAboutP },
+];
+
+const layout = {
+  donate: { title: o.donateTitle, description: o.donateDesc, before: o.donateBefore, mark: o.donateMark, after: '', intro: o.donateIntro, noindex: false },
+  roadmap: {
+    title: fill(o.roadTitle, { n }),
+    description: fill(o.roadDesc, { n }),
+    before: o.roadBefore,
+    mark: o.roadMark,
+    after: '',
+    intro: fill(o.roadIntro, { n }),
+    noindex: false,
+  },
+  feedback: { title: o.fbTitle, description: o.fbDesc, before: o.fbBefore, mark: o.fbMark, after: '', intro: o.fbIntro, noindex: true },
+  request: { title: o.reqTitle, description: o.reqDesc, before: o.reqBefore, mark: o.reqMark, after: o.reqAfter, intro: o.reqIntro, noindex: true },
+  settings: { title: o.setTitle, description: o.setDesc, before: '', mark: o.setMark, after: '', intro: o.setIntro, noindex: true },
+  converters: { title: o.convTitle, description: fill(o.convDesc, { n, m }), before: o.convBefore, mark: o.convMark, after: '', intro: fill(o.convIntro, { n, m }), noindex: false },
+}[slug];
+const jsonLd =
+  slug === 'converters'
+    ? [
+        collectionLd(layout.mark, lp('/converters/'), layout.description, TOOLS.filter((t) => !t.site).map((t) => ({ name: nameOf(t), path: lp(`/${t.slug}/`) }))),
+        breadcrumbLd([{ name: english ? 'Home' : d.breadcrumbHome, path: lp('/') }, { name: `${layout.before} ${layout.mark}`, path: lp('/converters/') }]),
+      ]
+    : [];
+---
+
+<CommunityLayout {...layout} jsonLd={jsonLd} locale={locale} alternates={alternates}>
+  {
+    slug === 'donate' && (
+      <>
+        <section class="card p-5" aria-labelledby="share">
+          <h2 id="share" class="text-2xl font-black tracking-tight">{o.donateTellH}</h2>
+          <p class="mt-1 text-muted">{o.donateTellP}</p>
+          <div class="mt-4"><ShareButton client:load /></div>
+        </section>
+
+        <section aria-labelledby="other">
+          <h2 id="other" class="text-2xl font-black tracking-tight">{o.donateOtherH}</h2>
+          <ul class="mt-3 grid gap-3 sm:grid-cols-2">
+            {donateLinks.map((l) => (
+              <li>
+                <a href={lp(l.href)} class="card card-link h-full p-4">
+                  <span class="text-lg font-black"><span aria-hidden="true">{l.emoji}</span> {l.title}</span>
+                  <span class="mt-1 block text-sm text-muted">{l.text}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section class="card p-5">
+          <h2 class="text-2xl font-black tracking-tight">{o.donateTipsH}</h2>
+          <p class="mt-1 text-muted">{o.donateTipsP}</p>
+        </section>
+      </>
+    )
+  }
+
+  {
+    slug === 'roadmap' && (
+      <>
+        <section class="card p-5" style="background: var(--d-duck); color: var(--d-duckink)" aria-labelledby="live">
+          <h2 id="live" class="text-2xl font-black">{fill(o.roadLiveH, { n })}</h2>
+          <ul class="mt-3 flex flex-wrap gap-2">
+            {PAGE_TOOLS.map((t) => (
+              <li>
+                <a href={lp(toolPath(t.slug))} class="pill no-underline hover:underline" style="background: var(--d-card); color: var(--d-ink)">
+                  <span aria-hidden="true">{t.emoji}</span>
+                  {nameOf(t)}
+                </a>
+              </li>
+            ))}
+          </ul>
+          <p class="mt-3 text-sm">{o.roadLiveNote}</p>
+        </section>
+
+        <section class="card p-5" aria-labelledby="links">
+          <h2 id="links" class="text-2xl font-black tracking-tight">{o.roadSisterH}</h2>
+          <p class="mt-1 text-sm text-muted">{o.roadSisterNote}</p>
+          <ul class="mt-3 flex flex-wrap gap-2">
+            {TOOLS.filter((t) => t.site).map((t) => (
+              <li><a class="pill no-underline hover:underline" href={t.href} rel="noopener">{t.emoji} {fill(o.roadOnSite, { name: nameOf(t), site: t.site ?? '' })}</a></li>
+            ))}
+            <li><a class="pill no-underline hover:underline" href="https://iduckpdf.com/" rel="noopener">📚 {o.roadAllPdf}</a></li>
+          </ul>
+        </section>
+
+        <section aria-labelledby="next">
+          <h2 id="next" class="text-2xl font-black tracking-tight">{o.roadNextH}</h2>
+          <p class="mt-1 text-sm text-muted">{o.roadNextNote}</p>
+          <ul class="mt-3 grid gap-3 sm:grid-cols-2">
+            {upcoming.map((u) => (
+              <li class="card p-4">
+                <h3 class="text-lg font-black"><span aria-hidden="true">{u.emoji}</span> {u.title}</h3>
+                <p class="mt-1 text-sm text-muted">{u.text}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section class="card p-5">
+          <h2 class="text-2xl font-black">{o.roadMissingH}</h2>
+          <p class="mt-1 text-muted">{o.roadMissingP}</p>
+          <p class="mt-3 flex flex-wrap gap-3">
+            <a href={lp('/request/')} class="btn btn-primary btn-lg">{o.roadReqBtn}</a>
+            <a href={lp('/feedback/')} class="btn btn-lg">{o.roadFbBtn}</a>
+          </p>
+        </section>
+      </>
+    )
+  }
+
+  {slug === 'feedback' && <FeedbackForm mode="feedback" client:load />}
+
+  {
+    slug === 'request' && (
+      <>
+        <FeedbackForm mode="request" client:load />
+        <p class="text-sm text-muted">{roadPre}<a class="link" href={lp('/roadmap/')}>{o.reqRoadmapLink}</a>{roadPost}</p>
+      </>
+    )
+  }
+
+  {slug === 'settings' && <SettingsPanel client:load />}
+
+  {
+    slug === 'converters' && (
+      <>
+        <nav aria-label={o.convGroupsAria} class="flex flex-wrap gap-2">
+          {TOOL_GROUPS.map((g) => <a class="chip" href={`#${anchor(g)}`}>{GROUP_EMOJI[g]} {groupName(g)}</a>)}
+        </nav>
+        {TOOL_GROUPS.map((group) => (
+          <section class="mt-4" aria-labelledby={anchor(group)}>
+            <h2 id={anchor(group)} class="text-2xl font-black tracking-tight">{GROUP_EMOJI[group]} {groupName(group)}</h2>
+            <ul class="card-grid mt-3">
+              {toolsInGroup(group).map((tool) => (
+                <li>
+                  <a href={tool.site ? hrefFor(tool) : lp(hrefFor(tool))} class="card card-link h-full p-4" {...(tool.site ? { rel: 'noopener' } : {})}>
+                    <span class="flex items-center gap-2.5 text-[17px] font-black">
+                      <span aria-hidden="true" class="text-[28px] leading-none">{tool.emoji}</span>
+                      {nameOf(tool)}
+                    </span>
+                    <span class="mt-1 block text-sm leading-[19px] text-muted">{toolText(locale, tool).summary}</span>
+                    {tool.site && <span class="pill mt-2 w-fit">{fill(o.convOnSite, { site: tool.site })}</span>}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))}
+        <p class="mt-6 text-muted">{pdfPre}<a class="link" href="https://iduckpdf.com/" rel="noopener">iDuckPDF</a>{pdfPost}</p>
+      </>
+    )
+  }
+</CommunityLayout>

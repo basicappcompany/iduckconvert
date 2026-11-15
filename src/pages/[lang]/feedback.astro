@@ -1,0 +1,12 @@
+---
+import MorePage from '../../components/MorePage.astro';
+import { OTHER_LOCALES, localeByPath } from '../../i18n';
+
+export function getStaticPaths() {
+  return OTHER_LOCALES.map((locale) => ({ params: { lang: locale.path } }));
+}
+
+const { lang } = Astro.params as { lang: string };
+---
+
+<MorePage slug="feedback" locale={localeByPath(lang)!.code} />
