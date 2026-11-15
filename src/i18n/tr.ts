@@ -52,7 +52,7 @@ export const tr: LocaleData = {
     footerTerms: 'Koşullar',
     footerFeedback: 'Geri bildirim',
     footerLine: '© 2026 Basic App Company · iDuckConvert · iduckconvert.com · Tarayıcınızda çalışan ücretsiz dönüştürücüler. Son güncelleme: {date}.',
-    machineNote: 'Bu sayfa makine çevirisidir. Dönüştürücünün içindeki seçenekler ve uzun açıklamalar şimdilik İngilizcedir.',
+    machineNote: 'Bu sayfa makine çevirisidir, bu yüzden bazı ifadeler tuhaf kaçabilir.',
     machineShort: 'Bu sayfa makine çevirisidir.',
     guidesPageTitle: 'Dosya dönüştürme rehberleri | iDuckConvert',
     guidesPageDescription: 'Ses, video, e-tablo, görsel ve birimleri hatasız dönüştürmek için {n} kısa rehber. Her biri önce yanıtı verir.',
@@ -81,7 +81,7 @@ export const tr: LocaleData = {
     titleTool: '{name}: ücretsiz, tarayıcınızda | iDuckConvert',
     descFiles: '{summary} Ücretsiz, kayıt yok, filigran yok ve dosyalarınız asla yüklenmez.',
     descNoFiles: '{summary} Ücretsiz, kayıt ve filigran yok.',
-    controlsEnglish: 'Aşağıdaki dosya seçici, düğmeler ve indirme alanı çevrilmiştir. Dönüştürücünün içindeki seçenekler şimdilik İngilizcedir.',
+    controlsEnglish: 'Dönüştürücülerin içindeki birim, şehir ve tarih biçimi adları şimdilik İngilizce.',
     /** Contains {name}. The headings of the steps, the explanation and the questions under a converter. */
     pageStepsHeading: '{name} nasıl kullanılır?',
     pageAboutHeading: '{name} hakkında ne bilmeliyim?',
