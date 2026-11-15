@@ -334,7 +334,8 @@ export const hrefFor = (tool: ToolLink): string => tool.href ?? toolPath(tool.sl
 /** Home page "Popular right now", in order. */
 export const POPULAR_SLUGS = ['mp4-to-mp3', 'video-to-gif', 'heic-to-jpg', 'csv-to-excel', 'json-to-csv', 'number-to-words', 'length-converter', 'time-zone-converter'] as const;
 
-const words = (s: string): string[] => s.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
+/** Lower-case words of any script (letters, marks and digits), so a Hindi or Russian name can be searched too. */
+const words = (s: string): string[] => s.toLowerCase().split(/[^\p{L}\p{M}\p{N}]+/u).filter(Boolean);
 
 /** Rank tools for a search: whole words in the name first, then the slug and keywords, matching word starts. */
 export function searchTools(query: string, list: readonly ToolLink[] = TOOLS): ToolLink[] {

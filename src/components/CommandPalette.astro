@@ -1,35 +1,81 @@
 ---
-/**
- * The Ctrl K search window: a dim backdrop, a thick-bordered card
- * with a hard shadow, results grouped as Tools, Shortcuts, Pages and Actions, the selected row in
- * duck yellow, and a hint bar. Opens with Ctrl K or Cmd K (toggles), with "/" when you are not
- * typing, and from the Search button. Arrow keys move, Enter opens, Esc closes.
- */
+import { dictFor, hasGuides, localePath } from '../i18n';
+import { guideTextFor } from '../i18n/guides';
+import { COMMUNITY, communityPath } from '../lib/community';
+import { GUIDES, guidePath } from '../lib/guides';
+import { TOOLS } from '../lib/tools';
+import { toolText } from '../i18n';
+
+interface Props {
+  /** The language of the page: the window's own words, tool names and page links follow it. */
+  locale?: string;
+}
+const { locale = 'en' } = Astro.props;
+const d = dictFor(locale);
+const english = locale === 'en';
+const lp = (p: string) => localePath(locale, p);
+// The words and (for other languages) the translated names the script needs. Plain data, never HTML.
+const data = {
+  s: {
+    tools: d.paletteTools,
+    pages: d.palettePages,
+    actions: d.paletteActions,
+    onSite: d.paletteOnSite,
+    page: d.palettePage,
+    guide: d.paletteGuide,
+    action: d.paletteAction,
+    empty: d.paletteEmpty,
+    theme: d.paletteTheme,
+  },
+  prefix: english ? '' : lp('/').replace(/\/$/, ''),
+  groups: d.groups,
+  names: english ? undefined : Object.fromEntries(TOOLS.filter((t) => !t.site).map((t) => [t.slug, toolText(locale, t).name])),
+  pages: english
+    ? undefined
+    : [
+        { to: lp('/'), label: d.navHome, icon: '🏠', kw: 'start main' },
+        { to: lp('/chat/'), label: d.navHelper, icon: '💬', kw: 'chat assistant help which tool' },
+        { to: '/converters/', label: d.navConverters, icon: '🧰', kw: 'browse list everything tools' },
+        ...(hasGuides(locale) ? [{ to: lp('/guides/'), label: d.navGuides, icon: '📖', kw: 'learn tutorial help steps how to', hint: d.paletteGuides }] : []),
+        ...GUIDES.flatMap((g) => {
+          const t = guideTextFor(locale, g.slug);
+          return t ? [{ to: lp(guidePath(g.slug)), label: t.title, icon: '📖', kw: t.description, hint: d.paletteGuide }] : [];
+        }),
+        ...COMMUNITY.map((p) => ({
+          to: p.slug === 'about' ? lp(communityPath(p.slug)) : communityPath(p.slug),
+          label: d.community[p.slug as keyof typeof d.community],
+          icon: p.emoji,
+          kw: `${p.summary} ${p.slug === 'donate' ? 'tip support help share' : ''} ${p.slug === 'settings' ? 'theme dark light' : ''}`,
+        })),
+        { to: lp('/privacy/'), label: d.footerPrivacy, icon: '🔒', kw: 'data cookies legal' },
+        { to: lp('/terms/'), label: d.footerTerms, icon: '📜', kw: 'legal rules conditions' },
+      ],
+};
 ---
 
-<div id="palette" class="palette" hidden>
+<div id="palette" class="palette" data-palette={JSON.stringify(data)} hidden>
   <div class="palette-backdrop" data-palette-close></div>
-  <div class="palette-card" role="dialog" aria-modal="true" aria-label="Search">
+  <div class="palette-card" role="dialog" aria-modal="true" aria-label={d.paletteDialog}>
     <div class="palette-top">
       <span aria-hidden="true" class="text-lg">🔍</span>
       <input
         id="palette-input"
         type="text"
         class="palette-input"
-        placeholder="Search converters, pages and actions…"
+        placeholder={d.paletteSearchPlaceholder}
         autocomplete="off"
         spellcheck="false"
         role="combobox"
         aria-expanded="true"
         aria-controls="palette-list"
         aria-autocomplete="list"
-        aria-label="Search converters, pages and actions"
+        aria-label={d.paletteInputAria}
       />
       <kbd class="palette-kbd" aria-hidden="true">Esc</kbd>
     </div>
-    <div id="palette-list" class="palette-list" role="listbox" aria-label="Results"></div>
+    <div id="palette-list" class="palette-list" role="listbox" aria-label={d.paletteResults}></div>
     <div class="palette-hints" aria-hidden="true">
-      <span>↑ ↓ move</span><span>Enter open</span><span>Esc close</span>
+      <span>{d.paletteMove}</span><span>{d.paletteOpen}</span><span>{d.paletteClose}</span>
     </div>
   </div>
 </div>
@@ -159,7 +205,18 @@
   import { GUIDES, guidePath } from '../lib/guides';
   import { browserTheme } from '../lib/theme-client';
 
-  type Group = 'Tools' | 'Shortcuts' | 'Pages' | 'Actions';
+  /** The words and translated names for this page's language, written by CommandPalette.astro (src/i18n). */
+  interface PaletteData {
+    s: { tools: string; pages: string; actions: string; onSite: string; page: string; guide: string; action: string; empty: string; theme: string };
+    prefix: string;
+    groups: Record<string, string>;
+    names?: Record<string, string>;
+    pages?: { to: string; label: string; icon: string; kw: string; hint?: string }[];
+  }
+  const DATA = JSON.parse(document.getElementById('palette')!.dataset.palette!) as PaletteData;
+  const S = DATA.s;
+
+  type Group = string;
   interface Item {
     id: string;
     label: string;
@@ -178,7 +235,7 @@
     location.href = href;
   };
 
-  const PAGES: { to: string; label: string; icon: string; kw: string; hint?: string }[] = [
+  const PAGES: { to: string; label: string; icon: string; kw: string; hint?: string }[] = DATA.pages ?? [
     { to: '/', label: 'Home', icon: '🏠', kw: 'start main' },
     { to: '/chat/', label: 'Ask the helper', icon: '💬', kw: 'chat assistant help which tool' },
     { to: '/converters/', label: 'All converters', icon: '🧰', kw: 'browse list everything tools' },
@@ -194,7 +251,10 @@
     { to: '/terms/', label: 'Terms of use', icon: '📜', kw: 'legal rules conditions' },
   ];
 
-  const words = (s: string) => s.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
+  // In another language a tool shows its translated name; the English name still matches a search.
+  const TOOL_LIST = DATA.names ? TOOLS.map((t) => (DATA.names![t.slug] ? { ...t, name: DATA.names![t.slug]!, keywords: `${t.name} ${t.keywords}` } : t)) : TOOLS;
+
+  const words = (s: string) => s.toLowerCase().split(/[^\p{L}\p{M}\p{N}]+/u).filter(Boolean);
   const matches = (query: string, text: string) => {
     const q = words(query);
     if (q.length === 0) return true;
@@ -206,31 +266,31 @@
 
   function build(query: string): Item[] {
     const q = query.trim();
-    const tools: Item[] = (q ? searchTools(q, TOOLS) : TOOLS.slice(0, 8)).map((t) => ({
+    const tools: Item[] = (q ? searchTools(q, TOOL_LIST) : TOOL_LIST.slice(0, 8)).map((t) => ({
       id: `t-${t.slug}`,
       label: t.name,
       icon: t.emoji,
-      hint: t.site ? `on ${t.site}` : t.group,
-      group: 'Tools',
-      run: go(hrefFor(t)),
+      hint: t.site ? S.onSite.replace('{site}', t.site) : (DATA.groups[t.group] ?? t.group),
+      group: S.tools,
+      run: go(t.site ? hrefFor(t) : DATA.prefix + hrefFor(t)),
     }));
     const shortcuts: Item[] = [];
     const pages: Item[] = PAGES.filter((p) => matches(q, `${p.label} ${p.kw}`)).map((p) => ({
       id: `p-${p.to}`,
       label: p.label,
       icon: p.icon,
-      hint: p.hint ?? 'Page',
-      group: 'Pages',
+      hint: p.hint ?? S.page,
+      group: S.pages,
       run: go(p.to),
     }));
     const actions: Item[] = matches(q, 'switch light dark theme mode night')
       ? [
           {
             id: 'a-theme',
-            label: 'Switch light / dark',
+            label: S.theme,
             icon: '🌗',
-            hint: 'Action',
-            group: 'Actions',
+            hint: S.action,
+            group: S.actions,
             run: () => theme.toggle(),
           },
         ]
@@ -249,7 +309,7 @@
     if (items.length === 0) {
       const p = document.createElement('p');
       p.className = 'palette-empty';
-      p.textContent = `Nothing matches "${input.value.trim()}". Try "mp3", "gif", "csv" or "length".`;
+      p.textContent = S.empty.replace('{q}', input.value.trim());
       list.append(p);
       input.removeAttribute('aria-activedescendant');
       return;

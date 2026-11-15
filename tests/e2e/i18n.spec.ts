@@ -213,3 +213,38 @@ test.describe('languages: how-to guides', () => {
     expect((await request.get('/es/guides/no-such-guide/')).status()).toBe(404);
   });
 });
+
+test.describe('the Ctrl K window follows the page language', () => {
+  test('English keeps its words and finds a converter', async ({ page }) => {
+    await page.goto('/about/');
+    await page.keyboard.press('Control+k');
+    await expect(page.locator('#palette-input')).toHaveAttribute('placeholder', 'Search converters, pages and actions…');
+    await page.locator('#palette-input').fill('length');
+    await expect(page.locator('.palette-group').first()).toHaveText('Tools');
+    await page.locator('.palette-row').first().click();
+    await expect(page).toHaveURL(/\/length-converter\/$/);
+  });
+
+  test('a Spanish page searches in Spanish, still matches English words, and opens the Spanish page', async ({ page }) => {
+    await page.goto('/es/about/');
+    await page.keyboard.press('Control+k');
+    await expect(page.locator('#palette-input')).toHaveAttribute('placeholder', /conversores/i);
+    await page.locator('#palette-input').fill('longitud');
+    await expect(page.locator('.palette-group').first()).toHaveText('Herramientas');
+    await expect(page.locator('.palette-label').first()).toHaveText('Conversor de longitud');
+    await page.locator('#palette-input').fill('length');
+    await expect(page.locator('.palette-label').first()).toHaveText('Conversor de longitud');
+    await page.locator('.palette-row').first().click();
+    await expect(page).toHaveURL(/\/es\/length-converter\/$/);
+  });
+
+  test('a Hindi page can be searched in Devanagari and an empty search is explained in Hindi', async ({ page }) => {
+    await page.goto('/hi/privacy/');
+    await page.keyboard.press('Control+k');
+    await page.locator('#palette-input').fill('zzzzqq');
+    await expect(page.locator('.palette-empty')).toContainText('zzzzqq');
+    await expect(page.locator('.palette-empty')).not.toContainText('Nothing matches');
+    await page.locator('#palette-input').fill('गोपनीयता');
+    await expect(page.locator('.palette-row').first()).toHaveAttribute('role', 'option');
+  });
+});
