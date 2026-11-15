@@ -1,5 +1,6 @@
 ---
 import AppShell from './AppShell.astro';
+import type { Alternate } from '../i18n';
 
 interface Props {
   title: string;
@@ -11,11 +12,14 @@ interface Props {
   intro: string;
   noindex?: boolean;
   jsonLd?: unknown[];
+  /** The language of the page (en by default) and its language versions, for pages that are translated. */
+  locale?: string;
+  alternates?: Alternate[];
 }
-const { title, description, before = '', mark, after = '', intro, noindex = false, jsonLd = [] } = Astro.props;
+const { title, description, before = '', mark, after = '', intro, noindex = false, jsonLd = [], locale = 'en', alternates = [] } = Astro.props;
 ---
 
-<AppShell title={title} description={description} noindex={noindex} jsonLd={jsonLd}>
+<AppShell title={title} description={description} noindex={noindex} jsonLd={jsonLd} locale={locale} alternates={alternates}>
   <h1 class="display text-4xl sm:text-5xl">
     {before}{before && ' '}<span class="mark">{mark}</span>{after}
   </h1>
