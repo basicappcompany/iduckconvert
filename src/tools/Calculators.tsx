@@ -3,6 +3,7 @@ import { useMemo, useState } from 'preact/hooks';
 import { Field } from '../components/OptionsPanel';
 import { copyText } from '../lib/clipboard';
 import { fill, useOpts } from '../i18n/options';
+import { useNames } from '../i18n/names';
 import { UNIT_SETS, convertUnit, formatNumber } from '../convert/units';
 import { CASES, formatBase, fromRoman, numberToWords, parseBase, parseHex, parseHsl, parseRgb, rgbToHsl, toHex, toRoman, type Rgb, type WordStyle } from '../convert/numbers';
 import { CITIES, DATE_FORMATS, compareZones, parseDateInput, timeInZone, wallTimeToInstant } from '../convert/time';
@@ -30,7 +31,9 @@ function CopyButton({ text }: { text: string }) {
 // ---------- units ----------
 export function UnitsTool({ units, from: presetFrom, to: presetTo }: { units: string; from?: string; to?: string }) {
   const o = useOpts();
+  const nm = useNames();
   const set = UNIT_SETS[units]!;
+  const uname = (u: { id: string; name: string }) => nm(`unit.${units}.${u.id}`, u.name);
   const [value, setValue] = useState('1');
   const [from, setFrom] = useState(presetFrom ?? set.defaultFrom);
   const [to, setTo] = useState(presetTo ?? set.defaultTo);
@@ -50,7 +53,7 @@ export function UnitsTool({ units, from: presetFrom, to: presetTo }: { units: st
           <Field id="u-from" label={o.from}>
             <select id="u-from" class="input" value={from} onChange={(e) => setFrom(e.currentTarget.value)}>
               {set.units.map((u) => (
-                <option value={u.id}>{u.name} ({u.symbol})</option>
+                <option value={u.id}>{uname(u)} ({u.symbol})</option>
               ))}
             </select>
           </Field>
@@ -65,7 +68,7 @@ export function UnitsTool({ units, from: presetFrom, to: presetTo }: { units: st
           <Field id="u-to" label={o.to}>
             <select id="u-to" class="input" value={to} onChange={(e) => setTo(e.currentTarget.value)}>
               {set.units.map((u) => (
-                <option value={u.id}>{u.name} ({u.symbol})</option>
+                <option value={u.id}>{uname(u)} ({u.symbol})</option>
               ))}
             </select>
           </Field>
@@ -76,14 +79,14 @@ export function UnitsTool({ units, from: presetFrom, to: presetTo }: { units: st
           {formatNumber(n)} {fromUnit.symbol} = {formatNumber(result)} {toUnit.symbol}
         </p>
       )}
-      {set.note && <p class="card p-4 text-sm font-bold">{set.note}</p>}
+      {set.note && <p class="card p-4 text-sm font-bold">{nm(`note.${units}`, set.note)}</p>}
       <details class="card p-4">
         <summary class="cursor-pointer font-black">{fill(o.unitsAll, { n: formatNumber(n) || '0', symbol: fromUnit.symbol, title: set.title.toLowerCase() })}</summary>
         <table class="mt-3 w-full text-left text-sm">
           <tbody>
             {all.map(({ unit, value: v }) => (
               <tr class="border-t border-line/20">
-                <th class="py-1.5 pr-3 font-bold">{unit.name}</th>
+                <th class="py-1.5 pr-3 font-bold">{uname(unit)}</th>
                 <td class="py-1.5 text-right tabular-nums">{formatNumber(v)} {unit.symbol}</td>
               </tr>
             ))}
@@ -281,6 +284,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
 
 export function TimeZoneTool() {
   const o = useOpts();
+  const nm = useNames();
+  const cityName = (c: { id: string; label: string }) => nm(`city.${c.id}`, c.label);
   const now = new Date();
   const guess = Intl.DateTimeFormat().resolvedOptions().timeZone;
   const defaultFrom = CITIES.find((c) => c.zone === guess)?.zone ?? 'Asia/Kolkata';
@@ -293,7 +298,8 @@ export function TimeZoneTool() {
   const [h, mi] = time.split(':').map(Number);
   const valid = Number.isFinite(y) && Number.isFinite(mo) && Number.isFinite(d) && Number.isFinite(h) && Number.isFinite(mi);
   const instant = valid ? wallTimeToInstant(y!, mo!, d!, h!, mi!, from) : null;
-  const rows = instant ? compareZones(instant, from, picked.map((zone) => ({ zone, label: CITIES.find((c) => c.zone === zone)?.label ?? zone }))) : [];
+  const cityLabel = (zone: string) => { const c = CITIES.find((x) => x.zone === zone); return c ? cityName(c) : zone; };
+  const rows = instant ? compareZones(instant, from, picked.map((zone) => ({ zone, label: cityLabel(zone) }))) : [];
   const fromInfo = instant ? timeInZone(instant, from) : null;
   const options = CITIES.filter((c) => !picked.includes(c.zone));
 
@@ -304,11 +310,11 @@ export function TimeZoneTool() {
         <Field id="tz-time" label={o.time}><input id="tz-time" type="time" class="input" value={time} onInput={(e) => setTime(e.currentTarget.value)} /></Field>
         <Field id="tz-from" label={o.startingZone}>
           <select id="tz-from" class="input" value={from} onChange={(e) => setFrom(e.currentTarget.value)}>
-            {CITIES.map((c) => (<option value={c.zone}>{c.label}</option>))}
+            {CITIES.map((c) => (<option value={c.zone}>{cityName(c)}</option>))}
           </select>
         </Field>
       </div>
-      {fromInfo && <p class="font-bold">{fill(o.zoneNow, { date: fromInfo.date, time: fromInfo.time, place: CITIES.find((c) => c.zone === from)?.label ?? '' })}</p>}
+      {fromInfo && <p class="font-bold">{fill(o.zoneNow, { date: fromInfo.date, time: fromInfo.time, place: cityLabel(from) })}</p>}
       <div class="card relative overflow-x-auto p-4">
         <table class="w-full min-w-[28rem] text-left text-sm">
           <thead><tr class="text-muted"><th class="pb-2">{o.place}</th><th class="pb-2">{o.time}</th><th class="pb-2">{o.date}</th><th class="pb-2">{o.offset}</th><th class="pb-2"><span class="sr-only">{o.remove}</span></th></tr></thead>
@@ -330,7 +336,7 @@ export function TimeZoneTool() {
         <Field id="tz-add" label={o.addPlace}>
           <select id="tz-add" class="input" value="" onChange={(e) => { if (e.currentTarget.value) setPicked([...picked, e.currentTarget.value]); e.currentTarget.value = ''; }}>
             <option value="">{o.chooseCity}</option>
-            {options.map((c) => (<option value={c.zone}>{c.label}</option>))}
+            {options.map((c) => (<option value={c.zone}>{cityName(c)}</option>))}
           </select>
         </Field>
       )}
@@ -341,6 +347,7 @@ export function TimeZoneTool() {
 // ---------- date formats ----------
 export function DatesTool() {
   const o = useOpts();
+  const nm = useNames();
   const now = new Date();
   const [text, setText] = useState(`${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()}`);
   const [order, setOrder] = useState<'dmy' | 'mdy' | 'ymd'>('dmy');
@@ -366,7 +373,7 @@ export function DatesTool() {
             return (
               <li class="card flex items-center justify-between gap-3 p-3">
                 <div class="min-w-0">
-                  <p class="text-xs text-muted">{f.label}</p>
+                  <p class="text-xs text-muted">{nm(`fmt.${f.id}`, f.label)}</p>
                   <p class="font-black [overflow-wrap:anywhere]">{value}</p>
                 </div>
                 <CopyButton text={value} />

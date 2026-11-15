@@ -11,6 +11,9 @@ import { GUIDES, guideBySlug } from '../../src/lib/guides';
 import { contentFor, pairContent } from '../../src/lib/content';
 import { UNIT_PAIRS as UNIT_PAIRS_ALL } from '../../src/lib/unit-pages';
 import { OPT_TEXT } from '../../src/i18n/options';
+import { NAME_TEXT, nameFor } from '../../src/i18n/names';
+import { UNIT_SETS } from '../../src/convert/units';
+import { CITIES, DATE_FORMATS } from '../../src/convert/time';
 import { en as OPT_EN } from '../../src/i18n/options/en';
 import { COMMUNITY_PAGES, communityStrings } from '../../src/lib/community-pages';
 import { pageKey, pageKeysFor, pageStrings, pageTextFor, pairStrings, translationFor, unitStrings } from '../../src/i18n/pages';
@@ -338,5 +341,31 @@ describe.each(MACHINE.map((l) => [l.code]))('%s words inside the converters', (c
   it('is not English: almost every string differs from the English one', () => {
     const same = Object.keys(base).filter((k) => mine[k] === base[k]);
     expect(same.length, same.join(', ')).toBeLessThan(Object.keys(base).length * 0.1);
+  });
+});
+
+describe('unit, city and date-format names', () => {
+  const keys: Record<string, string> = {};
+  for (const [setKey, set] of Object.entries(UNIT_SETS)) {
+    for (const u of set.units) keys[`unit.${setKey}.${u.id}`] = u.name;
+    if (set.note) keys[`note.${setKey}`] = set.note;
+  }
+  for (const c of CITIES) if (c.id !== 'utc') keys[`city.${c.id}`] = c.label;
+  for (const f of DATE_FORMATS) if (/\(.+\)/.test(f.label) && f.id !== 'iso' && f.id !== 'ordinal') keys[`fmt.${f.id}`] = f.label;
+
+  it('has a name for every key in every language, and no stray keys', () => {
+    for (const [code, names] of Object.entries(NAME_TEXT)) {
+      const have = Object.keys(names);
+      expect(Object.keys(keys).filter((k) => !have.includes(k)), `${code} is missing names`).toEqual([]);
+      expect(have.filter((k) => !(k in keys)), `${code} has unknown keys`).toEqual([]);
+      for (const k of have) expect(names[k]!.trim().length, `${code} ${k}`).toBeGreaterThan(0);
+    }
+  });
+
+  it('covers all nine languages and falls back to English', () => {
+    expect(Object.keys(NAME_TEXT).sort()).toEqual(['bn', 'de', 'es', 'fr', 'hi', 'id', 'pt-BR', 'ru', 'tr']);
+    expect(nameFor('en', 'unit.length.m', 'Metre')).toBe('Metre');
+    expect(nameFor('de', 'unit.length.m', 'Metre')).toBe('Meter');
+    expect(nameFor('de', 'unit.nope', 'Fallback')).toBe('Fallback');
   });
 });

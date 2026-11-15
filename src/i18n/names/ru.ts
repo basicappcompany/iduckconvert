@@ -1,0 +1,37 @@
+import type { NameText } from './index';
+
+/** Russian unit, city and date-format names. Machine-translated; a person has not read them yet. */
+const t: NameText = {
+  'unit.length.mm': 'Миллиметр', 'unit.length.cm': 'Сантиметр', 'unit.length.m': 'Метр', 'unit.length.km': 'Километр',
+  'unit.length.in': 'Дюйм', 'unit.length.ft': 'Фут', 'unit.length.yd': 'Ярд', 'unit.length.mi': 'Миля', 'unit.length.nmi': 'Морская миля',
+  'unit.weight.mg': 'Миллиграмм', 'unit.weight.g': 'Грамм', 'unit.weight.kg': 'Килограмм', 'unit.weight.t': 'Тонна',
+  'unit.weight.oz': 'Унция', 'unit.weight.lb': 'Фунт', 'unit.weight.st': 'Стоун', 'unit.weight.quintal': 'Центнер',
+  'unit.temperature.c': 'Цельсий', 'unit.temperature.f': 'Фаренгейт', 'unit.temperature.k': 'Кельвин',
+  'unit.area.sqcm': 'Квадратный сантиметр', 'unit.area.sqm': 'Квадратный метр', 'unit.area.sqkm': 'Квадратный километр',
+  'unit.area.sqin': 'Квадратный дюйм', 'unit.area.sqft': 'Квадратный фут', 'unit.area.sqyd': 'Квадратный ярд',
+  'unit.area.acre': 'Акр', 'unit.area.ha': 'Гектар', 'unit.area.sqmi': 'Квадратная миля',
+  'unit.volume.ml': 'Миллилитр', 'unit.volume.l': 'Литр', 'unit.volume.m3': 'Кубический метр',
+  'unit.volume.tsp': 'Чайная ложка (США)', 'unit.volume.tbsp': 'Столовая ложка (США)', 'unit.volume.floz': 'Жидкая унция (США)',
+  'unit.volume.cup': 'Чашка (США)', 'unit.volume.pt': 'Пинта (США)', 'unit.volume.qt': 'Кварта (США)', 'unit.volume.gal': 'Галлон (США)',
+  'unit.volume.galuk': 'Галлон (Великобритания)',
+  'unit.speed.ms': 'Метр в секунду', 'unit.speed.kmh': 'Километр в час', 'unit.speed.mph': 'Миля в час', 'unit.speed.kn': 'Узел', 'unit.speed.fts': 'Фут в секунду', 'unit.speed.mach': 'Мах (на уровне моря)',
+  'unit.time.ms': 'Миллисекунда', 'unit.time.s': 'Секунда', 'unit.time.min': 'Минута', 'unit.time.h': 'Час', 'unit.time.d': 'День', 'unit.time.wk': 'Неделя', 'unit.time.mo': 'Месяц', 'unit.time.yr': 'Год',
+  'unit.data.bit': 'Бит', 'unit.data.b': 'Байт', 'unit.data.kb': 'Килобайт', 'unit.data.mb': 'Мегабайт', 'unit.data.gb': 'Гигабайт', 'unit.data.tb': 'Терабайт',
+  'unit.data.kib': 'Кибибайт', 'unit.data.mib': 'Мебибайт', 'unit.data.gib': 'Гибибайт', 'unit.data.tib': 'Тебибайт',
+  'unit.pressure.pa': 'Паскаль', 'unit.pressure.kpa': 'Килопаскаль', 'unit.pressure.bar': 'Бар', 'unit.pressure.psi': 'Фунт на квадратный дюйм', 'unit.pressure.atm': 'Атмосфера', 'unit.pressure.mmhg': 'Миллиметр ртутного столба',
+  'unit.energy.j': 'Джоуль', 'unit.energy.kj': 'Килоджоуль', 'unit.energy.cal': 'Калория (малая)', 'unit.energy.kcal': 'Килокалория (пищевая Калория)', 'unit.energy.wh': 'Ватт-час', 'unit.energy.kwh': 'Киловатт-час', 'unit.energy.btu': 'Британская тепловая единица',
+  'unit.indian-land.sqft': 'Квадратный фут', 'unit.indian-land.sqyd': 'Квадратный ярд (гадж)', 'unit.indian-land.sqm': 'Квадратный метр', 'unit.indian-land.acre': 'Акр', 'unit.indian-land.ha': 'Гектар',
+  'unit.indian-land.guntha': 'Гунтха (Махараштра, Карнатака)', 'unit.indian-land.cent': 'Цент (Южная Индия)', 'unit.indian-land.katha-wb': 'Катха (Западная Бенгалия)', 'unit.indian-land.biswa-up': 'Бисва (Уттар-Прадеш)',
+  'unit.indian-land.bigha-up': 'Бигха (Уттар-Прадеш)', 'unit.indian-land.bigha-raj': 'Бигха (Раджастхан, пакка)', 'unit.indian-land.bigha-gj': 'Бигха (Гуджарат)', 'unit.indian-land.bigha-wb': 'Бигха (Западная Бенгалия)', 'unit.indian-land.bigha-as': 'Бигха (Ассам)',
+  'unit.number-scale.thousand': 'Тысяча', 'unit.number-scale.lakh': 'Лакх', 'unit.number-scale.million': 'Миллион', 'unit.number-scale.crore': 'Крор', 'unit.number-scale.billion': 'Миллиард',
+  'note.time': 'Здесь месяц равен 30,44 суток, а год — 365,25 суток, как обычно в средних значениях.',
+  'note.data': 'КБ, МБ и ГБ здесь равны 1000 (так считают производители дисков и тарифы мобильной связи). КиБ, МиБ и ГиБ равны 1024 (так показывают многие операционные системы).',
+  'note.indian-land': 'Бигха — не фиксированная величина: она зависит от штата, а иногда и от округа, а гадж — это квадратный ярд. Перед покупкой или продажей земли проверьте местный земельный реестр.',
+  'note.number-scale': 'Лакх и крор — индийская система; миллион и миллиард — международная.',
+  'city.kolkata': 'Индия (Калькутта)', 'city.london': 'Лондон', 'city.paris': 'Париж, Берлин, Рим', 'city.dubai': 'Дубай', 'city.karachi': 'Карачи', 'city.dhaka': 'Дакка',
+  'city.bangkok': 'Бангкок, Джакарта', 'city.singapore': 'Сингапур', 'city.shanghai': 'Пекин, Шанхай', 'city.tokyo': 'Токио', 'city.sydney': 'Сидней', 'city.auckland': 'Окленд',
+  'city.istanbul': 'Стамбул', 'city.moscow': 'Москва', 'city.cairo': 'Каир', 'city.lagos': 'Лагос', 'city.nairobi': 'Найроби', 'city.newyork': 'Нью-Йорк (восточное время)',
+  'city.chicago': 'Чикаго (центральное время)', 'city.denver': 'Денвер (горное время)', 'city.losangeles': 'Лос-Анджелес (тихоокеанское время)', 'city.saopaulo': 'Сан-Паулу', 'city.mexico': 'Мехико',
+  'fmt.dmy-slash': 'ДД/ММ/ГГГГ (Индия, Великобритания, большая часть мира)', 'fmt.mdy-slash': 'ММ/ДД/ГГГГ (США)', 'fmt.dmy-dot': 'ДД.ММ.ГГГГ (Германия, Турция, Россия)', 'fmt.ymd-slash': 'ГГГГ/ММ/ДД (Япония, Китай)',
+};
+export default t;

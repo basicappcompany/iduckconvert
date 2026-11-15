@@ -1,0 +1,37 @@
+import type { NameText } from './index';
+
+/** Spanish unit, city and date-format names. Machine-translated; a person has not read them yet. */
+const t: NameText = {
+  'unit.length.mm': 'Milímetro', 'unit.length.cm': 'Centímetro', 'unit.length.m': 'Metro', 'unit.length.km': 'Kilómetro',
+  'unit.length.in': 'Pulgada', 'unit.length.ft': 'Pie', 'unit.length.yd': 'Yarda', 'unit.length.mi': 'Milla', 'unit.length.nmi': 'Milla náutica',
+  'unit.weight.mg': 'Miligramo', 'unit.weight.g': 'Gramo', 'unit.weight.kg': 'Kilogramo', 'unit.weight.t': 'Tonelada',
+  'unit.weight.oz': 'Onza', 'unit.weight.lb': 'Libra', 'unit.weight.st': 'Stone', 'unit.weight.quintal': 'Quintal',
+  'unit.temperature.c': 'Celsius', 'unit.temperature.f': 'Fahrenheit', 'unit.temperature.k': 'Kelvin',
+  'unit.area.sqcm': 'Centímetro cuadrado', 'unit.area.sqm': 'Metro cuadrado', 'unit.area.sqkm': 'Kilómetro cuadrado',
+  'unit.area.sqin': 'Pulgada cuadrada', 'unit.area.sqft': 'Pie cuadrado', 'unit.area.sqyd': 'Yarda cuadrada',
+  'unit.area.acre': 'Acre', 'unit.area.ha': 'Hectárea', 'unit.area.sqmi': 'Milla cuadrada',
+  'unit.volume.ml': 'Mililitro', 'unit.volume.l': 'Litro', 'unit.volume.m3': 'Metro cúbico',
+  'unit.volume.tsp': 'Cucharadita (EE. UU.)', 'unit.volume.tbsp': 'Cucharada (EE. UU.)', 'unit.volume.floz': 'Onza líquida (EE. UU.)',
+  'unit.volume.cup': 'Taza (EE. UU.)', 'unit.volume.pt': 'Pinta (EE. UU.)', 'unit.volume.qt': 'Cuarto de galón (EE. UU.)', 'unit.volume.gal': 'Galón (EE. UU.)',
+  'unit.volume.galuk': 'Galón (Reino Unido)',
+  'unit.speed.ms': 'Metro por segundo', 'unit.speed.kmh': 'Kilómetro por hora', 'unit.speed.mph': 'Milla por hora', 'unit.speed.kn': 'Nudo', 'unit.speed.fts': 'Pie por segundo', 'unit.speed.mach': 'Mach (a nivel del mar)',
+  'unit.time.ms': 'Milisegundo', 'unit.time.s': 'Segundo', 'unit.time.min': 'Minuto', 'unit.time.h': 'Hora', 'unit.time.d': 'Día', 'unit.time.wk': 'Semana', 'unit.time.mo': 'Mes', 'unit.time.yr': 'Año',
+  'unit.data.bit': 'Bit', 'unit.data.b': 'Byte', 'unit.data.kb': 'Kilobyte', 'unit.data.mb': 'Megabyte', 'unit.data.gb': 'Gigabyte', 'unit.data.tb': 'Terabyte',
+  'unit.data.kib': 'Kibibyte', 'unit.data.mib': 'Mebibyte', 'unit.data.gib': 'Gibibyte', 'unit.data.tib': 'Tebibyte',
+  'unit.pressure.pa': 'Pascal', 'unit.pressure.kpa': 'Kilopascal', 'unit.pressure.bar': 'Bar', 'unit.pressure.psi': 'Libra por pulgada cuadrada', 'unit.pressure.atm': 'Atmósfera', 'unit.pressure.mmhg': 'Milímetro de mercurio',
+  'unit.energy.j': 'Julio', 'unit.energy.kj': 'Kilojulio', 'unit.energy.cal': 'Caloría (pequeña)', 'unit.energy.kcal': 'Kilocaloría (Caloría de los alimentos)', 'unit.energy.wh': 'Vatio-hora', 'unit.energy.kwh': 'Kilovatio-hora', 'unit.energy.btu': 'Unidad térmica británica',
+  'unit.indian-land.sqft': 'Pie cuadrado', 'unit.indian-land.sqyd': 'Yarda cuadrada (gaj)', 'unit.indian-land.sqm': 'Metro cuadrado', 'unit.indian-land.acre': 'Acre', 'unit.indian-land.ha': 'Hectárea',
+  'unit.indian-land.guntha': 'Guntha (Maharashtra, Karnataka)', 'unit.indian-land.cent': 'Cent (sur de la India)', 'unit.indian-land.katha-wb': 'Katha (Bengala Occidental)', 'unit.indian-land.biswa-up': 'Biswa (Uttar Pradesh)',
+  'unit.indian-land.bigha-up': 'Bigha (Uttar Pradesh)', 'unit.indian-land.bigha-raj': 'Bigha (Rajastán, pucca)', 'unit.indian-land.bigha-gj': 'Bigha (Guyarat)', 'unit.indian-land.bigha-wb': 'Bigha (Bengala Occidental)', 'unit.indian-land.bigha-as': 'Bigha (Assam)',
+  'unit.number-scale.thousand': 'Mil', 'unit.number-scale.lakh': 'Lakh', 'unit.number-scale.million': 'Millón', 'unit.number-scale.crore': 'Crore', 'unit.number-scale.billion': 'Mil millones',
+  'note.time': 'Aquí un mes tiene 30,44 días y un año 365,25 días, los promedios habituales.',
+  'note.data': 'KB, MB y GB usan aquí 1000 (lo que usan los fabricantes de discos y los planes de móvil). KiB, MiB y GiB usan 1024 (lo que muestran muchos sistemas operativos).',
+  'note.indian-land': 'Un bigha no tiene un tamaño fijo: cambia según el estado y a veces el distrito, y un gaj es una yarda cuadrada. Consulta el registro de ingresos local antes de comprar o vender terreno.',
+  'note.number-scale': 'Lakh y crore son el sistema indio; millón y mil millones son el internacional.',
+  'city.kolkata': 'India (Calcuta)', 'city.london': 'Londres', 'city.paris': 'París, Berlín, Roma', 'city.dubai': 'Dubái', 'city.karachi': 'Karachi', 'city.dhaka': 'Daca',
+  'city.bangkok': 'Bangkok, Yakarta', 'city.singapore': 'Singapur', 'city.shanghai': 'Pekín, Shanghái', 'city.tokyo': 'Tokio', 'city.sydney': 'Sídney', 'city.auckland': 'Auckland',
+  'city.istanbul': 'Estambul', 'city.moscow': 'Moscú', 'city.cairo': 'El Cairo', 'city.lagos': 'Lagos', 'city.nairobi': 'Nairobi', 'city.newyork': 'Nueva York (este)',
+  'city.chicago': 'Chicago (central)', 'city.denver': 'Denver (montaña)', 'city.losangeles': 'Los Ángeles (Pacífico)', 'city.saopaulo': 'São Paulo', 'city.mexico': 'Ciudad de México',
+  'fmt.dmy-slash': 'DD/MM/AAAA (India, Reino Unido, casi todo el mundo)', 'fmt.mdy-slash': 'MM/DD/AAAA (Estados Unidos)', 'fmt.dmy-dot': 'DD.MM.AAAA (Alemania, Turquía, Rusia)', 'fmt.ymd-slash': 'AAAA/MM/DD (Japón, China)',
+};
+export default t;

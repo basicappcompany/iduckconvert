@@ -1,0 +1,37 @@
+import type { NameText } from './index';
+
+/** Indonesian unit, city and date-format names. Machine-translated; a person has not read them yet. */
+const t: NameText = {
+  'unit.length.mm': 'Milimeter', 'unit.length.cm': 'Sentimeter', 'unit.length.m': 'Meter', 'unit.length.km': 'Kilometer',
+  'unit.length.in': 'Inci', 'unit.length.ft': 'Kaki', 'unit.length.yd': 'Yard', 'unit.length.mi': 'Mil', 'unit.length.nmi': 'Mil laut',
+  'unit.weight.mg': 'Miligram', 'unit.weight.g': 'Gram', 'unit.weight.kg': 'Kilogram', 'unit.weight.t': 'Ton',
+  'unit.weight.oz': 'Ons', 'unit.weight.lb': 'Pon', 'unit.weight.st': 'Stone', 'unit.weight.quintal': 'Kuintal',
+  'unit.temperature.c': 'Celsius', 'unit.temperature.f': 'Fahrenheit', 'unit.temperature.k': 'Kelvin',
+  'unit.area.sqcm': 'Sentimeter persegi', 'unit.area.sqm': 'Meter persegi', 'unit.area.sqkm': 'Kilometer persegi',
+  'unit.area.sqin': 'Inci persegi', 'unit.area.sqft': 'Kaki persegi', 'unit.area.sqyd': 'Yard persegi',
+  'unit.area.acre': 'Acre', 'unit.area.ha': 'Hektare', 'unit.area.sqmi': 'Mil persegi',
+  'unit.volume.ml': 'Mililiter', 'unit.volume.l': 'Liter', 'unit.volume.m3': 'Meter kubik',
+  'unit.volume.tsp': 'Sendok teh (AS)', 'unit.volume.tbsp': 'Sendok makan (AS)', 'unit.volume.floz': 'Ons cair (AS)',
+  'unit.volume.cup': 'Cangkir (AS)', 'unit.volume.pt': 'Pint (AS)', 'unit.volume.qt': 'Kuart (AS)', 'unit.volume.gal': 'Galon (AS)',
+  'unit.volume.galuk': 'Galon (Inggris)',
+  'unit.speed.ms': 'Meter per detik', 'unit.speed.kmh': 'Kilometer per jam', 'unit.speed.mph': 'Mil per jam', 'unit.speed.kn': 'Knot', 'unit.speed.fts': 'Kaki per detik', 'unit.speed.mach': 'Mach (di permukaan laut)',
+  'unit.time.ms': 'Milidetik', 'unit.time.s': 'Detik', 'unit.time.min': 'Menit', 'unit.time.h': 'Jam', 'unit.time.d': 'Hari', 'unit.time.wk': 'Minggu', 'unit.time.mo': 'Bulan', 'unit.time.yr': 'Tahun',
+  'unit.data.bit': 'Bit', 'unit.data.b': 'Byte', 'unit.data.kb': 'Kilobyte', 'unit.data.mb': 'Megabyte', 'unit.data.gb': 'Gigabyte', 'unit.data.tb': 'Terabyte',
+  'unit.data.kib': 'Kibibyte', 'unit.data.mib': 'Mebibyte', 'unit.data.gib': 'Gibibyte', 'unit.data.tib': 'Tebibyte',
+  'unit.pressure.pa': 'Pascal', 'unit.pressure.kpa': 'Kilopascal', 'unit.pressure.bar': 'Bar', 'unit.pressure.psi': 'Pon per inci persegi', 'unit.pressure.atm': 'Atmosfer', 'unit.pressure.mmhg': 'Milimeter air raksa',
+  'unit.energy.j': 'Joule', 'unit.energy.kj': 'Kilojoule', 'unit.energy.cal': 'Kalori (kecil)', 'unit.energy.kcal': 'Kilokalori (Kalori makanan)', 'unit.energy.wh': 'Watt-jam', 'unit.energy.kwh': 'Kilowatt-jam', 'unit.energy.btu': 'Satuan termal Inggris',
+  'unit.indian-land.sqft': 'Kaki persegi', 'unit.indian-land.sqyd': 'Yard persegi (gaj)', 'unit.indian-land.sqm': 'Meter persegi', 'unit.indian-land.acre': 'Acre', 'unit.indian-land.ha': 'Hektare',
+  'unit.indian-land.guntha': 'Guntha (Maharashtra, Karnataka)', 'unit.indian-land.cent': 'Cent (India Selatan)', 'unit.indian-land.katha-wb': 'Katha (Benggala Barat)', 'unit.indian-land.biswa-up': 'Biswa (Uttar Pradesh)',
+  'unit.indian-land.bigha-up': 'Bigha (Uttar Pradesh)', 'unit.indian-land.bigha-raj': 'Bigha (Rajasthan, pucca)', 'unit.indian-land.bigha-gj': 'Bigha (Gujarat)', 'unit.indian-land.bigha-wb': 'Bigha (Benggala Barat)', 'unit.indian-land.bigha-as': 'Bigha (Assam)',
+  'unit.number-scale.thousand': 'Ribu', 'unit.number-scale.lakh': 'Lakh', 'unit.number-scale.million': 'Juta', 'unit.number-scale.crore': 'Crore', 'unit.number-scale.billion': 'Miliar',
+  'note.time': 'Di sini satu bulan adalah 30,44 hari dan satu tahun 365,25 hari, rata-rata yang lazim.',
+  'note.data': 'KB, MB, dan GB di sini memakai 1000 (yang dipakai pembuat disk dan paket data ponsel). KiB, MiB, dan GiB memakai 1024 (yang ditampilkan banyak sistem operasi).',
+  'note.indian-land': 'Satu bigha tidak punya ukuran tetap: berbeda menurut negara bagian dan kadang distrik, dan satu gaj adalah satu yard persegi. Periksa catatan pertanahan setempat sebelum membeli atau menjual tanah.',
+  'note.number-scale': 'Lakh dan crore adalah sistem India; juta dan miliar adalah sistem internasional.',
+  'city.kolkata': 'India (Kolkata)', 'city.london': 'London', 'city.paris': 'Paris, Berlin, Roma', 'city.dubai': 'Dubai', 'city.karachi': 'Karachi', 'city.dhaka': 'Dhaka',
+  'city.bangkok': 'Bangkok, Jakarta', 'city.singapore': 'Singapura', 'city.shanghai': 'Beijing, Shanghai', 'city.tokyo': 'Tokyo', 'city.sydney': 'Sydney', 'city.auckland': 'Auckland',
+  'city.istanbul': 'Istanbul', 'city.moscow': 'Moskow', 'city.cairo': 'Kairo', 'city.lagos': 'Lagos', 'city.nairobi': 'Nairobi', 'city.newyork': 'New York (Timur)',
+  'city.chicago': 'Chicago (Tengah)', 'city.denver': 'Denver (Pegunungan)', 'city.losangeles': 'Los Angeles (Pasifik)', 'city.saopaulo': 'São Paulo', 'city.mexico': 'Kota Meksiko',
+  'fmt.dmy-slash': 'DD/MM/YYYY (India, Inggris, sebagian besar dunia)', 'fmt.mdy-slash': 'MM/DD/YYYY (Amerika Serikat)', 'fmt.dmy-dot': 'DD.MM.YYYY (Jerman, Turki, Rusia)', 'fmt.ymd-slash': 'YYYY/MM/DD (Jepang, Tiongkok)',
+};
+export default t;

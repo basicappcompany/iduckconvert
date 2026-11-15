@@ -1,0 +1,37 @@
+import type { NameText } from './index';
+
+/** Turkish unit, city and date-format names. Machine-translated; a person has not read them yet. */
+const t: NameText = {
+  'unit.length.mm': 'Milimetre', 'unit.length.cm': 'Santimetre', 'unit.length.m': 'Metre', 'unit.length.km': 'Kilometre',
+  'unit.length.in': 'İnç', 'unit.length.ft': 'Fit', 'unit.length.yd': 'Yarda', 'unit.length.mi': 'Mil', 'unit.length.nmi': 'Deniz mili',
+  'unit.weight.mg': 'Miligram', 'unit.weight.g': 'Gram', 'unit.weight.kg': 'Kilogram', 'unit.weight.t': 'Ton',
+  'unit.weight.oz': 'Ons', 'unit.weight.lb': 'Pound', 'unit.weight.st': 'Stone', 'unit.weight.quintal': 'Kental',
+  'unit.temperature.c': 'Celsius', 'unit.temperature.f': 'Fahrenheit', 'unit.temperature.k': 'Kelvin',
+  'unit.area.sqcm': 'Santimetrekare', 'unit.area.sqm': 'Metrekare', 'unit.area.sqkm': 'Kilometrekare',
+  'unit.area.sqin': 'İnç kare', 'unit.area.sqft': 'Fit kare', 'unit.area.sqyd': 'Yarda kare',
+  'unit.area.acre': 'Akre', 'unit.area.ha': 'Hektar', 'unit.area.sqmi': 'Mil kare',
+  'unit.volume.ml': 'Mililitre', 'unit.volume.l': 'Litre', 'unit.volume.m3': 'Metreküp',
+  'unit.volume.tsp': 'Çay kaşığı (ABD)', 'unit.volume.tbsp': 'Yemek kaşığı (ABD)', 'unit.volume.floz': 'Sıvı ons (ABD)',
+  'unit.volume.cup': 'Su bardağı (ABD)', 'unit.volume.pt': 'Pint (ABD)', 'unit.volume.qt': 'Quart (ABD)', 'unit.volume.gal': 'Galon (ABD)',
+  'unit.volume.galuk': 'Galon (Birleşik Krallık)',
+  'unit.speed.ms': 'Saniyede metre', 'unit.speed.kmh': 'Saatte kilometre', 'unit.speed.mph': 'Saatte mil', 'unit.speed.kn': 'Knot', 'unit.speed.fts': 'Saniyede fit', 'unit.speed.mach': 'Mach (deniz seviyesinde)',
+  'unit.time.ms': 'Milisaniye', 'unit.time.s': 'Saniye', 'unit.time.min': 'Dakika', 'unit.time.h': 'Saat', 'unit.time.d': 'Gün', 'unit.time.wk': 'Hafta', 'unit.time.mo': 'Ay', 'unit.time.yr': 'Yıl',
+  'unit.data.bit': 'Bit', 'unit.data.b': 'Bayt', 'unit.data.kb': 'Kilobayt', 'unit.data.mb': 'Megabayt', 'unit.data.gb': 'Gigabayt', 'unit.data.tb': 'Terabayt',
+  'unit.data.kib': 'Kibibayt', 'unit.data.mib': 'Mebibayt', 'unit.data.gib': 'Gibibayt', 'unit.data.tib': 'Tebibayt',
+  'unit.pressure.pa': 'Paskal', 'unit.pressure.kpa': 'Kilopaskal', 'unit.pressure.bar': 'Bar', 'unit.pressure.psi': 'İnç kare başına pound', 'unit.pressure.atm': 'Atmosfer', 'unit.pressure.mmhg': 'Milimetre cıva',
+  'unit.energy.j': 'Joule', 'unit.energy.kj': 'Kilojoule', 'unit.energy.cal': 'Kalori (küçük)', 'unit.energy.kcal': 'Kilokalori (gıda Kalorisi)', 'unit.energy.wh': 'Watt saat', 'unit.energy.kwh': 'Kilowatt saat', 'unit.energy.btu': 'İngiliz ısı birimi',
+  'unit.indian-land.sqft': 'Fit kare', 'unit.indian-land.sqyd': 'Yarda kare (gaj)', 'unit.indian-land.sqm': 'Metrekare', 'unit.indian-land.acre': 'Akre', 'unit.indian-land.ha': 'Hektar',
+  'unit.indian-land.guntha': 'Guntha (Maharashtra, Karnataka)', 'unit.indian-land.cent': 'Cent (Güney Hindistan)', 'unit.indian-land.katha-wb': 'Katha (Batı Bengal)', 'unit.indian-land.biswa-up': 'Biswa (Uttar Pradeş)',
+  'unit.indian-land.bigha-up': 'Bigha (Uttar Pradeş)', 'unit.indian-land.bigha-raj': 'Bigha (Racastan, pucca)', 'unit.indian-land.bigha-gj': 'Bigha (Gücerat)', 'unit.indian-land.bigha-wb': 'Bigha (Batı Bengal)', 'unit.indian-land.bigha-as': 'Bigha (Assam)',
+  'unit.number-scale.thousand': 'Bin', 'unit.number-scale.lakh': 'Lakh', 'unit.number-scale.million': 'Milyon', 'unit.number-scale.crore': 'Crore', 'unit.number-scale.billion': 'Milyar',
+  'note.time': 'Burada bir ay 30,44 gün, bir yıl 365,25 gündür; olağan ortalamalar.',
+  'note.data': 'Burada KB, MB ve GB 1000 kullanır (disk üreticilerinin ve mobil tarifelerin kullandığı). KiB, MiB ve GiB 1024 kullanır (birçok işletim sisteminin gösterdiği).',
+  'note.indian-land': 'Bir bigha sabit bir büyüklük değildir: eyalete, bazen ilçeye göre değişir; gaj ise bir yarda karedir. Arazi alıp satmadan önce yerel tapu kaydına bakın.',
+  'note.number-scale': 'Lakh ve crore Hindistan sistemidir; milyon ve milyar uluslararası sistemdir.',
+  'city.kolkata': 'Hindistan (Kalküta)', 'city.london': 'Londra', 'city.paris': 'Paris, Berlin, Roma', 'city.dubai': 'Dubai', 'city.karachi': 'Karaçi', 'city.dhaka': 'Dakka',
+  'city.bangkok': 'Bangkok, Cakarta', 'city.singapore': 'Singapur', 'city.shanghai': 'Pekin, Şanghay', 'city.tokyo': 'Tokyo', 'city.sydney': 'Sidney', 'city.auckland': 'Auckland',
+  'city.istanbul': 'İstanbul', 'city.moscow': 'Moskova', 'city.cairo': 'Kahire', 'city.lagos': 'Lagos', 'city.nairobi': 'Nairobi', 'city.newyork': 'New York (Doğu)',
+  'city.chicago': 'Chicago (Orta)', 'city.denver': 'Denver (Dağ)', 'city.losangeles': 'Los Angeles (Pasifik)', 'city.saopaulo': 'São Paulo', 'city.mexico': 'Meksiko',
+  'fmt.dmy-slash': 'GG/AA/YYYY (Hindistan, Birleşik Krallık, dünyanın çoğu)', 'fmt.mdy-slash': 'AA/GG/YYYY (ABD)', 'fmt.dmy-dot': 'GG.AA.YYYY (Almanya, Türkiye, Rusya)', 'fmt.ymd-slash': 'YYYY/AA/GG (Japonya, Çin)',
+};
+export default t;

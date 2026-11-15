@@ -1,0 +1,37 @@
+import type { NameText } from './index';
+
+/** Bengali unit, city and date-format names. Machine-translated; a person has not read them yet. */
+const t: NameText = {
+  'unit.length.mm': 'মিলিমিটার', 'unit.length.cm': 'সেন্টিমিটার', 'unit.length.m': 'মিটার', 'unit.length.km': 'কিলোমিটার',
+  'unit.length.in': 'ইঞ্চি', 'unit.length.ft': 'ফুট', 'unit.length.yd': 'গজ', 'unit.length.mi': 'মাইল', 'unit.length.nmi': 'নটিক্যাল মাইল',
+  'unit.weight.mg': 'মিলিগ্রাম', 'unit.weight.g': 'গ্রাম', 'unit.weight.kg': 'কিলোগ্রাম', 'unit.weight.t': 'টন',
+  'unit.weight.oz': 'আউন্স', 'unit.weight.lb': 'পাউন্ড', 'unit.weight.st': 'স্টোন', 'unit.weight.quintal': 'কুইন্টাল',
+  'unit.temperature.c': 'সেলসিয়াস', 'unit.temperature.f': 'ফারেনহাইট', 'unit.temperature.k': 'কেলভিন',
+  'unit.area.sqcm': 'বর্গ সেন্টিমিটার', 'unit.area.sqm': 'বর্গ মিটার', 'unit.area.sqkm': 'বর্গ কিলোমিটার',
+  'unit.area.sqin': 'বর্গ ইঞ্চি', 'unit.area.sqft': 'বর্গ ফুট', 'unit.area.sqyd': 'বর্গ গজ',
+  'unit.area.acre': 'একর', 'unit.area.ha': 'হেক্টর', 'unit.area.sqmi': 'বর্গ মাইল',
+  'unit.volume.ml': 'মিলিলিটার', 'unit.volume.l': 'লিটার', 'unit.volume.m3': 'ঘন মিটার',
+  'unit.volume.tsp': 'চা-চামচ (মার্কিন)', 'unit.volume.tbsp': 'টেবিল-চামচ (মার্কিন)', 'unit.volume.floz': 'তরল আউন্স (মার্কিন)',
+  'unit.volume.cup': 'কাপ (মার্কিন)', 'unit.volume.pt': 'পাইন্ট (মার্কিন)', 'unit.volume.qt': 'কোয়ার্ট (মার্কিন)', 'unit.volume.gal': 'গ্যালন (মার্কিন)',
+  'unit.volume.galuk': 'গ্যালন (যুক্তরাজ্য)',
+  'unit.speed.ms': 'মিটার প্রতি সেকেন্ড', 'unit.speed.kmh': 'কিলোমিটার প্রতি ঘণ্টা', 'unit.speed.mph': 'মাইল প্রতি ঘণ্টা', 'unit.speed.kn': 'নট', 'unit.speed.fts': 'ফুট প্রতি সেকেন্ড', 'unit.speed.mach': 'ম্যাক (সমুদ্রপৃষ্ঠে)',
+  'unit.time.ms': 'মিলিসেকেন্ড', 'unit.time.s': 'সেকেন্ড', 'unit.time.min': 'মিনিট', 'unit.time.h': 'ঘণ্টা', 'unit.time.d': 'দিন', 'unit.time.wk': 'সপ্তাহ', 'unit.time.mo': 'মাস', 'unit.time.yr': 'বছর',
+  'unit.data.bit': 'বিট', 'unit.data.b': 'বাইট', 'unit.data.kb': 'কিলোবাইট', 'unit.data.mb': 'মেগাবাইট', 'unit.data.gb': 'গিগাবাইট', 'unit.data.tb': 'টেরাবাইট',
+  'unit.data.kib': 'কিবিবাইট', 'unit.data.mib': 'মেবিবাইট', 'unit.data.gib': 'গিবিবাইট', 'unit.data.tib': 'টেবিবাইট',
+  'unit.pressure.pa': 'প্যাসকেল', 'unit.pressure.kpa': 'কিলোপ্যাসকেল', 'unit.pressure.bar': 'বার', 'unit.pressure.psi': 'পাউন্ড প্রতি বর্গ ইঞ্চি', 'unit.pressure.atm': 'বায়ুমণ্ডল', 'unit.pressure.mmhg': 'মিলিমিটার পারদ',
+  'unit.energy.j': 'জুল', 'unit.energy.kj': 'কিলোজুল', 'unit.energy.cal': 'ক্যালরি (ছোট)', 'unit.energy.kcal': 'কিলোক্যালরি (খাদ্যের ক্যালরি)', 'unit.energy.wh': 'ওয়াট-ঘণ্টা', 'unit.energy.kwh': 'কিলোওয়াট-ঘণ্টা', 'unit.energy.btu': 'ব্রিটিশ থার্মাল ইউনিট',
+  'unit.indian-land.sqft': 'বর্গ ফুট', 'unit.indian-land.sqyd': 'বর্গ গজ (গজ)', 'unit.indian-land.sqm': 'বর্গ মিটার', 'unit.indian-land.acre': 'একর', 'unit.indian-land.ha': 'হেক্টর',
+  'unit.indian-land.guntha': 'গুন্ঠা (মহারাষ্ট্র, কর্ণাটক)', 'unit.indian-land.cent': 'সেন্ট (দক্ষিণ ভারত)', 'unit.indian-land.katha-wb': 'কাঠা (পশ্চিমবঙ্গ)', 'unit.indian-land.biswa-up': 'বিশ্বা (উত্তরপ্রদেশ)',
+  'unit.indian-land.bigha-up': 'বিঘা (উত্তরপ্রদেশ)', 'unit.indian-land.bigha-raj': 'বিঘা (রাজস্থান, পাকা)', 'unit.indian-land.bigha-gj': 'বিঘা (গুজরাট)', 'unit.indian-land.bigha-wb': 'বিঘা (পশ্চিমবঙ্গ)', 'unit.indian-land.bigha-as': 'বিঘা (অসম)',
+  'unit.number-scale.thousand': 'হাজার', 'unit.number-scale.lakh': 'লাখ', 'unit.number-scale.million': 'মিলিয়ন', 'unit.number-scale.crore': 'কোটি', 'unit.number-scale.billion': 'বিলিয়ন',
+  'note.time': 'এখানে এক মাস ৩০.৪৪ দিন আর এক বছর ৩৬৫.২৫ দিন, অর্থাৎ প্রচলিত গড়।',
+  'note.data': 'এখানে KB, MB ও GB-তে ১০০০ ধরা হয় (ডিস্ক নির্মাতা ও ফোন প্ল্যান যা ধরে)। KiB, MiB ও GiB-তে ১০২৪ ধরা হয় (অনেক অপারেটিং সিস্টেম যা দেখায়)।',
+  'note.indian-land': 'বিঘা কোনো নির্দিষ্ট মাপ নয়: রাজ্য ও কখনো জেলা ভেদে বদলায়, আর গজ মানে এক বর্গ গজ। জমি কেনাবেচার আগে স্থানীয় ভূমি রেকর্ড দেখে নিন।',
+  'note.number-scale': 'লাখ ও কোটি ভারতীয় পদ্ধতি; মিলিয়ন ও বিলিয়ন আন্তর্জাতিক পদ্ধতি।',
+  'city.kolkata': 'ভারত (কলকাতা)', 'city.london': 'লন্ডন', 'city.paris': 'প্যারিস, বার্লিন, রোম', 'city.dubai': 'দুবাই', 'city.karachi': 'করাচি', 'city.dhaka': 'ঢাকা',
+  'city.bangkok': 'ব্যাংকক, জাকার্তা', 'city.singapore': 'সিঙ্গাপুর', 'city.shanghai': 'বেইজিং, সাংহাই', 'city.tokyo': 'টোকিও', 'city.sydney': 'সিডনি', 'city.auckland': 'অকল্যান্ড',
+  'city.istanbul': 'ইস্তাম্বুল', 'city.moscow': 'মস্কো', 'city.cairo': 'কায়রো', 'city.lagos': 'লাগোস', 'city.nairobi': 'নাইরোবি', 'city.newyork': 'নিউ ইয়র্ক (পূর্বাঞ্চলীয়)',
+  'city.chicago': 'শিকাগো (কেন্দ্রীয়)', 'city.denver': 'ডেনভার (পার্বত্য)', 'city.losangeles': 'লস অ্যাঞ্জেলেস (প্রশান্ত)', 'city.saopaulo': 'সাও পাউলো', 'city.mexico': 'মেক্সিকো সিটি',
+  'fmt.dmy-slash': 'DD/MM/YYYY (ভারত, যুক্তরাজ্য, বিশ্বের বেশিরভাগ দেশ)', 'fmt.mdy-slash': 'MM/DD/YYYY (যুক্তরাষ্ট্র)', 'fmt.dmy-dot': 'DD.MM.YYYY (জার্মানি, তুরস্ক, রাশিয়া)', 'fmt.ymd-slash': 'YYYY/MM/DD (জাপান, চীন)',
+};
+export default t;
