@@ -248,3 +248,30 @@ test.describe('the Ctrl K window follows the page language', () => {
     await expect(page.locator('.palette-row').first()).toHaveAttribute('role', 'option');
   });
 });
+
+test.describe('the options inside a converter follow the page language', () => {
+  test('English labels are unchanged', async ({ page }) => {
+    await page.goto('/length-converter/');
+    await expect(page.locator('label[for="u-value"]')).toHaveText('Value');
+    await expect(page.getByRole('button', { name: 'Swap the two units' })).toBeVisible();
+  });
+
+  test('a Spanish calculator and a Spanish audio converter show their options in Spanish', async ({ page }) => {
+    const errors: string[] = [];
+    page.on('pageerror', (e) => errors.push(e.message));
+    await page.goto('/es/length-converter/');
+    await expect(page.locator('label[for="u-value"]')).toHaveText('Valor');
+    await expect(page.locator('label[for="u-result"]')).toHaveText('Resultado');
+    await expect(page.getByRole('button', { name: 'Intercambiar las dos unidades' })).toBeVisible();
+    await page.goto('/es/wav-to-mp3/');
+    await page.locator('input[type="file"]').first().setInputFiles({ name: 'a.wav', mimeType: 'audio/wav', buffer: Buffer.from('RIFF0000WAVE') });
+    await expect(page.getByText('Calidad (bitrate)')).toBeVisible();
+    expect(errors).toEqual([]);
+  });
+
+  test('a Hindi data converter shows its buttons and placeholders in Hindi', async ({ page }) => {
+    await page.goto('/hi/csv-to-json/');
+    await expect(page.locator('#data-out')).toHaveAttribute('placeholder', /\S/);
+    await expect(page.locator('#data-out')).not.toHaveAttribute('placeholder', 'The result appears here');
+  });
+});

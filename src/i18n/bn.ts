@@ -52,7 +52,7 @@ export const bn: LocaleData = {
     footerTerms: 'শর্তাবলি',
     footerFeedback: 'মতামত',
     footerLine: '© 2026 Basic App Company · iDuckConvert · iduckconvert.com · বিনামূল্যের কনভার্টার, যা আপনার ব্রাউজারে চলে। সর্বশেষ আপডেট: {date}।',
-    machineNote: 'এই পাতাটি মেশিনে অনুবাদ করা। কনভার্টারের ভেতরের অপশন এবং বিস্তারিত ব্যাখ্যা আপাতত ইংরেজিতে আছে।',
+    machineNote: 'এই পৃষ্ঠাটি যন্ত্রের মাধ্যমে অনূদিত, তাই কিছু শব্দ ঠিকঠাক না-ও হতে পারে।',
     machineShort: 'এই পাতাটি মেশিনে অনুবাদ করা।',
     guidesPageTitle: 'ফাইল রূপান্তরের গাইড | iDuckConvert',
     guidesPageDescription: 'অডিও, ভিডিও, স্প্রেডশিট, ছবি ও একক ভুল ছাড়া রূপান্তর করার {n}টি ছোট গাইড। প্রতিটি আগে উত্তর দেয়।',
@@ -81,7 +81,7 @@ export const bn: LocaleData = {
     titleTool: '{name}: বিনামূল্যে, আপনার ব্রাউজারে | iDuckConvert',
     descFiles: '{summary} বিনামূল্যে, সাইন-আপ নেই, ওয়াটারমার্ক নেই, আর আপনার ফাইল কখনও আপলোড হয় না।',
     descNoFiles: '{summary} বিনামূল্যে, সাইন-আপ ও ওয়াটারমার্ক নেই।',
-    controlsEnglish: 'নিচের ফাইল বাছাইয়ের অংশ, বোতাম ও ডাউনলোড এলাকা অনুবাদ করা। কনভার্টারের ভেতরের অপশন আপাতত ইংরেজিতে আছে।',
+    controlsEnglish: 'কনভার্টারের ভেতরে একক, শহর ও তারিখের ফরম্যাটের নাম এখনও ইংরেজিতে আছে।',
     /** Contains {name}. The headings of the steps, the explanation and the questions under a converter. */
     pageStepsHeading: '{name} কীভাবে ব্যবহার করবেন?',
     pageAboutHeading: '{name} সম্পর্কে আমার কী জানা দরকার?',

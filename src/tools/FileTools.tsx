@@ -4,6 +4,7 @@ import SimpleToolShell from '../components/SimpleToolShell';
 import { Field, OptionsPanel } from '../components/OptionsPanel';
 import type { OutputFile, ToolDefinition } from '../engine/types';
 import { checkSize, withExtension } from '../lib/files';
+import { fill, useOpts } from '../i18n/options';
 import { parseCsv, stringifyCsv } from '../convert/data';
 
 // ---------- CSV <-> Excel ----------
@@ -46,20 +47,21 @@ const excelTool = (to: string): ToolDefinition<ExcelOptions> => ({
 });
 
 export function ExcelTool({ to, runLabel }: { to: 'xlsx' | 'csv'; runLabel: string }) {
+  const o = useOpts();
   const tool = useMemo(() => excelTool(to), [to]);
   const [bom, setBom] = useState(true);
   return (
     <SimpleToolShell tool={tool} options={{ bom }} canRun runLabel={runLabel}>
       {() =>
         to === 'csv' ? (
-          <OptionsPanel title="Options">
+          <OptionsPanel title={o.options}>
             <label class="flex items-center gap-2 text-sm font-bold">
               <input type="checkbox" checked={bom} onChange={(e) => setBom(e.currentTarget.checked)} />
-              Add a UTF-8 marker so Excel shows accents and non-English letters correctly
+              {o.excelBom}
             </label>
           </OptionsPanel>
         ) : (
-          <p class="text-sm text-muted">Numbers become real numbers. Values like 01234 or phone numbers with leading zeros stay as text, so nothing is lost.</p>
+          <p class="text-sm text-muted">{o.excelNote}</p>
         )
       }
     </SimpleToolShell>
@@ -112,12 +114,13 @@ const tiffTool: ToolDefinition<TiffOptions> = {
 };
 
 export function TiffTool({ runLabel }: { runLabel: string }) {
+  const o = useOpts();
   const [quality, setQuality] = useState(90);
   return (
     <SimpleToolShell tool={tiffTool} options={{ quality }} canRun runLabel={runLabel}>
       {() => (
-        <OptionsPanel title="Options">
-          <Field id="tq" label={`JPG quality: ${quality}`} hint="90 looks the same as the original for most scans. Lower makes smaller files.">
+        <OptionsPanel title={o.options}>
+          <Field id="tq" label={fill(o.tiffQuality, { q: quality })} hint={o.tiffHint}>
             <input id="tq" type="range" min="40" max="100" value={quality} onInput={(e) => setQuality(Number(e.currentTarget.value))} />
           </Field>
         </OptionsPanel>
@@ -161,20 +164,21 @@ const webpTool: ToolDefinition<WebpOptions> = {
 };
 
 export function WebpGifTool({ runLabel }: { runLabel: string }) {
+  const o = useOpts();
   const [maxWidth, setMaxWidth] = useState(0);
   return (
     <SimpleToolShell tool={webpTool} options={{ maxWidth }} canRun runLabel={runLabel}>
       {() => (
-        <OptionsPanel title="Options">
-          <Field id="ww" label="Largest width" hint="GIF files get big quickly. Shrinking a large picture first keeps the GIF small.">
+        <OptionsPanel title={o.options}>
+          <Field id="ww" label={o.largestWidth} hint={o.webpHint}>
             <select id="ww" class="input" value={maxWidth} onChange={(e) => setMaxWidth(Number(e.currentTarget.value))}>
-              <option value={0}>Keep original size</option>
+              <option value={0}>{o.keepSize}</option>
               {[320, 480, 640, 800, 1080].map((w) => (
-                <option value={w}>{w} pixels</option>
+                <option value={w}>{fill(o.pixels, { n: w })}</option>
               ))}
             </select>
           </Field>
-          <p class="text-sm text-muted">Animated WEBP files keep only their first frame in this version.</p>
+          <p class="text-sm text-muted">{o.webpNote}</p>
         </OptionsPanel>
       )}
     </SimpleToolShell>

@@ -178,7 +178,7 @@ const guideText = englishGuide ? guideTextFor(locale, englishGuide.slug) : undef
     )
   }
 
-  {machine && <p class="mt-6 text-sm text-muted" data-machine-note>{d.machineNote} {d.controlsEnglish}</p>}
+  {machine && <p class="mt-6 text-sm text-muted" data-machine-note>{d.machineNote}{!usesFiles && ` ${d.controlsEnglish}`}</p>}
 
   {
     related.length > 0 && (

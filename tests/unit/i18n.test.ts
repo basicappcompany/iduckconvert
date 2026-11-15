@@ -10,6 +10,8 @@ import { guideSlugsFor, guideTextFor, localesWithGuide } from '../../src/i18n/gu
 import { GUIDES, guideBySlug } from '../../src/lib/guides';
 import { contentFor, pairContent } from '../../src/lib/content';
 import { UNIT_PAIRS as UNIT_PAIRS_ALL } from '../../src/lib/unit-pages';
+import { OPT_TEXT } from '../../src/i18n/options';
+import { en as OPT_EN } from '../../src/i18n/options/en';
 import { COMMUNITY_PAGES, communityStrings } from '../../src/lib/community-pages';
 import { pageKey, pageKeysFor, pageStrings, pageTextFor, pairStrings, translationFor, unitStrings } from '../../src/i18n/pages';
 
@@ -313,5 +315,28 @@ describe.each(MACHINE.map((l) => [l.code]))('%s long community pages (About, Pri
       if (gap.length) missing.push(`${p.slug}: ${gap.length} missing, first: ${gap[0]}`);
     }
     expect(missing).toEqual([]);
+  });
+});
+
+describe.each(MACHINE.map((l) => [l.code]))('%s words inside the converters', (code) => {
+  const mine = OPT_TEXT[code!]! as Record<string, string>;
+  const base = OPT_EN as Record<string, string>;
+  const holes = (t: string): string[] => [...t.matchAll(/\{(\w+)\}/g)].map((m) => m[1]!).sort();
+  it('has every key, none empty', () => {
+    expect(Object.keys(mine).sort()).toEqual(Object.keys(base).sort());
+    for (const [k, v] of Object.entries(mine)) expect(v.trim().length, k).toBeGreaterThan(0);
+  });
+  it('keeps the {placeholders} (unitsAll may leave out {title})', () => {
+    for (const [k, en] of Object.entries(base)) {
+      const want = k === 'unitsAll' ? holes(en).filter((h) => h !== 'title') : holes(en);
+      expect(holes(mine[k]!), k).toEqual(want);
+    }
+  });
+  it('keeps the example values', () => {
+    for (const [k, en] of Object.entries(base)) for (const n of en.match(/\d{3,}/g) ?? []) expect(mine[k]!, `${k}: ${n}`).toContain(n);
+  });
+  it('is not English: almost every string differs from the English one', () => {
+    const same = Object.keys(base).filter((k) => mine[k] === base[k]);
+    expect(same.length, same.join(', ')).toBeLessThan(Object.keys(base).length * 0.1);
   });
 });

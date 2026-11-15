@@ -52,7 +52,7 @@ export const ru: LocaleData = {
     footerTerms: 'Условия',
     footerFeedback: 'Отзывы',
     footerLine: '© 2026 Basic App Company · iDuckConvert · iduckconvert.com · Бесплатные конвертеры, которые работают в вашем браузере. Обновлено: {date}.',
-    machineNote: 'Эта страница переведена автоматически. Параметры внутри конвертера и длинные пояснения пока на английском.',
+    machineNote: 'Эта страница переведена машиной, поэтому некоторые формулировки могут быть неточными.',
     machineShort: 'Эта страница переведена автоматически.',
     guidesPageTitle: 'Инструкции по конвертации файлов | iDuckConvert',
     guidesPageDescription: '{n} коротких инструкций, как без ошибок конвертировать аудио, видео, таблицы, изображения и единицы измерения. Каждая сначала даёт ответ.',
@@ -81,7 +81,7 @@ export const ru: LocaleData = {
     titleTool: '{name}: бесплатно, в вашем браузере | iDuckConvert',
     descFiles: '{summary} Бесплатно, без регистрации, без водяных знаков, а ваши файлы никогда не загружаются.',
     descNoFiles: '{summary} Бесплатно, без регистрации и без водяных знаков.',
-    controlsEnglish: 'Выбор файлов, кнопки и область скачивания ниже переведены. Параметры внутри конвертера пока на английском.',
+    controlsEnglish: 'Названия единиц, городов и форматов дат внутри конвертеров пока остаются на английском.',
     /** Contains {name}. The headings of the steps, the explanation and the questions under a converter. */
     pageStepsHeading: 'Как пользоваться: {name}?',
     pageAboutHeading: 'Что нужно знать о: {name}?',

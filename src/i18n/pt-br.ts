@@ -52,7 +52,7 @@ export const ptBR: LocaleData = {
     footerTerms: 'Termos',
     footerFeedback: 'Feedback',
     footerLine: '© 2026 Basic App Company · iDuckConvert · iduckconvert.com · Conversores gratuitos que funcionam no seu navegador. Última atualização: {date}.',
-    machineNote: 'Esta página foi traduzida automaticamente. As opções dentro do conversor e as explicações mais longas estão em inglês por enquanto.',
+    machineNote: 'Esta página foi traduzida por máquina, então algumas palavras podem soar estranhas.',
     machineShort: 'Esta página foi traduzida automaticamente.',
     guidesPageTitle: 'Guias práticos para converter arquivos | iDuckConvert',
     guidesPageDescription: '{n} guias curtos para converter áudio, vídeo, planilhas, imagens e unidades sem erros. Cada um dá a resposta primeiro.',
@@ -81,7 +81,7 @@ export const ptBR: LocaleData = {
     titleTool: '{name}: grátis, no seu navegador | iDuckConvert',
     descFiles: '{summary} Grátis, sem cadastro, sem marca d’água e seus arquivos nunca são enviados.',
     descNoFiles: '{summary} Grátis, sem cadastro e sem marca d’água.',
-    controlsEnglish: 'O seletor de arquivos, os botões e a área de download abaixo estão traduzidos. As opções dentro do conversor estão em inglês por enquanto.',
+    controlsEnglish: 'Os nomes de unidades, cidades e formatos de data dentro dos conversores ainda estão em inglês.',
     /** Contains {name}. The headings of the steps, the explanation and the questions under a converter. */
     pageStepsHeading: 'Como uso {name}?',
     pageAboutHeading: 'O que devo saber sobre {name}?',
