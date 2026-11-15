@@ -1,22 +1,23 @@
 import { useEffect, useState } from 'preact/hooks';
 import Chips from './Chips';
+import { useOpts } from '../i18n/options';
 import { THEME_EVENT, browserTheme, type ThemeChoice } from '../lib/theme-client';
 
-const THEME_OPTIONS: { id: ThemeChoice; emoji: string; label: string }[] = [
-  { id: 'light', emoji: '☀️', label: 'Light' },
-  { id: 'dark', emoji: '🌙', label: 'Dark' },
-  { id: 'system', emoji: '🖥️', label: 'Match my device' },
-];
-
-const SHORTCUTS: { keys: string[]; does: string }[] = [
-  { keys: ['Ctrl', 'K'], does: 'Search the tools (on a Mac, Cmd and K).' },
-  { keys: ['Enter'], does: 'In the search box, open the first tool that matches.' },
-  { keys: ['Esc'], does: 'Close the menu on a phone.' },
-  { keys: ['Tab'], does: 'First press: skip straight to the page content.' },
-  { keys: ['Arrow keys'], does: 'In the crop tool, move the crop box (hold Shift for bigger steps). In a pick-one group, change the choice.' },
+const SHORTCUT_KEYS: { keys: string[]; does: 'sc1' | 'sc2' | 'sc3' | 'sc4' | 'sc5' }[] = [
+  { keys: ['Ctrl', 'K'], does: 'sc1' },
+  { keys: ['Enter'], does: 'sc2' },
+  { keys: ['Esc'], does: 'sc3' },
+  { keys: ['Tab'], does: 'sc4' },
+  { keys: ['ARROWS'], does: 'sc5' },
 ];
 
 export default function SettingsPanel() {
+  const o = useOpts();
+  const THEME_OPTIONS: { id: ThemeChoice; emoji: string; label: string }[] = [
+    { id: 'light', emoji: '☀️', label: o.themeLight },
+    { id: 'dark', emoji: '🌙', label: o.themeDark },
+    { id: 'system', emoji: '🖥️', label: o.themeSystem },
+  ];
   // Created after the page loads: it needs the browser (window, localStorage), which the build does not have.
   const [theme, setTheme] = useState<ReturnType<typeof browserTheme> | null>(null);
   const [choice, setChoice] = useState<ThemeChoice>('light');
@@ -40,11 +41,11 @@ export default function SettingsPanel() {
     <div class="grid gap-5">
       <section class="card p-5" aria-labelledby="appearance">
         <h2 id="appearance" class="text-2xl font-black tracking-tight">
-          Appearance
+          {o.setAppearance}
         </h2>
         <div class="mt-3">
           <Chips
-            label="Theme"
+            label={o.setThemeLabel}
             options={THEME_OPTIONS}
             value={choice}
             onChange={(c) => {
@@ -54,16 +55,16 @@ export default function SettingsPanel() {
           />
         </div>
         <p class="mt-3 text-sm text-muted">
-          The site opens in light mode unless you choose otherwise. "Match my device" follows your phone or computer's light or dark setting. Your choice is kept on every page, in this browser only, until you change it.
+          {o.setThemeNote}
         </p>
       </section>
 
       <section class="card p-5" aria-labelledby="local-data">
         <h2 id="local-data" class="text-2xl font-black tracking-tight">
-          Saved in this browser
+          {o.setSavedH}
         </h2>
         <p class="mt-2 text-sm text-muted" data-testid="saved-summary">
-          {saved === 'light' ? 'Theme: light, the default.' : saved === 'dark' ? 'Theme: dark, your choice.' : 'Theme: matches your device, your choice.'} That is all we keep. Your images are never saved.
+          {saved === 'light' ? o.savedLight : saved === 'dark' ? o.savedDark : o.savedSystem} {o.setSavedTail}
         </p>
         <div class="mt-3 flex flex-wrap items-center gap-3">
           <button
@@ -71,10 +72,10 @@ export default function SettingsPanel() {
             class="btn"
             onClick={() => {
               theme?.clearSaved();
-              setNote('Cleared. The theme is back to light, the default.');
+              setNote(o.setCleared);
             }}
           >
-            Clear saved settings
+            {o.setClear}
           </button>
           <span role="status" class="text-sm font-bold" data-testid="clear-note">
             {note}
@@ -84,19 +85,19 @@ export default function SettingsPanel() {
 
       <section class="card p-5" aria-labelledby="shortcuts">
         <h2 id="shortcuts" class="text-2xl font-black tracking-tight">
-          Keyboard shortcuts
+          {o.setShortH}
         </h2>
         <ul class="mt-3 grid gap-3">
-          {SHORTCUTS.map((s) => (
+          {SHORTCUT_KEYS.map((s) => (
             <li key={s.does} class="flex flex-wrap items-center gap-x-3 gap-y-1">
               <span class="flex gap-1">
                 {s.keys.map((k) => (
                   <kbd key={k} class="rounded-md border-2 border-line px-1.5 py-0.5 text-xs font-black">
-                    {k}
+                    {k === 'ARROWS' ? o.keyArrows : k}
                   </kbd>
                 ))}
               </span>
-              <span class="text-sm">{s.does}</span>
+              <span class="text-sm">{o[s.does]}</span>
             </li>
           ))}
         </ul>

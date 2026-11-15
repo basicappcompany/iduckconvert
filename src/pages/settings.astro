@@ -1,14 +1,5 @@
 ---
-import CommunityLayout from '../components/CommunityLayout.astro';
-import SettingsPanel from '../components/SettingsPanel';
+import MorePage from '../components/MorePage.astro';
 ---
 
-<CommunityLayout
-  title="Settings | iDuckConvert"
-  description="Choose a light or dark theme, clear what iDuckConvert saved in your browser, and see the keyboard shortcuts."
-  mark="Settings"
-  intro="Pick how the site looks, see what it remembers, and learn the shortcuts."
-  noindex
->
-  <SettingsPanel client:load />
-</CommunityLayout>
+<MorePage slug="settings" />

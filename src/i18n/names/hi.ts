@@ -1,0 +1,38 @@
+import type { NameText } from './index';
+
+/** Hindi unit, city and date-format names. Machine-translated; a person has not read them yet. */
+const t: NameText = {
+  'unit.length.mm': 'मिलीमीटर', 'unit.length.cm': 'सेंटीमीटर', 'unit.length.m': 'मीटर', 'unit.length.km': 'किलोमीटर',
+  'unit.length.in': 'इंच', 'unit.length.ft': 'फ़ुट', 'unit.length.yd': 'गज़', 'unit.length.mi': 'मील', 'unit.length.nmi': 'समुद्री मील',
+  'unit.weight.mg': 'मिलीग्राम', 'unit.weight.g': 'ग्राम', 'unit.weight.kg': 'किलोग्राम', 'unit.weight.t': 'टन',
+  'unit.weight.oz': 'औंस', 'unit.weight.lb': 'पाउंड', 'unit.weight.st': 'स्टोन', 'unit.weight.quintal': 'क्विंटल',
+  'unit.temperature.c': 'सेल्सियस', 'unit.temperature.f': 'फ़ारेनहाइट', 'unit.temperature.k': 'केल्विन',
+  'unit.area.sqcm': 'वर्ग सेंटीमीटर', 'unit.area.sqm': 'वर्ग मीटर', 'unit.area.sqkm': 'वर्ग किलोमीटर',
+  'unit.area.sqin': 'वर्ग इंच', 'unit.area.sqft': 'वर्ग फ़ुट', 'unit.area.sqyd': 'वर्ग गज़',
+  'unit.area.acre': 'एकड़', 'unit.area.ha': 'हेक्टेयर', 'unit.area.sqmi': 'वर्ग मील',
+  'unit.volume.ml': 'मिलीलीटर', 'unit.volume.l': 'लीटर', 'unit.volume.m3': 'घन मीटर',
+  'unit.volume.tsp': 'चम्मच, छोटा (अमेरिका)', 'unit.volume.tbsp': 'चम्मच, बड़ा (अमेरिका)', 'unit.volume.floz': 'तरल औंस (अमेरिका)',
+  'unit.volume.cup': 'कप (अमेरिका)', 'unit.volume.pt': 'पाइंट (अमेरिका)', 'unit.volume.qt': 'क्वार्ट (अमेरिका)', 'unit.volume.gal': 'गैलन (अमेरिका)',
+  'unit.volume.galuk': 'गैलन (ब्रिटेन)',
+  'unit.speed.ms': 'मीटर प्रति सेकंड', 'unit.speed.kmh': 'किलोमीटर प्रति घंटा', 'unit.speed.mph': 'मील प्रति घंटा', 'unit.speed.kn': 'नॉट', 'unit.speed.fts': 'फ़ुट प्रति सेकंड', 'unit.speed.mach': 'मैक (समुद्र तल पर)',
+  'unit.time.ms': 'मिलीसेकंड', 'unit.time.s': 'सेकंड', 'unit.time.min': 'मिनट', 'unit.time.h': 'घंटा', 'unit.time.d': 'दिन', 'unit.time.wk': 'सप्ताह', 'unit.time.mo': 'महीना', 'unit.time.yr': 'वर्ष',
+  'unit.data.bit': 'बिट', 'unit.data.b': 'बाइट', 'unit.data.kb': 'किलोबाइट', 'unit.data.mb': 'मेगाबाइट', 'unit.data.gb': 'गीगाबाइट', 'unit.data.tb': 'टेराबाइट',
+  'unit.data.kib': 'किबिबाइट', 'unit.data.mib': 'मेबिबाइट', 'unit.data.gib': 'गिबिबाइट', 'unit.data.tib': 'टेबिबाइट',
+  'unit.pressure.pa': 'पास्कल', 'unit.pressure.kpa': 'किलोपास्कल', 'unit.pressure.bar': 'बार', 'unit.pressure.psi': 'पाउंड प्रति वर्ग इंच', 'unit.pressure.atm': 'वायुमंडल', 'unit.pressure.mmhg': 'मिलीमीटर पारा',
+  'unit.energy.j': 'जूल', 'unit.energy.kj': 'किलोजूल', 'unit.energy.cal': 'कैलोरी (छोटी)', 'unit.energy.kcal': 'किलोकैलोरी (भोजन वाली कैलोरी)', 'unit.energy.wh': 'वाट-घंटा', 'unit.energy.kwh': 'किलोवाट-घंटा', 'unit.energy.btu': 'ब्रिटिश थर्मल यूनिट',
+  'unit.indian-land.sqft': 'वर्ग फ़ुट', 'unit.indian-land.sqyd': 'वर्ग गज़ (गज)', 'unit.indian-land.sqm': 'वर्ग मीटर', 'unit.indian-land.acre': 'एकड़', 'unit.indian-land.ha': 'हेक्टेयर',
+  'unit.indian-land.guntha': 'गुंठा (महाराष्ट्र, कर्नाटक)', 'unit.indian-land.cent': 'सेंट (दक्षिण भारत)', 'unit.indian-land.katha-wb': 'कट्ठा (पश्चिम बंगाल)', 'unit.indian-land.biswa-up': 'बिस्वा (उत्तर प्रदेश)',
+  'unit.indian-land.bigha-up': 'बीघा (उत्तर प्रदेश)', 'unit.indian-land.bigha-raj': 'बीघा (राजस्थान, पक्का)', 'unit.indian-land.bigha-gj': 'बीघा (गुजरात)', 'unit.indian-land.bigha-wb': 'बीघा (पश्चिम बंगाल)', 'unit.indian-land.bigha-as': 'बीघा (असम)',
+  'unit.number-scale.thousand': 'हज़ार', 'unit.number-scale.lakh': 'लाख', 'unit.number-scale.million': 'मिलियन', 'unit.number-scale.crore': 'करोड़', 'unit.number-scale.billion': 'बिलियन',
+  'note.time': 'यहाँ एक महीना 30.44 दिन और एक वर्ष 365.25 दिन का है, यानी सामान्य औसत।',
+  'note.data': 'यहाँ KB, MB और GB में 1000 का हिसाब है (जो डिस्क बनाने वाले और फ़ोन प्लान इस्तेमाल करते हैं)। KiB, MiB और GiB में 1024 का हिसाब है (जो कई ऑपरेटिंग सिस्टम दिखाते हैं)।',
+  'note.indian-land': 'बीघा एक तय माप नहीं है: यह राज्य और कभी-कभी ज़िले के हिसाब से बदलता है, और गज एक वर्ग गज़ होता है। ज़मीन खरीदने या बेचने से पहले स्थानीय राजस्व रिकॉर्ड देख लें।',
+  'note.number-scale': 'लाख और करोड़ भारतीय प्रणाली हैं; मिलियन और बिलियन अंतरराष्ट्रीय प्रणाली हैं।',
+  'city.kolkata': 'भारत (कोलकाता)', 'city.london': 'लंदन', 'city.paris': 'पेरिस, बर्लिन, रोम', 'city.dubai': 'दुबई', 'city.karachi': 'कराची', 'city.dhaka': 'ढाका',
+  'city.bangkok': 'बैंकॉक, जकार्ता', 'city.singapore': 'सिंगापुर', 'city.shanghai': 'बीजिंग, शंघाई', 'city.tokyo': 'टोक्यो', 'city.sydney': 'सिडनी', 'city.auckland': 'ऑकलैंड',
+  'city.istanbul': 'इस्तांबुल', 'city.moscow': 'मॉस्को', 'city.cairo': 'काहिरा', 'city.lagos': 'लागोस', 'city.nairobi': 'नैरोबी', 'city.newyork': 'न्यूयॉर्क (पूर्वी)',
+  'city.chicago': 'शिकागो (केंद्रीय)', 'city.denver': 'डेनवर (पर्वतीय)', 'city.losangeles': 'लॉस एंजिल्स (प्रशांत)', 'city.saopaulo': 'साओ पाउलो', 'city.mexico': 'मेक्सिको सिटी',
+  'fmt.dmy-slash': 'DD/MM/YYYY (भारत, ब्रिटेन, दुनिया के ज़्यादातर देश)', 'fmt.mdy-slash': 'MM/DD/YYYY (अमेरिका)', 'fmt.dmy-dot': 'DD.MM.YYYY (जर्मनी, तुर्किये, रूस)', 'fmt.ymd-slash': 'YYYY/MM/DD (जापान, चीन)',
+  'case.upper': 'सभी अक्षर बड़े', 'case.lower': 'सभी अक्षर छोटे', 'case.title': 'हर शब्द बड़े अक्षर से', 'case.sentence': 'वाक्य का पहला अक्षर बड़ा', 'case.toggle': 'उलटा (tOGGLE cASE)',
+};
+export default t;

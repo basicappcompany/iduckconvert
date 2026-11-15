@@ -2,6 +2,9 @@ import { useEffect, useMemo, useState } from 'preact/hooks';
 import { dedupeNames, formatBytes, percentChange } from '../lib/files';
 import type { FileResult } from '../engine/types';
 import { fill, useUi } from '../lib/ui';
+import { useOpts } from '../i18n/options';
+import { useLang } from '../i18n/ui';
+import { localizeError } from '../lib/errors';
 
 interface Props {
   /** Original files, same order the batch was submitted in. */
@@ -20,6 +23,8 @@ function useObjectUrls(blobs: readonly Blob[]): string[] {
 /** Per-file download with before/after sizes, plus one ZIP for batches. */
 export default function DownloadPanel({ inputs, results, beforeBytes }: Props) {
   const ui = useUi();
+  const o = useOpts();
+  const lang = useLang();
   const rows = useMemo(
     () =>
       results.flatMap((r) =>
@@ -83,7 +88,7 @@ export default function DownloadPanel({ inputs, results, beforeBytes }: Props) {
         <ul role="alert" class="mt-3 text-sm font-bold text-danger">
           {failed.map((r) => (
             <li key={r.index}>
-              {r.fileName}: {r.error ?? ui.couldNotProcess}
+              {r.fileName}: {r.error ? localizeError(r.error, o, lang === 'en') : ui.couldNotProcess}
             </li>
           ))}
         </ul>

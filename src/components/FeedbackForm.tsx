@@ -2,6 +2,7 @@ import { useMemo, useState } from 'preact/hooks';
 import Chips from './Chips';
 import { Field } from './OptionsPanel';
 import { copyText } from '../lib/clipboard';
+import { fill, useOpts, type OptKey } from '../i18n/options';
 import {
   FEEDBACK_EMAIL,
   FEEDBACK_KINDS,
@@ -18,13 +19,25 @@ import {
 
 type Props = { mode: 'feedback' } | { mode: 'request' };
 
+/** The words for each kind of message, and for each problem the checks in lib/contact can report (they are written in English there). */
+const KIND_KEYS: Record<string, OptKey> = { broke: 'kBroke', better: 'kBetter', great: 'kGreat', other: 'kOther', new: 'kNew', improve: 'kImprove' };
+const PROBLEM_KEYS: Record<string, OptKey> = {
+  'That email address does not look right. Fix it or leave it empty.': 'fBadEmail',
+  'Write a message first.': 'fNeedMsg',
+  'Give your idea a short title.': 'fNeedTitle',
+  'Say what you would use it for.': 'fNeedUse',
+};
+
 /**
  * Feedback and feature requests. "Send" opens the visitor's own mail app with the message
  * ready; nothing is sent until they press send there. "Copy instead" always works, for people
  * with no mail app set up.
  */
 export default function FeedbackForm(props: Props) {
+  const o = useOpts();
   const isRequest = props.mode === 'request';
+  const kinds = <Id extends string>(list: readonly { id: Id; emoji: string; label: string }[]) => list.map((k) => ({ ...k, label: o[KIND_KEYS[k.id] ?? 'kOther'] }));
+  const say = (text: string | null): string => (text ? (PROBLEM_KEYS[text] ? o[PROBLEM_KEYS[text]!] : text) : '');
   const [feedbackKind, setFeedbackKind] = useState<FeedbackKind>('better');
   const [requestKind, setRequestKind] = useState<RequestKind>('new');
   const [title, setTitle] = useState('');
@@ -34,6 +47,7 @@ export default function FeedbackForm(props: Props) {
   const [touched, setTouched] = useState(false);
 
   const problem = isRequest ? checkRequest(title, message, email) : checkFeedback(message, email);
+  const problemText = say(problem);
 
   const draft = useMemo(() => {
     const page = typeof location === 'undefined' ? '' : `${location.origin}${location.pathname}`;
@@ -49,28 +63,28 @@ export default function FeedbackForm(props: Props) {
     setTouched(true);
     if (problem) {
       e.preventDefault();
-      setStatus({ kind: 'error', text: problem });
+      setStatus({ kind: 'error', text: problemText });
       return;
     }
     setStatus({
       kind: 'info',
       text: mail.truncated
-        ? `Your email app should open, but this message is long so it was shortened there. Use "Copy instead" to send the full text to ${FEEDBACK_EMAIL}.`
-        : `Your email app should open with the message ready. If nothing opened, use "Copy instead" and paste it into an email to ${FEEDBACK_EMAIL}.`,
+        ? fill(o.fLong, { email: FEEDBACK_EMAIL })
+        : fill(o.fOk, { email: FEEDBACK_EMAIL }),
     });
   };
 
   const copy = async () => {
     setTouched(true);
     if (problem) {
-      setStatus({ kind: 'error', text: problem });
+      setStatus({ kind: 'error', text: problemText });
       return;
     }
     const ok = await copyText(plainText(draft));
     setStatus(
       ok
-        ? { kind: 'info', text: `Copied. Paste it into an email to ${FEEDBACK_EMAIL}.` }
-        : { kind: 'error', text: 'Could not copy automatically. Open "See the message" below, select the text and copy it yourself.' },
+        ? { kind: 'info', text: fill(o.fCopied, { email: FEEDBACK_EMAIL }) }
+        : { kind: 'error', text: o.fCopyFail },
     );
   };
 
@@ -78,22 +92,22 @@ export default function FeedbackForm(props: Props) {
     <form class="card grid gap-5 p-5" onSubmit={(e) => e.preventDefault()} noValidate>
       <div class="grid gap-2">
         <span class="text-sm font-bold" id="kind-label">
-          {isRequest ? 'What do you want?' : 'What kind of message is it?'}
+          {isRequest ? o.kindReq : o.kindFb}
         </span>
         {isRequest ? (
-          <Chips label="What do you want?" options={REQUEST_KINDS} value={requestKind} onChange={setRequestKind} />
+          <Chips label={o.kindReq} options={kinds(REQUEST_KINDS)} value={requestKind} onChange={setRequestKind} />
         ) : (
-          <Chips label="What kind of message is it?" options={FEEDBACK_KINDS} value={feedbackKind} onChange={setFeedbackKind} />
+          <Chips label={o.kindFb} options={kinds(FEEDBACK_KINDS)} value={feedbackKind} onChange={setFeedbackKind} />
         )}
       </div>
 
       {isRequest && (
-        <Field id="fb-title" label="Short title">
+        <Field id="fb-title" label={o.fShortTitle}>
           <input
             id="fb-title"
             class="input"
             maxLength={120}
-            placeholder="e.g. Add a watermark tool"
+            placeholder={o.fTitlePh}
             value={title}
             onInput={(e) => setTitle(e.currentTarget.value)}
           />
@@ -102,20 +116,20 @@ export default function FeedbackForm(props: Props) {
 
       <Field
         id="fb-message"
-        label={isRequest ? 'What would you use it for?' : 'Your message'}
-        hint={isRequest ? 'A real example makes it much easier to build the right thing.' : 'The more detail, the easier it is to help.'}
+        label={isRequest ? o.fUseFor : o.fMessage}
+        hint={isRequest ? o.fHintReq : o.fHintMsg}
       >
         <textarea
           id="fb-message"
           class="input min-h-32"
           maxLength={4000}
-          placeholder={isRequest ? 'I often need to...' : 'Write here...'}
+          placeholder={isRequest ? o.fPhReq : o.fPhMsg}
           value={message}
           onInput={(e) => setMessage(e.currentTarget.value)}
         />
       </Field>
 
-      <Field id="fb-email" label="Your email (optional)" hint="Only so we can reply. It goes in the message you send, and nowhere else.">
+      <Field id="fb-email" label={o.fEmail} hint={o.fEmailHint}>
         <input
           id="fb-email"
           type="email"
@@ -136,21 +150,21 @@ export default function FeedbackForm(props: Props) {
           onClick={send}
         >
           <span aria-hidden="true">{isRequest ? '💡' : '📮'}</span>
-          {isRequest ? 'Send request' : 'Send feedback'}
+          {isRequest ? o.fSendReq : o.fSendFb}
         </a>
         <button type="button" class="btn btn-lg" onClick={copy}>
-          {isRequest ? 'Copy instead' : 'Copy message instead'}
+          {o.fCopy}
         </button>
       </div>
 
       <p role={status?.kind === 'error' ? 'alert' : 'status'} class={`text-sm ${status?.kind === 'error' ? 'font-bold text-danger' : ''}`} data-testid="status">
-        {status?.text ?? (touched && problem ? problem : '')}
+        {status?.text ?? (touched && problem ? problemText : '')}
       </p>
 
       <details class="text-sm">
-        <summary class="cursor-pointer font-bold">See the message</summary>
-        <p class="mt-2 text-muted">This is exactly what your email app will open with. Nothing is sent until you press send there.</p>
-        <textarea class="input mt-2 min-h-40 font-mono text-xs" readOnly aria-label="The message that will be sent" value={plainText(draft)} />
+        <summary class="cursor-pointer font-bold">{o.fSee}</summary>
+        <p class="mt-2 text-muted">{o.fSeeNote}</p>
+        <textarea class="input mt-2 min-h-40 font-mono text-xs" readOnly aria-label={o.fSeeAria} value={plainText(draft)} />
       </details>
     </form>
   );

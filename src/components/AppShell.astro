@@ -111,7 +111,7 @@ const popularTools = POPULAR_FOOTER.map((slug) => TOOLS.find((t) => t.slug === s
             <a class="nav-item" href={lp('/chat/')} aria-current={path === '/chat/' ? 'page' : undefined}>
               <span class="nav-icon" aria-hidden="true">💬</span><span class="nav-text">{d.navHelper}</span>
             </a>
-            <a class="nav-item" href="/converters/" aria-current={path === '/converters/' ? 'page' : undefined}>
+            <a class="nav-item" href={lp('/converters/')} aria-current={path === '/converters/' ? 'page' : undefined}>
               <span class="nav-icon" aria-hidden="true">🧰</span><span class="nav-text">{d.navConverters}</span>
             </a>
             <a class="nav-item" href={guidesHref} aria-current={path.startsWith('/guides/') ? 'page' : undefined}>
@@ -157,7 +157,7 @@ const popularTools = POPULAR_FOOTER.map((slug) => TOOLS.find((t) => t.slug === s
             {
               COMMUNITY.map((page) => (
                 <li>
-                  <a class="nav-item" href={page.slug === 'about' ? lp(communityPath(page.slug)) : communityPath(page.slug)} aria-current={path === communityPath(page.slug) ? 'page' : undefined}>
+                  <a class="nav-item" href={lp(communityPath(page.slug))} aria-current={path === communityPath(page.slug) ? 'page' : undefined}>
                     <span class="nav-icon" aria-hidden="true">{page.emoji}</span>
                     <span class="nav-text">{d.community[page.slug as keyof typeof d.community]}</span>
                   </a>
@@ -215,7 +215,7 @@ const popularTools = POPULAR_FOOTER.map((slug) => TOOLS.find((t) => t.slug === s
               <span data-theme-icon="moon" aria-hidden="true">🌙</span>
               <span data-theme-icon="sun" aria-hidden="true">☀️</span>
             </button>
-            <a href="/donate/" class="btn btn-sm btn-primary" aria-label={d.supportAria}>
+            <a href={lp('/donate/')} class="btn btn-sm btn-primary" aria-label={d.supportAria}>
               <span aria-hidden="true">💛</span>
               <span class="hidden min-[520px]:inline">{d.support}</span>
             </a>
@@ -234,13 +234,13 @@ const popularTools = POPULAR_FOOTER.map((slug) => TOOLS.find((t) => t.slug === s
             </ul>
           </nav>
           <p class="mt-5 flex flex-wrap gap-x-4 [&_a]:inline-block [&_a]:py-1.5">
-            <a class="link" href="/converters/">{d.footerAllConverters}</a>
+            <a class="link" href={lp('/converters/')}>{d.footerAllConverters}</a>
             <a class="link" href={guidesHref}>{d.footerGuides}</a>
             <a class="link" href={lp('/about/')}>{d.footerAbout}</a>
             <a class="link" href={lp('/how-it-works/')}>{d.footerHow}</a>
             <a class="link" href={lp('/privacy/')}>{d.footerPrivacy}</a>
             <a class="link" href={lp('/terms/')}>{d.footerTerms}</a>
-            <a class="link" href="/feedback/">{d.footerFeedback}</a>
+            <a class="link" href={lp('/feedback/')}>{d.footerFeedback}</a>
             <a class="link" href="https://iduckpdf.com/" rel="noopener">iDuckPDF</a>
             <a class="link" href="https://iduckimg.com/" rel="noopener">iDuckIMG</a>
             <a class="link" href="https://iduckcalculator.com/" rel="noopener">iDuckCalculator</a>
