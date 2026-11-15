@@ -5,7 +5,7 @@ Resume here in a new session. The full picture is `docs/status.html`. Base = iDu
 ## Decisions
 - Private repo. Never push to main after the first commit: branch, PR, merge on green CI.
 - PDF conversions belong to iDuckPDF; image conversions iDuckIMG already has (HEIC/AVIF/BMP/SVG to JPG/PNG, favicon/ICO) are link cards.
-- Languages: English plus 9 (hi, bn, pt-BR, id, ru, de, es, fr, tr), phase 1 live: home page, all converters, shared controls. Phases 2 and 3 (guides, helper, pair pages, long text) to do.
+- Languages: English plus 9 (hi, bn, pt-BR, id, ru, de, es, fr, tr). Phases 1 to 3a done (home, converters, helper, guides, converter page text); 3b (unit pair pages) in progress on a branch.
 - Contact: hello@iduckconvert.com (general), feedback@iduckconvert.com (forms). Needs Cloudflare Email Routing set up by the owner.
 - iDuckCalculator: live and linked (sidebar, footer, About).
 
@@ -18,11 +18,12 @@ Resume here in a new session. The full picture is `docs/status.html`. Base = iDu
 - [x] Shell: theme, AppShell, Ctrl K, ToolLayout, home, community pages, helper
 - [x] Converters: audio (14), video (12), images (2 built, 6 linked), data (11), units (11), numbers and text (5), time (2)
 - [x] Site pages, 4 guides, sitemap, robots, canonical, OG/Twitter, og.png, favicon
-- [x] Unit tests (42) and browser tests (26)
+- [x] Unit tests (683 in 5 files) and browser tests (65 declared in 6 files; last full run not this session)
 - [x] Languages phase 1 (switch, hreflang, home page and every converter in 9 languages)
 - [x] Languages phase 2a: the helper in 9 languages
 - [x] Languages phase 2b: all 47 how-to guides in all nine languages
-- [ ] Languages phase 3: converter page text done (664 sentences x 9 languages); still to do: unit pair pages and tables, About, Privacy, Terms, How it works, options inside converters, Ctrl K
+- [x] Languages phase 3a: converter page text (664 sentences x 9 languages)
+- [ ] Languages phase 3b: unit pair pages and tables (branch `localization-phase3b`, build currently fails: `pairTool` hoisting); 3c: About, Privacy, Terms, How it works, options inside converters, Ctrl K
 - [x] Cloudflare Pages project, domain, Email Routing (done 13 Nov; send a real test email to hello@ still to do)
 - [x] 46 how-to guides (42 added), grouped by topic
 - [x] Helper chat rebuilt (full height, inline sums, follow-ups); home page always light
