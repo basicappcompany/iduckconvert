@@ -5,6 +5,7 @@ import { Field, OptionsPanel } from '../components/OptionsPanel';
 import type { ToolDefinition } from '../engine/types';
 import { copyText } from '../lib/clipboard';
 import { checkSize, withExtension } from '../lib/files';
+import { fill, useOpts } from '../i18n/options';
 import { DATA_SPECS, ENCODINGS, decodeBytes, runDataConversion } from '../convert/data';
 
 function download(name: string, text: string, mime: string): void {
@@ -17,6 +18,7 @@ function download(name: string, text: string, mime: string): void {
 }
 
 export function DataTool({ slug }: { slug: string }) {
+  const o = useOpts();
   const spec = DATA_SPECS[slug]!;
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
@@ -43,7 +45,7 @@ export function DataTool({ slug }: { slug: string }) {
         (e: unknown) => {
           if (!current) return;
           setOutput('');
-          setError(e instanceof Error ? e.message : 'That input could not be converted.');
+          setError(e instanceof Error ? e.message : o.convertFailed);
         },
       );
     }, 250);
@@ -58,7 +60,7 @@ export function DataTool({ slug }: { slug: string }) {
     try {
       checkSize(file, 20, 'text file');
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'That file is too big.');
+      setError(e instanceof Error ? e.message : o.fileTooBig);
       return;
     }
     setFileName(file.name);
@@ -81,13 +83,13 @@ export function DataTool({ slug }: { slug: string }) {
           void load(e.dataTransfer?.files[0]);
         }}
       >
-        <p class="text-lg font-black">Drop a {spec.inputLabel} file here, or paste below</p>
+        <p class="text-lg font-black">{fill(o.dropText, { kind: spec.inputLabel })}</p>
         <div class="mt-3 flex flex-wrap justify-center gap-3">
           <button type="button" class="btn btn-primary" onClick={() => picker.current?.click()}>
-            Choose file
+            {o.chooseFile}
           </button>
           <button type="button" class="btn" onClick={() => setInput(spec.sample)}>
-            Try an example
+            {o.tryExample}
           </button>
           {input && (
             <button
@@ -98,19 +100,19 @@ export function DataTool({ slug }: { slug: string }) {
                 setFileName('');
               }}
             >
-              Clear
+              {o.clear}
             </button>
           )}
         </div>
-        <input ref={picker} type="file" class="sr-only" tabIndex={-1} accept={spec.accepts.join(',')} aria-label="Choose a file" onChange={(e) => void load(e.currentTarget.files?.[0])} />
+        <input ref={picker} type="file" class="sr-only" tabIndex={-1} accept={spec.accepts.join(',')} aria-label={o.chooseAria} onChange={(e) => void load(e.currentTarget.files?.[0])} />
       </div>
 
       <div class="grid gap-4 md:grid-cols-2">
-        <Field id="data-in" label={`${spec.inputLabel} in`}>
-          <textarea id="data-in" class="input min-h-64 font-mono text-sm" spellcheck={false} value={input} onInput={(e) => setInput(e.currentTarget.value)} placeholder={`Paste ${spec.inputLabel} here`} />
+        <Field id="data-in" label={fill(o.inLabel, { label: spec.inputLabel })}>
+          <textarea id="data-in" class="input min-h-64 font-mono text-sm" spellcheck={false} value={input} onInput={(e) => setInput(e.currentTarget.value)} placeholder={fill(o.pasteHere, { label: spec.inputLabel })} />
         </Field>
-        <Field id="data-out" label={`${spec.outputLabel} out`}>
-          <textarea id="data-out" class="input min-h-64 font-mono text-sm" readOnly spellcheck={false} value={output} placeholder="The result appears here" />
+        <Field id="data-out" label={fill(o.outLabel, { label: spec.outputLabel })}>
+          <textarea id="data-out" class="input min-h-64 font-mono text-sm" readOnly spellcheck={false} value={output} placeholder={o.resultHere} />
         </Field>
       </div>
 
@@ -127,7 +129,7 @@ export function DataTool({ slug }: { slug: string }) {
           disabled={!output}
           onClick={() => download(withExtension(fileName || 'converted', spec.ext), output, spec.mime)}
         >
-          Download .{spec.ext}
+          {fill(o.downloadExt, { ext: spec.ext })}
         </button>
         <button
           type="button"
@@ -140,7 +142,7 @@ export function DataTool({ slug }: { slug: string }) {
             })
           }
         >
-          {copied ? 'Copied' : 'Copy'}
+          {copied ? o.copied : o.copy}
         </button>
       </div>
     </div>
@@ -165,6 +167,7 @@ const encodingTool: ToolDefinition<EncodingOptions> = {
 };
 
 function Preview({ file, encoding }: { file: File; encoding: string }) {
+  const o = useOpts();
   const [text, setText] = useState('');
   useEffect(() => {
     let current = true;
@@ -177,21 +180,22 @@ function Preview({ file, encoding }: { file: File; encoding: string }) {
   }, [file, encoding]);
   return (
     <div class="grid gap-1">
-      <p class="text-sm font-bold">Preview of {file.name} read as {encoding}</p>
+      <p class="text-sm font-bold">{fill(o.preview, { name: file.name, encoding })}</p>
       <pre class="card max-h-48 overflow-auto whitespace-pre-wrap p-3 text-sm [overflow-wrap:anywhere]">{text || ' '}</pre>
     </div>
   );
 }
 
 export function EncodingTool({ runLabel }: { runLabel: string }) {
+  const o = useOpts();
   const [encoding, setEncoding] = useState('windows-1252');
   const options = useMemo(() => ({ encoding }), [encoding]);
   return (
     <SimpleToolShell tool={encodingTool} options={options} canRun runLabel={runLabel}>
       {({ files }) => (
         <>
-          <OptionsPanel title="The encoding the file was written in">
-            <Field id="enc" label="Encoding" hint="If accents look like Ã© or é, the file is probably Windows-1252. Pick one and check the preview.">
+          <OptionsPanel title={o.encodingTitle}>
+            <Field id="enc" label={o.encodingLabel} hint={o.encodingHint}>
               <select id="enc" class="input" value={encoding} onChange={(e) => setEncoding(e.currentTarget.value)}>
                 {ENCODINGS.map((e) => (
                   <option value={e}>{e}</option>

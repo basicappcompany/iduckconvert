@@ -2,11 +2,13 @@
 import { useMemo, useState } from 'preact/hooks';
 import { Field } from '../components/OptionsPanel';
 import { copyText } from '../lib/clipboard';
+import { fill, useOpts } from '../i18n/options';
 import { UNIT_SETS, convertUnit, formatNumber } from '../convert/units';
 import { CASES, formatBase, fromRoman, numberToWords, parseBase, parseHex, parseHsl, parseRgb, rgbToHsl, toHex, toRoman, type Rgb, type WordStyle } from '../convert/numbers';
 import { CITIES, DATE_FORMATS, compareZones, parseDateInput, timeInZone, wallTimeToInstant } from '../convert/time';
 
-function CopyButton({ text, label = 'Copy' }: { text: string; label?: string }) {
+function CopyButton({ text }: { text: string }) {
+  const o = useOpts();
   const [done, setDone] = useState(false);
   return (
     <button
@@ -20,13 +22,14 @@ function CopyButton({ text, label = 'Copy' }: { text: string; label?: string }) 
         })
       }
     >
-      {done ? 'Copied' : label}
+      {done ? o.copied : o.copy}
     </button>
   );
 }
 
 // ---------- units ----------
 export function UnitsTool({ units, from: presetFrom, to: presetTo }: { units: string; from?: string; to?: string }) {
+  const o = useOpts();
   const set = UNIT_SETS[units]!;
   const [value, setValue] = useState('1');
   const [from, setFrom] = useState(presetFrom ?? set.defaultFrom);
@@ -41,10 +44,10 @@ export function UnitsTool({ units, from: presetFrom, to: presetTo }: { units: st
     <div class="grid gap-5">
       <div class="card grid gap-4 p-5 sm:grid-cols-[1fr_auto_1fr] sm:items-end">
         <div class="grid gap-3">
-          <Field id="u-value" label="Value">
+          <Field id="u-value" label={o.value}>
             <input id="u-value" class="input text-xl font-black" inputMode="decimal" value={value} onInput={(e) => setValue(e.currentTarget.value)} />
           </Field>
-          <Field id="u-from" label="From">
+          <Field id="u-from" label={o.from}>
             <select id="u-from" class="input" value={from} onChange={(e) => setFrom(e.currentTarget.value)}>
               {set.units.map((u) => (
                 <option value={u.id}>{u.name} ({u.symbol})</option>
@@ -52,14 +55,14 @@ export function UnitsTool({ units, from: presetFrom, to: presetTo }: { units: st
             </select>
           </Field>
         </div>
-        <button type="button" class="btn mx-auto" aria-label="Swap the two units" onClick={() => { setFrom(to); setTo(from); }}>
+        <button type="button" class="btn mx-auto" aria-label={o.swapUnits} onClick={() => { setFrom(to); setTo(from); }}>
           ⇄
         </button>
         <div class="grid gap-3">
-          <Field id="u-result" label="Result">
+          <Field id="u-result" label={o.result}>
             <output id="u-result" class="input flex items-center text-xl font-black" aria-live="polite">{formatNumber(result)}</output>
           </Field>
-          <Field id="u-to" label="To">
+          <Field id="u-to" label={o.to}>
             <select id="u-to" class="input" value={to} onChange={(e) => setTo(e.currentTarget.value)}>
               {set.units.map((u) => (
                 <option value={u.id}>{u.name} ({u.symbol})</option>
@@ -75,7 +78,7 @@ export function UnitsTool({ units, from: presetFrom, to: presetTo }: { units: st
       )}
       {set.note && <p class="card p-4 text-sm font-bold">{set.note}</p>}
       <details class="card p-4">
-        <summary class="cursor-pointer font-black">{formatNumber(n) || '0'} {fromUnit.symbol} in every {set.title.toLowerCase()} unit</summary>
+        <summary class="cursor-pointer font-black">{fill(o.unitsAll, { n: formatNumber(n) || '0', symbol: fromUnit.symbol, title: set.title.toLowerCase() })}</summary>
         <table class="mt-3 w-full text-left text-sm">
           <tbody>
             {all.map(({ unit, value: v }) => (
@@ -92,14 +95,15 @@ export function UnitsTool({ units, from: presetFrom, to: presetTo }: { units: st
 }
 
 // ---------- number bases ----------
-const BASES: { id: number; label: string }[] = [
-  { id: 2, label: 'Binary (base 2)' },
-  { id: 8, label: 'Octal (base 8)' },
-  { id: 10, label: 'Decimal (base 10)' },
-  { id: 16, label: 'Hexadecimal (base 16)' },
-];
+const BASES = [
+  { id: 2, name: 'baseBinary' },
+  { id: 8, name: 'baseOctal' },
+  { id: 10, name: 'baseDecimal' },
+  { id: 16, name: 'baseHex' },
+] as const;
 
 export function BasesTool() {
+  const o = useOpts();
   const [text, setText] = useState('255');
   const [base, setBase] = useState(10);
   const value = parseBase(text, base);
@@ -107,7 +111,7 @@ export function BasesTool() {
   return (
     <div class="card grid gap-4 p-5">
       {BASES.map((b) => (
-        <Field id={`base-${b.id}`} label={b.label}>
+        <Field id={`base-${b.id}`} label={fill(o.baseLabel, { name: o[b.name], n: b.id })}>
           <div class="flex gap-2">
             <input
               id={`base-${b.id}`}
@@ -125,16 +129,17 @@ export function BasesTool() {
       ))}
       {bad && (
         <p role="alert" class="text-sm font-bold text-danger">
-          That is not a valid {BASES.find((b) => b.id === base)!.label.split(' (')[0]!.toLowerCase()} number.
+          {fill(o.baseInvalid, { name: o[BASES.find((b) => b.id === base)!.name].toLocaleLowerCase() })}
         </p>
       )}
-      <p class="text-sm text-muted">Works for very large numbers too: it uses exact whole-number maths, not floating point.</p>
+      <p class="text-sm text-muted">{o.baseNote}</p>
     </div>
   );
 }
 
 // ---------- number to words ----------
 export function WordsTool() {
+  const o = useOpts();
   const [text, setText] = useState('1250000');
   const [style, setStyle] = useState<WordStyle>('indian');
   const [money, setMoney] = useState<'none' | 'inr' | 'usd'>('none');
@@ -142,21 +147,21 @@ export function WordsTool() {
   const shown = result.words ? result.words.charAt(0).toUpperCase() + result.words.slice(1) : '';
   return (
     <div class="card grid gap-4 p-5">
-      <Field id="w-num" label="Number" hint="Commas are fine. Decimals work too, for example 1234.56.">
+      <Field id="w-num" label={o.number} hint={o.wordsHint}>
         <input id="w-num" class="input text-xl font-black" inputMode="decimal" value={text} onInput={(e) => setText(e.currentTarget.value)} />
       </Field>
       <div class="grid gap-4 sm:grid-cols-2">
-        <Field id="w-style" label="Style">
+        <Field id="w-style" label={o.style}>
           <select id="w-style" class="input" value={style} onChange={(e) => setStyle(e.currentTarget.value as WordStyle)}>
-            <option value="indian">Indian (thousand, lakh, crore)</option>
-            <option value="international">International (thousand, million, billion)</option>
+            <option value="indian">{o.styleIndian}</option>
+            <option value="international">{o.styleInternational}</option>
           </select>
         </Field>
-        <Field id="w-money" label="Write as">
+        <Field id="w-money" label={o.writeAs}>
           <select id="w-money" class="input" value={money} onChange={(e) => setMoney(e.currentTarget.value as 'none' | 'inr' | 'usd')}>
-            <option value="none">Plain number</option>
-            <option value="inr">Rupees and paise (cheque style)</option>
-            <option value="usd">Dollars and cents (cheque style)</option>
+            <option value="none">{o.moneyNone}</option>
+            <option value="inr">{o.moneyInr}</option>
+            <option value="usd">{o.moneyUsd}</option>
           </select>
         </Field>
       </div>
@@ -164,7 +169,7 @@ export function WordsTool() {
         <p role="alert" class="text-sm font-bold text-danger">{result.error}</p>
       ) : (
         <div class="grid gap-2">
-          <p class="eyebrow">In words</p>
+          <p class="eyebrow">{o.inWords}</p>
           <p class="card p-4 text-lg font-bold [overflow-wrap:anywhere]" aria-live="polite">{shown || ' '}</p>
           <div><CopyButton text={shown} /></div>
         </div>
@@ -175,21 +180,22 @@ export function WordsTool() {
 
 // ---------- Roman numerals ----------
 export function RomanTool() {
+  const o = useOpts();
   const [text, setText] = useState('2026');
   const trimmed = text.trim();
   const isNumber = /^\d+$/.test(trimmed);
   const roman = isNumber ? toRoman(Number(trimmed)) : null;
   const arabic = !isNumber && trimmed !== '' ? fromRoman(trimmed) : null;
   const answer = isNumber ? roman : arabic === null ? null : String(arabic);
-  const error = trimmed === '' ? '' : answer === null ? (isNumber ? 'Roman numerals go from 1 to 3999.' : 'That is not a valid Roman numeral. Examples: IV, XIX, MCMXCIV.') : '';
+  const error = trimmed === '' ? '' : answer === null ? (isNumber ? o.romanRange : o.romanInvalid) : '';
   return (
     <div class="card grid gap-4 p-5">
-      <Field id="r-in" label="Number or Roman numeral">
+      <Field id="r-in" label={o.romanLabel}>
         <input id="r-in" class="input text-xl font-black" value={text} spellcheck={false} onInput={(e) => setText(e.currentTarget.value)} />
       </Field>
       {error ? <p role="alert" class="text-sm font-bold text-danger">{error}</p> : (
         <div class="grid gap-2">
-          <p class="eyebrow">{isNumber ? 'Roman numeral' : 'Number'}</p>
+          <p class="eyebrow">{isNumber ? o.romanNumeral : o.number}</p>
           <p class="card p-4 text-2xl font-black" aria-live="polite">{answer ?? ' '}</p>
           <div><CopyButton text={answer ?? ''} /></div>
         </div>
@@ -200,27 +206,28 @@ export function RomanTool() {
 
 // ---------- text case ----------
 export function CaseTool() {
+  const o = useOpts();
   const [text, setText] = useState('');
   const [chosen, setChosen] = useState('title');
   const out = CASES.find((c) => c.id === chosen)!.apply(text);
   return (
     <div class="grid gap-4">
-      <Field id="c-in" label="Your text">
-        <textarea id="c-in" class="input min-h-40" value={text} onInput={(e) => setText(e.currentTarget.value)} placeholder="Type or paste text here" />
+      <Field id="c-in" label={o.yourText}>
+        <textarea id="c-in" class="input min-h-40" value={text} onInput={(e) => setText(e.currentTarget.value)} placeholder={o.typeHere} />
       </Field>
-      <div class="flex flex-wrap gap-2" role="group" aria-label="Choose a case">
+      <div class="flex flex-wrap gap-2" role="group" aria-label={o.chooseCase}>
         {CASES.map((c) => (
           <button type="button" class={`btn btn-sm ${chosen === c.id ? 'btn-primary' : ''}`} aria-pressed={chosen === c.id} onClick={() => setChosen(c.id)}>
             {c.label}
           </button>
         ))}
       </div>
-      <Field id="c-out" label="Result">
+      <Field id="c-out" label={o.result}>
         <textarea id="c-out" class="input min-h-40" readOnly value={out} />
       </Field>
       <div class="flex gap-3">
         <CopyButton text={out} />
-        <p class="self-center text-sm text-muted">{text.length} characters, {text.trim() ? text.trim().split(/\s+/).length : 0} words</p>
+        <p class="self-center text-sm text-muted">{fill(o.countLine, { chars: text.length, words: text.trim() ? text.trim().split(/\s+/).length : 0 })}</p>
       </div>
     </div>
   );
@@ -228,6 +235,7 @@ export function CaseTool() {
 
 // ---------- colour codes ----------
 export function ColourTool() {
+  const o = useOpts();
   const [hex, setHex] = useState('#FFD23F');
   const [rgb, setRgb] = useState('255, 210, 63');
   const [hsl, setHsl] = useState('45, 100%, 62%');
@@ -260,10 +268,10 @@ export function ColourTool() {
             </div>
           </Field>
         ))}
-        {bad && <p role="alert" class="text-sm font-bold text-danger">That {bad.toUpperCase()} value is not valid yet.</p>}
-        <input type="color" class="h-10 w-full cursor-pointer" aria-label="Pick a colour" value={toHex(rgbValue).toLowerCase()} onInput={(e) => { const p = parseHex(e.currentTarget.value); if (p) apply(p, null); }} />
+        {bad && <p role="alert" class="text-sm font-bold text-danger">{fill(o.colourBad, { kind: bad.toUpperCase() })}</p>}
+        <input type="color" class="h-10 w-full cursor-pointer" aria-label={o.pickColour} value={toHex(rgbValue).toLowerCase()} onInput={(e) => { const p = parseHex(e.currentTarget.value); if (p) apply(p, null); }} />
       </div>
-      <div class="card min-h-40 border-2" role="img" aria-label={`Swatch of ${css.hex}`} style={{ background: css.hex }} />
+      <div class="card min-h-40 border-2" role="img" aria-label={fill(o.swatch, { hex: css.hex })} style={{ background: css.hex }} />
     </div>
   );
 }
@@ -272,6 +280,7 @@ export function ColourTool() {
 const pad = (n: number) => String(n).padStart(2, '0');
 
 export function TimeZoneTool() {
+  const o = useOpts();
   const now = new Date();
   const guess = Intl.DateTimeFormat().resolvedOptions().timeZone;
   const defaultFrom = CITIES.find((c) => c.zone === guess)?.zone ?? 'Asia/Kolkata';
@@ -291,36 +300,36 @@ export function TimeZoneTool() {
   return (
     <div class="grid gap-5">
       <div class="card grid gap-4 p-5 sm:grid-cols-3">
-        <Field id="tz-date" label="Date"><input id="tz-date" type="date" class="input" value={date} onInput={(e) => setDate(e.currentTarget.value)} /></Field>
-        <Field id="tz-time" label="Time"><input id="tz-time" type="time" class="input" value={time} onInput={(e) => setTime(e.currentTarget.value)} /></Field>
-        <Field id="tz-from" label="Starting zone">
+        <Field id="tz-date" label={o.date}><input id="tz-date" type="date" class="input" value={date} onInput={(e) => setDate(e.currentTarget.value)} /></Field>
+        <Field id="tz-time" label={o.time}><input id="tz-time" type="time" class="input" value={time} onInput={(e) => setTime(e.currentTarget.value)} /></Field>
+        <Field id="tz-from" label={o.startingZone}>
           <select id="tz-from" class="input" value={from} onChange={(e) => setFrom(e.currentTarget.value)}>
             {CITIES.map((c) => (<option value={c.zone}>{c.label}</option>))}
           </select>
         </Field>
       </div>
-      {fromInfo && <p class="font-bold">{fromInfo.date}, {fromInfo.time} in {CITIES.find((c) => c.zone === from)?.label}</p>}
+      {fromInfo && <p class="font-bold">{fill(o.zoneNow, { date: fromInfo.date, time: fromInfo.time, place: CITIES.find((c) => c.zone === from)?.label ?? '' })}</p>}
       <div class="card relative overflow-x-auto p-4">
         <table class="w-full min-w-[28rem] text-left text-sm">
-          <thead><tr class="text-muted"><th class="pb-2">Place</th><th class="pb-2">Time</th><th class="pb-2">Date</th><th class="pb-2">Offset</th><th class="pb-2"><span class="sr-only">Remove</span></th></tr></thead>
+          <thead><tr class="text-muted"><th class="pb-2">{o.place}</th><th class="pb-2">{o.time}</th><th class="pb-2">{o.date}</th><th class="pb-2">{o.offset}</th><th class="pb-2"><span class="sr-only">{o.remove}</span></th></tr></thead>
           <tbody>
             {rows.map((r) => (
               <tr class="border-t border-line/20">
                 <th class="py-2 pr-3 font-bold">{r.label}</th>
                 <td class="py-2 pr-3 text-lg font-black tabular-nums">{r.time}</td>
-                <td class="py-2 pr-3">{r.date}{r.dayShift !== 0 && <span class="pill ml-2">{r.dayShift > 0 ? 'next day' : 'previous day'}</span>}</td>
+                <td class="py-2 pr-3">{r.date}{r.dayShift !== 0 && <span class="pill ml-2">{r.dayShift > 0 ? o.nextDay : o.previousDay}</span>}</td>
                 <td class="py-2 pr-3 tabular-nums">{r.offset}</td>
-                <td class="py-2"><button type="button" class="btn btn-sm" aria-label={`Remove ${r.label}`} onClick={() => setPicked(picked.filter((z) => z !== r.zone))}>✕</button></td>
+                <td class="py-2"><button type="button" class="btn btn-sm" aria-label={fill(o.removeAria, { place: r.label })} onClick={() => setPicked(picked.filter((z) => z !== r.zone))}>✕</button></td>
               </tr>
             ))}
           </tbody>
         </table>
-        {rows.length === 0 && <p class="text-sm text-muted">Add a place below to compare.</p>}
+        {rows.length === 0 && <p class="text-sm text-muted">{o.addToCompare}</p>}
       </div>
       {options.length > 0 && (
-        <Field id="tz-add" label="Add a place">
+        <Field id="tz-add" label={o.addPlace}>
           <select id="tz-add" class="input" value="" onChange={(e) => { if (e.currentTarget.value) setPicked([...picked, e.currentTarget.value]); e.currentTarget.value = ''; }}>
-            <option value="">Choose a city...</option>
+            <option value="">{o.chooseCity}</option>
             {options.map((c) => (<option value={c.zone}>{c.label}</option>))}
           </select>
         </Field>
@@ -331,6 +340,7 @@ export function TimeZoneTool() {
 
 // ---------- date formats ----------
 export function DatesTool() {
+  const o = useOpts();
   const now = new Date();
   const [text, setText] = useState(`${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()}`);
   const [order, setOrder] = useState<'dmy' | 'mdy' | 'ymd'>('dmy');
@@ -338,17 +348,17 @@ export function DatesTool() {
   return (
     <div class="grid gap-5">
       <div class="card grid gap-4 p-5 sm:grid-cols-2">
-        <Field id="d-in" label="Date"><input id="d-in" class="input text-xl font-black" value={text} onInput={(e) => setText(e.currentTarget.value)} placeholder="04/03/2026" /></Field>
-        <Field id="d-order" label="That date is written as" hint="03/04/2026 is 3 April in DD/MM/YYYY and 4 March in MM/DD/YYYY.">
+        <Field id="d-in" label={o.date}><input id="d-in" class="input text-xl font-black" value={text} onInput={(e) => setText(e.currentTarget.value)} placeholder="04/03/2026" /></Field>
+        <Field id="d-order" label={o.dateWrittenAs} hint={o.dateHint}>
           <select id="d-order" class="input" value={order} onChange={(e) => setOrder(e.currentTarget.value as 'dmy' | 'mdy' | 'ymd')}>
-            <option value="dmy">Day / Month / Year</option>
-            <option value="mdy">Month / Day / Year</option>
-            <option value="ymd">Year / Month / Day</option>
+            <option value="dmy">{o.orderDmy}</option>
+            <option value="mdy">{o.orderMdy}</option>
+            <option value="ymd">{o.orderYmd}</option>
           </select>
         </Field>
       </div>
       {parsed === null ? (
-        <p role="alert" class="text-sm font-bold text-danger">That is not a real date. Try 04/03/2026 and check the order above.</p>
+        <p role="alert" class="text-sm font-bold text-danger">{o.dateBad}</p>
       ) : (
         <ul class="grid gap-2">
           {DATE_FORMATS.map((f) => {

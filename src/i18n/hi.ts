@@ -52,7 +52,7 @@ export const hi: LocaleData = {
     footerTerms: 'शर्तें',
     footerFeedback: 'फ़ीडबैक',
     footerLine: '© 2026 Basic App Company · iDuckConvert · iduckconvert.com · मुफ़्त कन्वर्टर जो आपके ब्राउज़र में चलते हैं। आख़िरी अपडेट: {date}।',
-    machineNote: 'यह पेज मशीन से अनुवादित है। कन्वर्टर के अंदर के विकल्प और लंबी व्याख्याएँ फ़िलहाल अंग्रेज़ी में हैं।',
+    machineNote: 'यह पेज मशीन द्वारा अनुवादित है, इसलिए कुछ शब्दों में चूक हो सकती है।',
     machineShort: 'यह पेज मशीन से अनुवादित है।',
     guidesPageTitle: 'फ़ाइल कन्वर्ट करने की गाइड | iDuckConvert',
     guidesPageDescription: 'ऑडियो, वीडियो, स्प्रेडशीट, इमेज और इकाइयाँ बिना गलती कन्वर्ट करने के लिए {n} छोटी गाइड। हर गाइड पहले जवाब देती है।',
@@ -81,7 +81,7 @@ export const hi: LocaleData = {
     titleTool: '{name}: मुफ़्त, आपके ब्राउज़र में | iDuckConvert',
     descFiles: '{summary} मुफ़्त, साइन-अप नहीं, वॉटरमार्क नहीं, और आपकी फ़ाइलें कभी अपलोड नहीं होतीं।',
     descNoFiles: '{summary} मुफ़्त, साइन-अप और वॉटरमार्क नहीं।',
-    controlsEnglish: 'नीचे का फ़ाइल चुनने वाला हिस्सा, बटन और डाउनलोड वाला क्षेत्र अनुवादित हैं। कन्वर्टर के अंदर के विकल्प फ़िलहाल अंग्रेज़ी में हैं।',
+    controlsEnglish: 'कन्वर्टर के अंदर इकाइयों, शहरों और तारीख़ के फ़ॉर्मेट के नाम अभी अंग्रेज़ी में हैं।',
     /** Contains {name}. The headings of the steps, the explanation and the questions under a converter. */
     pageStepsHeading: '{name} का इस्तेमाल कैसे करें?',
     pageAboutHeading: '{name} के बारे में मुझे क्या जानना चाहिए?',

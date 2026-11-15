@@ -52,7 +52,7 @@ export const id: LocaleData = {
     footerTerms: 'Ketentuan',
     footerFeedback: 'Masukan',
     footerLine: '© 2026 Basic App Company · iDuckConvert · iduckconvert.com · Konverter gratis yang berjalan di browser Anda. Terakhir diperbarui: {date}.',
-    machineNote: 'Halaman ini diterjemahkan oleh mesin. Opsi di dalam konverter dan penjelasan yang lebih panjang masih dalam bahasa Inggris untuk sementara.',
+    machineNote: 'Halaman ini diterjemahkan oleh mesin, jadi beberapa kata mungkin kurang pas.',
     machineShort: 'Halaman ini diterjemahkan oleh mesin.',
     guidesPageTitle: 'Panduan cara mengonversi file | iDuckConvert',
     guidesPageDescription: '{n} panduan singkat untuk mengonversi audio, video, spreadsheet, gambar, dan satuan tanpa kesalahan. Masing-masing memberi jawaban lebih dulu.',
@@ -81,7 +81,7 @@ export const id: LocaleData = {
     titleTool: '{name}: gratis, di browser Anda | iDuckConvert',
     descFiles: '{summary} Gratis, tanpa daftar, tanpa watermark, dan file Anda tidak pernah diunggah.',
     descNoFiles: '{summary} Gratis, tanpa daftar, tanpa watermark.',
-    controlsEnglish: 'Pemilih file, tombol, dan area unduhan di bawah sudah diterjemahkan. Opsi di dalam konverter masih dalam bahasa Inggris untuk sementara.',
+    controlsEnglish: 'Nama satuan, kota, dan format tanggal di dalam konverter masih dalam bahasa Inggris.',
     /** Contains {name}. The headings of the steps, the explanation and the questions under a converter. */
     pageStepsHeading: 'Bagaimana cara memakai {name}?',
     pageAboutHeading: 'Apa yang perlu saya ketahui tentang {name}?',

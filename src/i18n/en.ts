@@ -58,7 +58,7 @@ export const en: Dict = {
   footerTerms: 'Terms',
   footerFeedback: 'Feedback',
   footerLine: '© 2026 Basic App Company · iDuckConvert · iduckconvert.com · Free converters that run in your browser. Last updated {date}.',
-  machineNote: 'This page is machine-translated. The options inside the converter and the longer explanations are in English for now.',
+  machineNote: 'This page is machine-translated, so some wording may be off.',
   machineShort: 'This page is machine-translated.',
   guidesPageTitle: 'How-to guides for converting files | iDuckConvert',
   guidesPageDescription: '{n} short how-to guides for converting audio, video, spreadsheets, pictures and units without mistakes. Each gives the answer first.',
@@ -88,7 +88,7 @@ export const en: Dict = {
   titleTool: '{name}: free, in your browser | iDuckConvert',
   descFiles: '{summary} Free, no sign-up, no watermark, and your files are never uploaded.',
   descNoFiles: '{summary} Free, no sign-up, no watermark.',
-  controlsEnglish: 'The file picker, the buttons and the download area below are translated. The options inside the converter are in English for now.',
+  controlsEnglish: 'Unit, city and date-format names inside the converters are still in English.',
   /** Contains {name}. The headings of the steps, the explanation and the questions under a converter. */
   pageStepsHeading: 'How do I use {name}?',
   pageAboutHeading: 'What should I know about {name}?',
