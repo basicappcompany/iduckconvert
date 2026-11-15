@@ -245,5 +245,18 @@ const t: OptText = {
   convGroupsAria: 'Grupos',
   convOnSite: 'en {site} ↗',
   convPdf: '¿Buscas conversiones de PDF? Están en {link}.',
+  // number words and error messages
+  wordsBad: 'Escribe un número como 1234 o 1234.56.',
+  wordsBig: 'Ese número es demasiado grande para escribirlo con palabras.',
+  errTooBigFile: 'Este archivo pesa {size}, más de lo que una pestaña del navegador puede manejar con seguridad aquí (el límite es {limit} MB). Prueba con un archivo más pequeño o divídelo antes.',
+  errDamaged: 'Este archivo parece dañado o no es un archivo multimedia que ffmpeg pueda leer.',
+  errNoStream: 'Este archivo no tiene audio ni vídeo que convertir.',
+  errMemory: 'El archivo es demasiado grande para tu navegador. Prueba con un archivo más pequeño o con un ordenador.',
+  errFailed: 'La conversión falló. El archivo puede estar dañado o usar un formato que este conversor no puede leer.',
+  errEngineHash: 'El motor del conversor no superó su comprobación de seguridad (su huella no coincidía), así que no se usó. Inténtalo de nuevo más tarde.',
+  errEngineLoad: 'No se pudo cargar el motor del conversor ({reason}). Revisa tu conexión e inténtalo de nuevo.',
+  errSave: 'No se pudo guardar la imagen.',
+  errNoTiff: 'No se encontró ninguna imagen en este TIFF.',
+  errDetail: 'No se pudo convertir esa entrada. Detalles (en inglés): {message}',
 };
 export default t;

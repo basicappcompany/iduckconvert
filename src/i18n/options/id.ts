@@ -233,5 +233,18 @@ const t: OptText = {
   convGroupsAria: 'Grup',
   convOnSite: 'di {site} ↗',
   convPdf: 'Mencari konversi PDF? Ada di {link}.',
+  // number words and error messages
+  wordsBad: 'Ketik angka seperti 1234 atau 1234.56.',
+  wordsBig: 'Angka itu terlalu besar untuk ditulis dengan kata-kata.',
+  errTooBigFile: 'Berkas ini berukuran {size}, lebih dari yang bisa ditangani satu tab browser dengan aman di sini (batasnya {limit} MB). Coba berkas yang lebih kecil, atau pecah dulu.',
+  errDamaged: 'Berkas ini tampak rusak atau bukan berkas media yang bisa dibaca ffmpeg.',
+  errNoStream: 'Berkas ini tidak punya audio atau video untuk dikonversi.',
+  errMemory: 'Berkas terlalu besar untuk browser Anda. Coba berkas yang lebih kecil atau gunakan komputer.',
+  errFailed: 'Konversi gagal. Berkas mungkin rusak atau memakai format yang tidak bisa dibaca konverter ini.',
+  errEngineHash: 'Mesin konverter tidak lolos pemeriksaan keamanannya (sidik jarinya tidak cocok), jadi tidak dipakai. Silakan coba lagi nanti.',
+  errEngineLoad: 'Mesin konverter tidak bisa dimuat ({reason}). Periksa koneksi Anda dan coba lagi.',
+  errSave: 'Gambar tidak bisa disimpan.',
+  errNoTiff: 'Tidak ada gambar di TIFF ini.',
+  errDetail: 'Masukan itu tidak bisa dikonversi. Detail (dalam bahasa Inggris): {message}',
 };
 export default t;

@@ -233,5 +233,18 @@ const t: OptText = {
   convGroupsAria: 'Gruplar',
   convOnSite: '{site} üzerinde ↗',
   convPdf: 'PDF dönüştürmeleri mi arıyorsunuz? Onlar {link} üzerinde.',
+  // number words and error messages
+  wordsBad: '1234 ya da 1234.56 gibi bir sayı yazın.',
+  wordsBig: 'Bu sayı yazıyla yazılamayacak kadar büyük.',
+  errTooBigFile: 'Bu dosya {size}; bir tarayıcı sekmesinin burada güvenle işleyebileceğinden büyük (sınır {limit} MB). Daha küçük bir dosya deneyin ya da önce bölün.',
+  errDamaged: 'Bu dosya bozuk görünüyor ya da ffmpeg’in okuyabileceği bir medya dosyası değil.',
+  errNoStream: 'Bu dosyada dönüştürülecek ses ya da video yok.',
+  errMemory: 'Dosya tarayıcınızın işleyemeyeceği kadar büyük. Daha küçük bir dosya ya da bir bilgisayar deneyin.',
+  errFailed: 'Dönüştürme başarısız oldu. Dosya bozuk olabilir ya da bu dönüştürücünün okuyamadığı bir biçimde olabilir.',
+  errEngineHash: 'Dönüştürücü motoru güvenlik denetimini geçemedi (parmak izi eşleşmedi), bu yüzden kullanılmadı. Lütfen daha sonra tekrar deneyin.',
+  errEngineLoad: 'Dönüştürücü motoru yüklenemedi ({reason}). Bağlantınızı kontrol edip tekrar deneyin.',
+  errSave: 'Görsel kaydedilemedi.',
+  errNoTiff: 'Bu TIFF içinde görsel bulunamadı.',
+  errDetail: 'Bu girdi dönüştürülemedi. Ayrıntılar (İngilizce): {message}',
 };
 export default t;

@@ -6,6 +6,8 @@ import type { ToolDefinition } from '../engine/types';
 import { copyText } from '../lib/clipboard';
 import { checkSize, withExtension } from '../lib/files';
 import { fill, useOpts } from '../i18n/options';
+import { useLang } from '../i18n/ui';
+import { localizeError, localizeParseError } from '../lib/errors';
 import { DATA_SPECS, ENCODINGS, decodeBytes, runDataConversion } from '../convert/data';
 
 function download(name: string, text: string, mime: string): void {
@@ -19,6 +21,7 @@ function download(name: string, text: string, mime: string): void {
 
 export function DataTool({ slug }: { slug: string }) {
   const o = useOpts();
+  const english = useLang() === 'en';
   const spec = DATA_SPECS[slug]!;
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
@@ -45,7 +48,7 @@ export function DataTool({ slug }: { slug: string }) {
         (e: unknown) => {
           if (!current) return;
           setOutput('');
-          setError(e instanceof Error ? e.message : o.convertFailed);
+          setError(e instanceof Error ? localizeParseError(e.message, o, english) : o.convertFailed);
         },
       );
     }, 250);
@@ -60,7 +63,7 @@ export function DataTool({ slug }: { slug: string }) {
     try {
       checkSize(file, 20, 'text file');
     } catch (e) {
-      setError(e instanceof Error ? e.message : o.fileTooBig);
+      setError(e instanceof Error ? localizeError(e.message, o, english) : o.fileTooBig);
       return;
     }
     setFileName(file.name);

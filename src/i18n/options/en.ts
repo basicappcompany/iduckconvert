@@ -3,8 +3,8 @@
  * to this one with the same keys (a unit test fails when a key is missing, empty, loses a {placeholder} or still reads
  * like English). Kept apart from the page dictionaries so the browser bundle stays small; the converters read the page
  * language with `useOpts()` after mount, so the first render is English and then switches.
- * Not translated here: unit, city and date-format names (they come from src/convert) and the words a number is spelled
- * with (number to words is English only).
+ * Not translated here: unit, city and date-format names (src/i18n/names) and the words a number is spelled with
+ * (src/convert/words-i18n.ts); both have their own tests.
  */
 export const en = {
   // shared
@@ -271,6 +271,19 @@ export const en = {
   convGroupsAria: 'Groups',
   convOnSite: 'on {site} ↗',
   convPdf: 'Looking for PDF conversions? They live on {link}.',
+  // number words and error messages
+  wordsBad: 'Type a number such as 1234 or 1234.56.',
+  wordsBig: 'That number is too large to write out.',
+  errTooBigFile: 'This file is {size}, which is more than a browser tab can handle safely here (the limit is {limit} MB). Try a smaller file, or split it first.',
+  errDamaged: 'This file looks damaged or is not a media file ffmpeg can read.',
+  errNoStream: 'This file has no audio or video to convert.',
+  errMemory: 'The file is too big for your browser to handle. Try a smaller file or a computer.',
+  errFailed: 'The conversion failed. The file may be damaged or use a format this converter cannot read.',
+  errEngineHash: 'The converter engine did not pass its safety check (its fingerprint did not match), so it was not used. Please try again later.',
+  errEngineLoad: 'The converter engine could not load ({reason}). Check your connection and try again.',
+  errSave: 'The picture could not be saved.',
+  errNoTiff: 'No picture found in this TIFF.',
+  errDetail: 'That input could not be converted. Details (in English): {message}',
 } as const;
 
 export type OptKey = keyof typeof en;

@@ -4,9 +4,10 @@ import { Field } from '../components/OptionsPanel';
 import { copyText } from '../lib/clipboard';
 import { fill, useOpts } from '../i18n/options';
 import { useLang } from '../i18n/ui';
+import { numberToWordsIn } from '../convert/words-i18n';
 import { useNames } from '../i18n/names';
 import { UNIT_SETS, convertUnit, formatNumber } from '../convert/units';
-import { CASES, formatBase, fromRoman, numberToWords, parseBase, parseHex, parseHsl, parseRgb, rgbToHsl, toHex, toRoman, type Rgb, type WordStyle } from '../convert/numbers';
+import { CASES, formatBase, fromRoman, parseBase, parseHex, parseHsl, parseRgb, rgbToHsl, toHex, toRoman, type Rgb, type WordStyle } from '../convert/numbers';
 import { CITIES, DATE_FORMATS, compareZones, parseDateInput, timeInZone, wallTimeToInstant } from '../convert/time';
 
 function CopyButton({ text }: { text: string }) {
@@ -144,10 +145,11 @@ export function BasesTool() {
 // ---------- number to words ----------
 export function WordsTool() {
   const o = useOpts();
+  const lang = useLang();
   const [text, setText] = useState('1250000');
   const [style, setStyle] = useState<WordStyle>('indian');
   const [money, setMoney] = useState<'none' | 'inr' | 'usd'>('none');
-  const result = text.trim() === '' ? { words: '' } : numberToWords(text, style, money);
+  const result = text.trim() === '' ? { words: '' } : numberToWordsIn(lang, text, style, money);
   const shown = result.words ? result.words.charAt(0).toUpperCase() + result.words.slice(1) : '';
   return (
     <div class="card grid gap-4 p-5">
@@ -170,7 +172,7 @@ export function WordsTool() {
         </Field>
       </div>
       {result.error ? (
-        <p role="alert" class="text-sm font-bold text-danger">{result.error}</p>
+        <p role="alert" class="text-sm font-bold text-danger">{'errorKey' in result && result.errorKey === 'big' ? o.wordsBig : o.wordsBad}</p>
       ) : (
         <div class="grid gap-2">
           <p class="eyebrow">{o.inWords}</p>
