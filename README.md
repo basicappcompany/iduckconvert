@@ -1,6 +1,6 @@
 # iDuckConvert
 
-Free converters that run in your browser: audio, video, spreadsheets and data, units, numbers, text and time zones. Live at https://iduckconvert.com (once deployed).
+Free converters that run in your browser: audio, video, spreadsheets and data, units, numbers, text and time zones. Live at https://iduckconvert.com.
 
 ```
 pnpm install
