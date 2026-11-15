@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { LOCALES, LOCALE_DATA, OTHER_LOCALES, alternatesFor, dictFor, hasTranslations, languageLinks, localePath, runLabelFor, splitLocalePath, toolText } from '../../src/i18n';
+import { LOCALES, LOCALE_DATA, OTHER_LOCALES, alternatesFor, dictFor, hasTranslations, languageLinks, localePath, pairHasText, runLabelFor, splitLocalePath, toolText } from '../../src/i18n';
 import { en, enTemplates } from '../../src/i18n/en';
 import { UI_TEXT } from '../../src/i18n/ui';
 import { PAGE_TOOLS, TOOLS, toolPath } from '../../src/lib/tools';
@@ -8,8 +8,9 @@ import { ENGLISH_CONTEXT, respond } from '../../src/lib/helper';
 import { helperContext } from '../../src/i18n/helper';
 import { guideSlugsFor, guideTextFor, localesWithGuide } from '../../src/i18n/guides';
 import { GUIDES, guideBySlug } from '../../src/lib/guides';
-import { contentFor } from '../../src/lib/content';
-import { pageKey, pageKeysFor, pageStrings, pageTextFor, translationFor } from '../../src/i18n/pages';
+import { contentFor, pairContent } from '../../src/lib/content';
+import { UNIT_PAIRS as UNIT_PAIRS_ALL } from '../../src/lib/unit-pages';
+import { pageKey, pageKeysFor, pageStrings, pageTextFor, pairStrings, translationFor, unitStrings } from '../../src/i18n/pages';
 
 /** Every string in a value, with a path to it, so two languages can be compared key by key. */
 function flat(value: unknown, prefix = ''): Record<string, string> {
@@ -124,7 +125,11 @@ describe('addresses and hreflang', () => {
     expect(hasTranslations('/about/')).toBe(false);
     // The guides list exists in the languages that have translated guides.
     expect(hasTranslations('/guides/')).toBe(true);
-    for (const pair of UNIT_PAIRS) expect(hasTranslations(`/${pair.slug}/`), pair.slug).toBe(false);
+    // A pair page lists exactly the languages in which every sentence of it is translated.
+    for (const pair of UNIT_PAIRS) {
+      const have = OTHER_LOCALES.filter((l) => pairHasText(l.code, pair.slug)).length;
+      expect(alternatesFor(`/${pair.slug}/`).length, pair.slug).toBe(have > 0 ? have + 1 : 0);
+    }
     expect(alternatesFor('/about/')).toEqual([]);
     const alts = alternatesFor('/mp4-to-mp3/');
     expect(alts.map((a) => a.hreflang).sort()).toEqual(['bn', 'de', 'en-US', 'es', 'fr', 'hi', 'id', 'pt-BR', 'ru', 'tr']);
@@ -253,7 +258,8 @@ describe('guide pages and hreflang', () => {
 
 describe.each(MACHINE.map((l) => [l.code]))('%s converter page text', (code) => {
   const english = new Map<string, string>();
-  for (const t of PAGE_TOOLS) for (const s of pageStrings(contentFor(t))) english.set(pageKey(s), s);
+  for (const t of PAGE_TOOLS) for (const s of [...pageStrings(contentFor(t)), ...unitStrings(contentFor(t))]) english.set(pageKey(s), s);
+  for (const p of UNIT_PAIRS_ALL) for (const s of pairStrings(pairContent(p))) english.set(pageKey(s), s);
   const have = pageKeysFor(code!);
 
   it('translates only sentences that exist in English', () => {
