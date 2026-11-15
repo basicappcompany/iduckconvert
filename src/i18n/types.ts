@@ -14,6 +14,24 @@ export interface Dict {
   searchPlaceholder: string;
   searchAria: string;
   openSearch: string;
+  /** The Ctrl K window. paletteOnSite contains {site}; paletteEmpty contains {q}. */
+  paletteSearchPlaceholder: string;
+  paletteDialog: string;
+  paletteInputAria: string;
+  paletteResults: string;
+  paletteMove: string;
+  paletteOpen: string;
+  paletteClose: string;
+  paletteTools: string;
+  palettePages: string;
+  paletteActions: string;
+  paletteOnSite: string;
+  palettePage: string;
+  paletteGuide: string;
+  paletteGuides: string;
+  paletteAction: string;
+  paletteEmpty: string;
+  paletteTheme: string;
   openMenu: string;
   themeToggle: string;
   support: string;

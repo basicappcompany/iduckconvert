@@ -25,7 +25,8 @@ Resume here in a new session. The full picture is `docs/status.html`. Base = iDu
 - [x] Languages phase 3a: converter page text (664 sentences x 9 languages)
 - [x] Languages phase 3b: all 32 unit pair pages in all nine languages
 - [x] Languages phase 3c-1: About, Privacy, Terms, How it works in all nine languages
-- [ ] Languages phase 3c-2: options inside converters and the Ctrl K window
+- [x] Languages phase 3c-2: the Ctrl K window in all nine languages
+- [ ] Languages phase 3c-3: options inside converters (labels, hints, messages; unit, city and date-format names)
 - [x] Cloudflare Pages project, domain, Email Routing (done 13 Nov; send a real test email to hello@ still to do)
 - [x] 46 how-to guides (42 added), grouped by topic
 - [x] Helper chat rebuilt (full height, inline sums, follow-ups); home page always light
