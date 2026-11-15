@@ -58,7 +58,7 @@ test.describe('languages: search engines and menu', () => {
     expect(hrefs).toContain('es https://iduckconvert.com/es/mp4-to-mp3/');
     expect(hrefs).toContain('en-US https://iduckconvert.com/mp4-to-mp3/');
     expect(hrefs).toContain('x-default https://iduckconvert.com/mp4-to-mp3/');
-    await page.goto('/about/');
+    await page.goto('/roadmap/');
     await expect(page.locator('link[rel="alternate"][hreflang]')).toHaveCount(0);
     // A translated page is its own canonical address.
     await page.goto('/es/mp4-to-mp3/');
@@ -79,7 +79,7 @@ test.describe('languages: search engines and menu', () => {
   });
 
   test('the menu closes on Escape and on a tap elsewhere; a page with no translation sends you to that language home', async ({ page }) => {
-    await page.goto('/about/');
+    await page.goto('/roadmap/');
     const menu = page.locator('[data-lang-menu]');
     await menu.locator('summary').click();
     await expect(page.locator('.lang-list')).toBeVisible();

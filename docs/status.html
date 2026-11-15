@@ -254,7 +254,7 @@
    DATA. Edit here. States: done | progress | todo | waiting | later.  Owners: me | you | both | external | none.
    "me" = I can do it with no input. "you" = only you can. "both" = I do the mechanics, you sign in / approve / supply a secret.
    =================================================================================================================== */
-const VERIFIED = "15 Nov 2026 (local run on the pairs-translations branch: type check 0 errors, lint clean, 683 unit tests in 5 files pass, 1401 pages built, 1387 sitemap URLs; CI and the live site to be checked after merge; browser tests not run locally; Lighthouse and security grades are from 13 Nov and not re-measured)";
+const VERIFIED = "15 Nov 2026 (local run on the localization-phase3c branch: type check 0 errors, lint clean, 692 unit tests in 5 files pass, 1437 pages built, 1423 sitemap URLs; the English About, Privacy, Terms and How it works pages were compared with the old pages and have identical text; CI and the live site to be checked after merge; browser tests not run locally; Lighthouse and security grades are from 13 Nov and not re-measured)";
 const REPO = "https://github.com/basicappcompany/iduckconvert";
 
 /* Tools. A row is "ready" only if its page exists on main and answers on https://iduckconvert.com. Move a planned row to "ready" in the same PR that ships it.
@@ -316,8 +316,8 @@ const PHASES = [
     I("1.12", "Languages, phase 2: the how-to guides (47 of 47 translated)", "done", "none", { when: "14 Nov", note: "All 47 guides are translated into all nine languages (machine translation, not yet read by a native speaker). A test checks each language has every guide with the same structure and numbers." }),
     I("1.13", "Languages, phase 3a: converter page text (steps, explanation, questions) in 9 languages", "done", "none", { when: "14 Nov", note: "664 sentences times 9 languages in src/i18n/pages (PR #16). A translated page shows the section only when every sentence of it is translated. CI now runs once per PR." }),
     I("1.14", "Languages, phase 3b: unit pair pages in other languages", "done", "none", { when: "15 Nov", note: "All 32 unit pair pages exist in all nine languages (PR #18 infrastructure and first 6 pairs, then the other 26). Machine-translated, not yet read by a native speaker." }),
-    I("1.10", "Languages, phase 3c: About, Privacy, Terms, How it works", "todo", "me"),
-    I("1.11", "Translate the options inside each converter (quality, width and so on)", "todo", "me", { note: "Phase 1 translates the file picker, the buttons and the download area; the options inside a converter are still English and each translated page says so." }),
+    I("1.10", "Languages, phase 3c-1: About, Privacy, Terms and How it works in 9 languages", "done", "none", { when: "15 Nov", note: "One English source in src/lib/community-pages.ts renders the English and every translated page (/de/about/ and so on), with hreflang. Machine-translated; the legal pages are the English meaning, not legal advice in each language." }),
+    I("1.11", "Translate the options inside each converter (quality, width and so on) and the Ctrl K window", "todo", "me", { note: "Phase 1 translates the file picker, the buttons and the download area; the options inside a converter are still English and each translated page says so." }),
     I("1.5", "Home page: Popular right now, All N tools with chips, New and next, trust cards, guides, FAQ, Support call-out", "done", "none", { when: "13 Nov", prio: 2 }),
     I("1.6", "Helper chat", "done", "none", { when: "13 Nov" }),
     I("1.7", "Converter page template: H1, steps, 4 to 6 FAQs with FAQPage data, 3 related links", "done", "none", { when: "13 Nov", prio: 1 }),
@@ -399,6 +399,7 @@ const TIMELINE = [
   ["14 Nov 2026", "Converter page text in 9 languages (PR #16)", "Steps, explanations and questions for every converter page; CI runs once per PR."],
   ["15 Nov 2026", "Unit pair pages in other languages, first batch (PR #18)", "Infrastructure plus 6 of 32 unit pair pages in all nine languages. The build had failed on the branch because a helper sat outside getStaticPaths (Astro hoists it); fixed before merge, CI green."],
   ["15 Nov 2026", "All 32 unit pair pages in nine languages", "The remaining 26 pairs translated into hi, bn, pt-BR, id, ru, de, es, fr and tr (264 sentences each)."],
+  ["15 Nov 2026", "About, Privacy, Terms and How it works in nine languages", "90 sentences times nine languages, rendered from one English source so the pages cannot drift apart."],
 ];
 
 const SCORECARD = [
