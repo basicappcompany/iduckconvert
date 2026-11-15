@@ -225,6 +225,17 @@ test.describe('the Ctrl K window follows the page language', () => {
     await expect(page).toHaveURL(/\/length-converter\/$/);
   });
 
+  test('English finds a unit pair page by the way people type it', async ({ page }) => {
+    await page.goto('/about/');
+    for (const [query, href] of [['kg to lbs', /\/kg-to-lbs\/$/], ['cm to inches', /\/cm-to-inches\/$/]] as const) {
+      await page.keyboard.press('Control+k');
+      await page.locator('#palette-input').fill(query);
+      await page.locator('.palette-row', { hasText: query }).first().click();
+      await expect(page).toHaveURL(href);
+      await page.goto('/about/');
+    }
+  });
+
   test('a Spanish page searches in Spanish, still matches English words, and opens the Spanish page', async ({ page }) => {
     await page.goto('/es/about/');
     await page.keyboard.press('Control+k');
