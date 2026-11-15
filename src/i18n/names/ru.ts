@@ -33,5 +33,6 @@ const t: NameText = {
   'city.istanbul': 'Стамбул', 'city.moscow': 'Москва', 'city.cairo': 'Каир', 'city.lagos': 'Лагос', 'city.nairobi': 'Найроби', 'city.newyork': 'Нью-Йорк (восточное время)',
   'city.chicago': 'Чикаго (центральное время)', 'city.denver': 'Денвер (горное время)', 'city.losangeles': 'Лос-Анджелес (тихоокеанское время)', 'city.saopaulo': 'Сан-Паулу', 'city.mexico': 'Мехико',
   'fmt.dmy-slash': 'ДД/ММ/ГГГГ (Индия, Великобритания, большая часть мира)', 'fmt.mdy-slash': 'ММ/ДД/ГГГГ (США)', 'fmt.dmy-dot': 'ДД.ММ.ГГГГ (Германия, Турция, Россия)', 'fmt.ymd-slash': 'ГГГГ/ММ/ДД (Япония, Китай)',
+  'case.upper': 'ПРОПИСНЫЕ', 'case.lower': 'строчные', 'case.title': 'Каждое Слово С Заглавной', 'case.sentence': 'Как в предложении', 'case.toggle': 'иНВЕРТИРОВАТЬ рЕГИСТР',
 };
 export default t;

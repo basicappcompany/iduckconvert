@@ -33,5 +33,6 @@ const t: NameText = {
   'city.istanbul': 'ইস্তাম্বুল', 'city.moscow': 'মস্কো', 'city.cairo': 'কায়রো', 'city.lagos': 'লাগোস', 'city.nairobi': 'নাইরোবি', 'city.newyork': 'নিউ ইয়র্ক (পূর্বাঞ্চলীয়)',
   'city.chicago': 'শিকাগো (কেন্দ্রীয়)', 'city.denver': 'ডেনভার (পার্বত্য)', 'city.losangeles': 'লস অ্যাঞ্জেলেস (প্রশান্ত)', 'city.saopaulo': 'সাও পাউলো', 'city.mexico': 'মেক্সিকো সিটি',
   'fmt.dmy-slash': 'DD/MM/YYYY (ভারত, যুক্তরাজ্য, বিশ্বের বেশিরভাগ দেশ)', 'fmt.mdy-slash': 'MM/DD/YYYY (যুক্তরাষ্ট্র)', 'fmt.dmy-dot': 'DD.MM.YYYY (জার্মানি, তুরস্ক, রাশিয়া)', 'fmt.ymd-slash': 'YYYY/MM/DD (জাপান, চীন)',
+  'case.upper': 'সব অক্ষর বড়', 'case.lower': 'সব অক্ষর ছোট', 'case.title': 'প্রতিটি শব্দ বড় অক্ষরে', 'case.sentence': 'বাক্যের প্রথম অক্ষর বড়', 'case.toggle': 'উল্টো (tOGGLE cASE)',
 };
 export default t;

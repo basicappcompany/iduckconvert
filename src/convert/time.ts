@@ -102,8 +102,16 @@ function ordinal(n: number): string {
 export interface DateFormat {
   id: string;
   label: string;
-  format: (y: number, m: number, d: number) => string;
+  /** `locale` is a language tag; without it (English) the month and day names are the English ones below. */
+  format: (y: number, m: number, d: number, locale?: string) => string;
 }
+
+/** A month or weekday name in a language through the browser's own Intl data. */
+function intlName(locale: string, y: number, m: number, d: number, options: Intl.DateTimeFormatOptions): string {
+  return new Intl.DateTimeFormat(locale, { ...options, timeZone: 'UTC' }).format(new Date(Date.UTC(y, m - 1, d)));
+}
+const monthName = (y: number, m: number, d: number, locale: string | undefined, style: 'long' | 'short'): string =>
+  locale && locale !== 'en' ? intlName(locale, y, m, d, { month: style }) : style === 'long' ? MONTHS[m - 1]! : MONTHS[m - 1]!.slice(0, 3);
 
 const weekday = (y: number, m: number, d: number) => new Date(Date.UTC(y, m - 1, d)).getUTCDay();
 
@@ -115,10 +123,10 @@ export const DATE_FORMATS: DateFormat[] = [
   { id: 'dmy-dot', label: 'DD.MM.YYYY (Germany, Turkey, Russia)', format: (y, m, d) => `${p2(d)}.${p2(m)}.${y}` },
   { id: 'ymd-slash', label: 'YYYY/MM/DD (Japan, China)', format: (y, m, d) => `${y}/${p2(m)}/${p2(d)}` },
   { id: 'compact', label: 'YYYYMMDD', format: (y, m, d) => `${y}${p2(m)}${p2(d)}` },
-  { id: 'dmy-short', label: 'D Mon YYYY', format: (y, m, d) => `${d} ${MONTHS[m - 1]!.slice(0, 3)} ${y}` },
-  { id: 'dmy-long', label: 'D Month YYYY', format: (y, m, d) => `${d} ${MONTHS[m - 1]} ${y}` },
-  { id: 'mdy-long', label: 'Month D, YYYY', format: (y, m, d) => `${MONTHS[m - 1]} ${d}, ${y}` },
-  { id: 'ordinal', label: 'Wednesday, 4th March 2026', format: (y, m, d) => `${DAYS[weekday(y, m, d)]}, ${ordinal(d)} ${MONTHS[m - 1]} ${y}` },
+  { id: 'dmy-short', label: 'D Mon YYYY', format: (y, m, d, l) => `${d} ${monthName(y, m, d, l, 'short')} ${y}` },
+  { id: 'dmy-long', label: 'D Month YYYY', format: (y, m, d, l) => `${d} ${monthName(y, m, d, l, 'long')} ${y}` },
+  { id: 'mdy-long', label: 'Month D, YYYY', format: (y, m, d, l) => `${monthName(y, m, d, l, 'long')} ${d}, ${y}` },
+  { id: 'ordinal', label: 'Wednesday, 4th March 2026', format: (y, m, d, l) => (l && l !== 'en' ? intlName(l, y, m, d, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : `${DAYS[weekday(y, m, d)]}, ${ordinal(d)} ${MONTHS[m - 1]} ${y}`) },
   { id: 'dmy-2digit', label: 'DD/MM/YY', format: (y, m, d) => `${p2(d)}/${p2(m)}/${p2(y % 100)}` },
 ];
 

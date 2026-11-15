@@ -33,5 +33,6 @@ const t: NameText = {
   'city.istanbul': 'Istambul', 'city.moscow': 'Moscou', 'city.cairo': 'Cairo', 'city.lagos': 'Lagos', 'city.nairobi': 'Nairóbi', 'city.newyork': 'Nova York (Leste)',
   'city.chicago': 'Chicago (Central)', 'city.denver': 'Denver (Montanha)', 'city.losangeles': 'Los Angeles (Pacífico)', 'city.saopaulo': 'São Paulo', 'city.mexico': 'Cidade do México',
   'fmt.dmy-slash': 'DD/MM/AAAA (Índia, Reino Unido, a maior parte do mundo)', 'fmt.mdy-slash': 'MM/DD/AAAA (Estados Unidos)', 'fmt.dmy-dot': 'DD.MM.AAAA (Alemanha, Turquia, Rússia)', 'fmt.ymd-slash': 'AAAA/MM/DD (Japão, China)',
+  'case.upper': 'MAIÚSCULAS', 'case.lower': 'minúsculas', 'case.title': 'Título Em Maiúsculas', 'case.sentence': 'Primeira maiúscula da frase', 'case.toggle': 'iNVERTER cAIXA',
 };
 export default t;

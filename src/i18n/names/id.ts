@@ -33,5 +33,6 @@ const t: NameText = {
   'city.istanbul': 'Istanbul', 'city.moscow': 'Moskow', 'city.cairo': 'Kairo', 'city.lagos': 'Lagos', 'city.nairobi': 'Nairobi', 'city.newyork': 'New York (Timur)',
   'city.chicago': 'Chicago (Tengah)', 'city.denver': 'Denver (Pegunungan)', 'city.losangeles': 'Los Angeles (Pasifik)', 'city.saopaulo': 'São Paulo', 'city.mexico': 'Kota Meksiko',
   'fmt.dmy-slash': 'DD/MM/YYYY (India, Inggris, sebagian besar dunia)', 'fmt.mdy-slash': 'MM/DD/YYYY (Amerika Serikat)', 'fmt.dmy-dot': 'DD.MM.YYYY (Jerman, Turki, Rusia)', 'fmt.ymd-slash': 'YYYY/MM/DD (Jepang, Tiongkok)',
+  'case.upper': 'HURUF BESAR', 'case.lower': 'huruf kecil', 'case.title': 'Huruf Judul', 'case.sentence': 'Huruf kalimat', 'case.toggle': 'hURUF tERBALIK',
 };
 export default t;

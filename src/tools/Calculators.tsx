@@ -3,6 +3,7 @@ import { useMemo, useState } from 'preact/hooks';
 import { Field } from '../components/OptionsPanel';
 import { copyText } from '../lib/clipboard';
 import { fill, useOpts } from '../i18n/options';
+import { useLang } from '../i18n/ui';
 import { useNames } from '../i18n/names';
 import { UNIT_SETS, convertUnit, formatNumber } from '../convert/units';
 import { CASES, formatBase, fromRoman, numberToWords, parseBase, parseHex, parseHsl, parseRgb, rgbToHsl, toHex, toRoman, type Rgb, type WordStyle } from '../convert/numbers';
@@ -210,6 +211,7 @@ export function RomanTool() {
 // ---------- text case ----------
 export function CaseTool() {
   const o = useOpts();
+  const nm = useNames();
   const [text, setText] = useState('');
   const [chosen, setChosen] = useState('title');
   const out = CASES.find((c) => c.id === chosen)!.apply(text);
@@ -221,7 +223,7 @@ export function CaseTool() {
       <div class="flex flex-wrap gap-2" role="group" aria-label={o.chooseCase}>
         {CASES.map((c) => (
           <button type="button" class={`btn btn-sm ${chosen === c.id ? 'btn-primary' : ''}`} aria-pressed={chosen === c.id} onClick={() => setChosen(c.id)}>
-            {c.label}
+            {nm(`case.${c.id}`, c.label)}
           </button>
         ))}
       </div>
@@ -348,6 +350,7 @@ export function TimeZoneTool() {
 export function DatesTool() {
   const o = useOpts();
   const nm = useNames();
+  const lang = useLang();
   const now = new Date();
   const [text, setText] = useState(`${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()}`);
   const [order, setOrder] = useState<'dmy' | 'mdy' | 'ymd'>('dmy');
@@ -369,7 +372,7 @@ export function DatesTool() {
       ) : (
         <ul class="grid gap-2">
           {DATE_FORMATS.map((f) => {
-            const value = f.format(...parsed);
+            const value = f.format(...parsed, lang);
             return (
               <li class="card flex items-center justify-between gap-3 p-3">
                 <div class="min-w-0">

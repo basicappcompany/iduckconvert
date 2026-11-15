@@ -13,6 +13,7 @@ import { UNIT_PAIRS as UNIT_PAIRS_ALL } from '../../src/lib/unit-pages';
 import { OPT_TEXT } from '../../src/i18n/options';
 import { NAME_TEXT, nameFor } from '../../src/i18n/names';
 import { UNIT_SETS } from '../../src/convert/units';
+import { CASES } from '../../src/convert/numbers';
 import { CITIES, DATE_FORMATS } from '../../src/convert/time';
 import { en as OPT_EN } from '../../src/i18n/options/en';
 import { COMMUNITY_PAGES, communityStrings } from '../../src/lib/community-pages';
@@ -128,8 +129,8 @@ describe('addresses and hreflang', () => {
   it('lists every language for the home page and every converter, and only those', () => {
     expect(hasTranslations('/')).toBe(true);
     for (const tool of PAGE_TOOLS) expect(hasTranslations(toolPath(tool.slug)), tool.slug).toBe(true);
-    for (const path of ['/about/', '/privacy/', '/terms/', '/how-it-works/']) expect(hasTranslations(path), path).toBe(true);
-    expect(hasTranslations('/roadmap/')).toBe(false);
+    for (const path of ['/about/', '/privacy/', '/terms/', '/how-it-works/', '/donate/', '/roadmap/', '/feedback/', '/request/', '/settings/', '/converters/']) expect(hasTranslations(path), path).toBe(true);
+    expect(hasTranslations('/no-such-page/')).toBe(false);
     // The guides list exists in the languages that have translated guides.
     expect(hasTranslations('/guides/')).toBe(true);
     // A pair page lists exactly the languages in which every sentence of it is translated.
@@ -137,7 +138,7 @@ describe('addresses and hreflang', () => {
       const have = OTHER_LOCALES.filter((l) => pairHasText(l.code, pair.slug)).length;
       expect(alternatesFor(`/${pair.slug}/`).length, pair.slug).toBe(have > 0 ? have + 1 : 0);
     }
-    expect(alternatesFor('/roadmap/')).toEqual([]);
+    expect(alternatesFor('/no-such-page/')).toEqual([]);
     expect(alternatesFor('/about/').length).toBe(10);
     const alts = alternatesFor('/mp4-to-mp3/');
     expect(alts.map((a) => a.hreflang).sort()).toEqual(['bn', 'de', 'en-US', 'es', 'fr', 'hi', 'id', 'pt-BR', 'ru', 'tr']);
@@ -147,8 +148,8 @@ describe('addresses and hreflang', () => {
   it('the language menu keeps you on the same page, or sends you to that language home when it has no translation', () => {
     expect(languageLinks('/csv-to-json/').find((l) => l.locale.code === 'de')!.href).toBe('/de/csv-to-json/');
     expect(languageLinks('/about/').find((l) => l.locale.code === 'de')!.href).toBe('/de/about/');
-    expect(languageLinks('/roadmap/').find((l) => l.locale.code === 'de')!.href).toBe('/de/');
-    expect(languageLinks('/roadmap/').find((l) => l.locale.code === 'en')!.href).toBe('/');
+    expect(languageLinks('/no-such-page/').find((l) => l.locale.code === 'de')!.href).toBe('/de/');
+    expect(languageLinks('/no-such-page/').find((l) => l.locale.code === 'en')!.href).toBe('/');
   });
 });
 
@@ -350,6 +351,7 @@ describe('unit, city and date-format names', () => {
     for (const u of set.units) keys[`unit.${setKey}.${u.id}`] = u.name;
     if (set.note) keys[`note.${setKey}`] = set.note;
   }
+  for (const c of CASES) if (['upper', 'lower', 'title', 'sentence', 'toggle'].includes(c.id)) keys[`case.${c.id}`] = c.label;
   for (const c of CITIES) if (c.id !== 'utc') keys[`city.${c.id}`] = c.label;
   for (const f of DATE_FORMATS) if (/\(.+\)/.test(f.label) && f.id !== 'iso' && f.id !== 'ordinal') keys[`fmt.${f.id}`] = f.label;
 
