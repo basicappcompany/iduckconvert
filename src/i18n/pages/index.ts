@@ -37,3 +37,22 @@ export function pageTextFor(code: string, c: PageContent): PageContent | undefin
   if (steps.some((s) => s === undefined) || faqs.some((f) => f.q === undefined || f.a === undefined) || sections.some((s) => s.h === undefined || s.p === undefined) || about === undefined) return undefined;
   return { ...c, steps: steps as string[], faqs: faqs as PageContent['faqs'], sections: sections as PageContent['sections'], about: (about as string) ?? '' };
 }
+
+export { pairStrings, unitStrings } from './key';
+
+/** The exact factor and its source, in a language, or nothing when either is not translated yet. */
+export function unitTextFor(code: string, c: PageContent): { factor: string; sourceText: string } | undefined {
+  if (!c.unit) return undefined;
+  const factor = translationFor(code, c.unit.factor);
+  const sourceText = translationFor(code, c.unit.source.text);
+  return factor !== undefined && sourceText !== undefined ? { factor, sourceText } : undefined;
+}
+
+/** A popular pair page (cm to inches) in a language: the page text, the short answer and the unit facts, or nothing when any of it is missing. */
+export function pairTextFor(code: string, c: PageContent): (PageContent & { unitText: { factor: string; sourceText: string } }) | undefined {
+  const base = pageTextFor(code, c);
+  const answer = translationFor(code, c.answer);
+  const unitText = unitTextFor(code, c);
+  if (!base || answer === undefined || !unitText) return undefined;
+  return { ...base, answer, unitText };
+}
