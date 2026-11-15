@@ -10,10 +10,9 @@ import { PAGE_TOOLS, GROUP_EMOJI, type ToolLink } from '../../lib/tools';
 import { UNIT_PAIRS } from '../../lib/unit-pages';
 import { OTHER_LOCALES, localeByPath, pairHasText, runLabelFor } from '../../i18n';
 
-// A pair is a unit converter with its own page; the same shape the English page builds.
-const pairTool = (slug: string, set: string, name: string): ToolLink => ({ slug, name, summary: '', group: 'Units', emoji: GROUP_EMOJI.Units, kind: 'units', units: set, quick: '', keywords: slug });
-
 export function getStaticPaths() {
+  // A pair is a unit converter with its own page; the same shape the English page builds.
+  const pairTool = (slug: string, set: string, name: string): ToolLink => ({ slug, name, summary: '', group: 'Units', emoji: GROUP_EMOJI.Units, kind: 'units', units: set, quick: '', keywords: slug });
   return OTHER_LOCALES.flatMap((locale) => [
     ...PAGE_TOOLS.map((tool) => ({ params: { lang: locale.path, slug: tool.slug }, props: { tool, pair: undefined } })),
     ...UNIT_PAIRS.filter((pair) => pairHasText(locale.code, pair.slug)).map((pair) => ({
