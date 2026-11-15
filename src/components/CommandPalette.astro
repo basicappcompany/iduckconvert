@@ -4,6 +4,7 @@ import { guideTextFor } from '../i18n/guides';
 import { COMMUNITY, communityPath } from '../lib/community';
 import { GUIDES, guidePath } from '../lib/guides';
 import { TOOLS } from '../lib/tools';
+import { UNIT_PAIRS } from '../lib/unit-pages';
 import { toolText } from '../i18n';
 
 interface Props {
@@ -28,6 +29,8 @@ const data = {
     theme: d.paletteTheme,
   },
   prefix: english ? '' : lp('/').replace(/\/$/, ''),
+  // The English pair pages (kg to lbs...) so that typing "kg to lbs" or "lbs" finds them; the slug words are the keywords.
+  pairs: english ? UNIT_PAIRS.map((p) => [p.slug, p.slug.replace(/-/g, ' ')]) : undefined,
   groups: d.groups,
   names: english ? undefined : Object.fromEntries(TOOLS.filter((t) => !t.site).map((t) => [t.slug, toolText(locale, t).name])),
   pages: english
@@ -211,6 +214,7 @@ const data = {
     prefix: string;
     groups: Record<string, string>;
     names?: Record<string, string>;
+    pairs?: [string, string][];
     pages?: { to: string; label: string; icon: string; kw: string; hint?: string }[];
   }
   const DATA = JSON.parse(document.getElementById('palette')!.dataset.palette!) as PaletteData;
@@ -249,6 +253,7 @@ const data = {
     })),
     { to: '/privacy/', label: 'Privacy policy', icon: '🔒', kw: 'data cookies legal' },
     { to: '/terms/', label: 'Terms of use', icon: '📜', kw: 'legal rules conditions' },
+    ...(DATA.pairs ?? []).map(([slug, label]) => ({ to: `/${slug}/`, label, icon: '🔁', kw: slug.replace(/-/g, ' '), hint: 'Converter' })),
   ];
 
   // In another language a tool shows its translated name; the English name still matches a search.
