@@ -34,5 +34,5 @@ Resume here in a new session. The full picture is `docs/status.html`. Base = iDu
 - [x] 46 how-to guides (42 added), grouped by topic
 - [x] Helper chat rebuilt (full height, inline sums, follow-ups); home page always light
 - [x] Security and SEO audit (AUDIT.md): headers A+, Search Console and Bing set up; owner steps listed there (account steps, DNSSEC DS at GoDaddy)
-- [x] Lighthouse on the live site (mobile): 98 / 100 / 100 / 100
+- [x] Lighthouse on the live site (mobile): 98 / 100 / 100 / 100 on 13 Nov (before the language work; a re-run on 16 Nov failed here, so refresh it in Chrome DevTools)
 - [ ] Phone check of video limits (owner)
