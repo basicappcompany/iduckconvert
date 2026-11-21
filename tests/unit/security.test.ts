@@ -76,7 +76,7 @@ describe('outside code is pinned and checked', () => {
       expect(/<link[^>]+href=["']https?:[^>]*stylesheet/i.test(text), f).toBe(false);
       expect(/@import\s+url\(["']?https?:/i.test(text), f).toBe(false);
     }
-  });
+  }, 30_000); // reads every source file; the 5 s default times out on a busy Windows PC
 });
 
 describe('risky patterns stay out of the source', () => {
