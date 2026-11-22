@@ -16,9 +16,9 @@ Resume here in a new session. The full picture is `docs/status.html`. Base = iDu
 - [x] Step 2: overlap list (6 link cards)
 - [x] Step 3: repo created
 - [x] Shell: theme, AppShell, Ctrl K, ToolLayout, home, community pages, helper
-- [x] Converters: audio (16), video (13), images (2 built, 15 linked), data (24), units (11), numbers and text (7), time (2)
+- [x] Converters: audio (18), video (16), images (2 built, 15 linked), data (24), units (11), numbers and text (7), time (2)
 - [x] Site pages, 4 guides, sitemap, robots, canonical, OG/Twitter, og.png, favicon
-- [x] Unit tests (783 in 9 files) and browser tests (111, all passed in CI on 22 Nov; on this PC the WEBM recording test fails and its 4 dependents do not run, and a full local run can run out of memory)
+- [x] Unit tests (791 in 9 files) and browser tests (114: 111 passed in CI on 22 Nov, the 3 for the presets are not in a CI run yet; on this PC the WEBM recording test fails and its 4 dependents do not run, and a full local run can run out of memory)
 - [x] Languages phase 1 (switch, hreflang, home page and every converter in 9 languages)
 - [x] Languages phase 2a: the helper in 9 languages
 - [x] Languages phase 2b: all 47 how-to guides in all nine languages
@@ -39,4 +39,6 @@ Resume here in a new session. The full picture is `docs/status.html`. Base = iDu
 - [x] AI-era converters batch 1: 12 text and data converters in nine languages (status 11.1, 22 Nov)
 - [x] AI-era converters batch 2: token counter (11.2), Word to Markdown and Excel to Markdown table (11.3, 22 Nov)
 - [x] AI-era converters batch 3: audio for transcription, split audio, video to frames (11.4, 22 Nov)
+- [x] Audio and video presets: trim audio, change audio volume, remove audio from video, rotate video, change video speed (11.6, 22 Nov)
+- [ ] Merge clips, extra audio formats (11.7); developer and AI-era utilities (11.8)
 - [x] Phone check of video limits (owner, reported done 22 Nov; not checked from here)

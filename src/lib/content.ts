@@ -332,6 +332,71 @@ function baseContent(t: ToolLink): PageContent {
           { q: 'Is anything sent to a server?', a: 'No. It is all calculated in your browser as you type.' },
         ],
       );
+    case 'audio-trim':
+      return simple(
+        ['Drop your recording onto the box. A video works too: only its sound is used.', 'Type the start and end time. Use seconds (90) or minutes and seconds (1:30). Leave the end empty to keep everything after the start.', 'Press Trim.', 'Download the cut part as an MP3.'],
+        'Trimming keeps just the part of a recording you need: a ringtone, a quote from an interview or the start of a long lecture. The cut part is saved as an MP3.',
+        [
+          { q: 'How do I type the times?', a: 'Seconds such as 90, minutes and seconds such as 1:30, or hours as 1:02:30. Leave the end empty to keep everything after the start.' },
+          { q: 'Is the cut exact?', a: 'It is cut to a fraction of a second, because the sound is encoded again after cutting.' },
+          { q: 'Will the quality drop?', a: 'A little, because the sound is saved again as an MP3 at 192 kbit/s, which is fine for speech and everyday music.' },
+          PRIVATE_FAQ('audio'),
+          ENGINE_FAQ,
+          SIZE_FAQ(),
+        ],
+      );
+    case 'audio-volume':
+      return simple(
+        ['Drop your recording onto the box. A video works too: only its sound is used.', 'Choose whether to even out the volume, for a recording where some parts are loud and others quiet, or to change it by a fixed amount.', 'Press Convert.', 'Download the MP3 and listen to it before you use it.'],
+        'Recordings made far from the microphone, or on a phone, are often too quiet. Evening out the volume brings the quiet and loud parts to a similar level, and a fixed change makes everything louder or quieter by the same amount.',
+        [
+          { q: 'What does evening out the volume do?', a: 'It measures the loudness of the whole recording and moves it to -16 LUFS, a level commonly used for podcasts and voice. It works in one pass, so it is a good approximation, not a studio master.' },
+          { q: 'How much louder is +6 dB?', a: '+6 dB roughly doubles the signal level, and +10 dB sounds about twice as loud. If the loudest parts go too high they are clipped and sound distorted, so listen to the result and use a smaller step if needed.' },
+          { q: 'Can it fix a very quiet recording?', a: 'It can lift it, but it also lifts the background noise. A recording with a lot of hiss gets louder hiss.' },
+          PRIVATE_FAQ('audio'),
+          ENGINE_FAQ,
+          SIZE_FAQ(),
+        ],
+      );
+    case 'video-mute':
+      return simple(
+        ['Drop your video onto the box.', 'Press Convert.', 'Download the silent video. Its file name ends in -muted.'],
+        'Removing the sound is useful before you share a screen recording, add your own music, or post a clip where the background audio would cause trouble.',
+        [
+          { q: 'Is the picture changed?', a: 'Not for MP4, M4V, MOV, MKV and WEBM files: the picture is copied exactly as it is, so it is very quick and there is no loss in quality. Other formats, such as AVI, are converted to MP4.' },
+          { q: 'Can I get the sound without the picture?', a: 'Yes, use the Video to MP3 converter.' },
+          { q: 'Can I put the sound back?', a: 'Not into the new file, because the sound is not kept in it. Keep your original.' },
+          PRIVATE_FAQ('video'),
+          ENGINE_FAQ,
+          SIZE_FAQ(),
+        ],
+      );
+    case 'video-rotate':
+      return simple(
+        ['Drop your video onto the box.', 'Choose how to turn it: a quarter turn either way, upside down, or a mirror flip.', 'Press Convert. The first time, your browser downloads the converter engine, then the video is converted while you watch a progress bar.', 'Download your MP4 file, or all of them as a ZIP.'],
+        'A video filmed with the phone held the wrong way, or with a camera mounted upside down, plays sideways. Turning the video fixes the picture itself, so it looks right in every player.',
+        [
+          { q: 'What is the difference between a turn and a flip?', a: 'A turn keeps the picture the right way round and only changes which side is up. A mirror flip swaps left and right, so any text in the video reads backwards.' },
+          { q: 'Does it change the quality?', a: 'A little, because the video is encoded again. A high quality setting is used, so you will not notice it in everyday clips.' },
+          { q: 'Does the video get a different shape?', a: 'After a quarter turn a landscape video becomes portrait and the other way round, so the width and height swap.' },
+          PRIVATE_FAQ('video'),
+          ENGINE_FAQ,
+          SIZE_FAQ(),
+        ],
+      );
+    case 'video-speed':
+      return simple(
+        ['Drop your video onto the box.', 'Choose a speed. Below 1 is slow motion and above 1 is fast forward.', 'Press Convert. The first time, your browser downloads the converter engine, then the video is converted while you watch a progress bar.', 'Download your MP4 file, or all of them as a ZIP.'],
+        'Speeding a video up makes a long recording quick to watch, and slowing it down shows the detail in a fast moment. The sound is sped up or slowed down with the picture.',
+        [
+          { q: 'Does the pitch of the voice change?', a: 'No. The sound is stretched or squeezed without changing its pitch, so a voice at double speed is quicker but not higher.' },
+          { q: 'How slow or fast can it go?', a: 'From a quarter of the speed to four times. Very large changes sound rough, so use a gentler change for speech.' },
+          { q: 'Is slow motion smooth?', a: 'The same frames are shown for longer, so slow motion can look jerky. This tool does not make up new frames.' },
+          PRIVATE_FAQ('video'),
+          ENGINE_FAQ,
+          SIZE_FAQ(),
+        ],
+      );
     case 'data':
       return dataContent(t);
     case 'units':

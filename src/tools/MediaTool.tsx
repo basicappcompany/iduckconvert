@@ -22,17 +22,24 @@ function makeTool(kind: ToolKind, from: string, to: string, tooBig: string): Too
     defaultOptions: DEFAULT_MEDIA_OPTIONS,
     run: async (file, options, ctx) => {
       if (file.size > HARD_LIMIT_MB * 1024 * 1024) throw new Error(fill(tooBig, { size: formatBytes(file.size) }));
-      const job = jobFor(kind, to, options);
+      const job = jobFor(kind, to, options, extOf(file.name));
       if (job.many) {
         const base = file.name.replace(/\.[^./\\]*$/, '');
         const parts = await runFfmpegMany({ file, args: job.args, before: job.before, outName: job.many.pattern, match: job.many.match, signal: ctx.signal, onProgress: ctx.onProgress });
         return parts.map((p) => ({ name: `${base}-${p.name.replace('_', '-')}`, blob: new Blob([p.data as BlobPart], { type: job.spec.mime }) }));
       }
       const data = await runFfmpeg({ file, args: job.args, before: job.before, outName: `output.${job.spec.ext}`, signal: ctx.signal, onProgress: ctx.onProgress });
-      return [{ name: withExtension(file.name, job.spec.ext), blob: new Blob([data as BlobPart], { type: job.spec.mime }) }];
+      const name = withExtension(file.name, job.spec.ext);
+      const suffix = SUFFIX[kind];
+      return [{ name: suffix ? name.replace(/(\.[^.]*)$/, `${suffix}$1`) : name, blob: new Blob([data as BlobPart], { type: job.spec.mime }) }];
     },
   };
 }
+
+/** What is added to the file name, so a result never has the same name as the file it came from. */
+const SUFFIX: Partial<Record<ToolKind, string>> = { 'audio-trim': '-trimmed', 'audio-volume': '-volume', 'video-mute': '-muted', 'video-rotate': '-rotated', 'video-speed': '-speed' };
+
+const extOf = (name: string): string => /\.([a-z0-9]{1,5})$/i.exec(name)?.[1]?.toLowerCase() ?? '';
 
 const num = (value: string, fallback: number): number => {
   const n = Number(value);
@@ -51,7 +58,7 @@ export default function MediaTool({ kind, from, to, runLabel }: Props) {
   const audioKinds = kind === 'audio' && ['mp3', 'm4a', 'aac', 'ogg', 'opus'].includes(to);
   const startSeconds = parseTime(startText);
   const endSeconds = endText.trim() === '' ? 0 : parseTime(endText);
-  const trimBad = kind === 'video-trim' && (startSeconds === null || endSeconds === null || (endSeconds > 0 && endSeconds <= startSeconds));
+  const trimBad = (kind === 'video-trim' || kind === 'audio-trim') && (startSeconds === null || endSeconds === null || (endSeconds > 0 && endSeconds <= startSeconds));
   const gifBad = kind === 'video-gif' && startSeconds === null;
 
   const effective: MediaOptions = {
@@ -75,7 +82,7 @@ export default function MediaTool({ kind, from, to, runLabel }: Props) {
               {fill(isPhone() ? o.overLimitPhone : o.overLimit, { limit })}
             </p>
           )}
-          {(audioKinds || ['video-gif', 'video-compress', 'video-trim', 'audio-speech', 'audio-split', 'video-frames'].includes(kind)) && (
+          {(audioKinds || ['video-gif', 'video-compress', 'video-trim', 'audio-trim', 'audio-volume', 'video-rotate', 'video-speed', 'audio-speech', 'audio-split', 'video-frames'].includes(kind)) && (
             <OptionsPanel title={o.options}>
               {audioKinds && (
                 <Field id="bitrate" label={o.bitrate} hint={o.bitrateHint}>
@@ -174,7 +181,46 @@ export default function MediaTool({ kind, from, to, runLabel }: Props) {
                   </Field>
                 </>
               )}
-              {kind === 'video-trim' && (
+              {kind === 'audio-volume' && (
+                <>
+                  <Field id="vol-mode" label={o.volMode}>
+                    <select id="vol-mode" class="input" value={options.normalise ? 'even' : 'fixed'} onChange={(e) => set({ normalise: e.currentTarget.value === 'even' })}>
+                      <option value="even">{o.volNormalise}</option>
+                      <option value="fixed">{o.volGain}</option>
+                    </select>
+                  </Field>
+                  {!options.normalise && (
+                    <Field id="vol-gain" label={o.gainLabel} hint={o.gainHint}>
+                      <select id="vol-gain" class="input" value={options.gainDb} onChange={(e) => set({ gainDb: Number(e.currentTarget.value) })}>
+                        {[-12, -6, -3, 3, 6, 10, 15, 20].map((n) => (
+                          <option value={n}>{fill(o.dbN, { n: n > 0 ? `+${n}` : String(n) })}</option>
+                        ))}
+                      </select>
+                    </Field>
+                  )}
+                </>
+              )}
+              {kind === 'video-rotate' && (
+                <Field id="rotate" label={o.rotateLabel}>
+                  <select id="rotate" class="input" value={options.rotate} onChange={(e) => set({ rotate: e.currentTarget.value as MediaOptions['rotate'] })}>
+                    <option value="cw">{o.rotateCw}</option>
+                    <option value="ccw">{o.rotateCcw}</option>
+                    <option value="180">{o.rotate180}</option>
+                    <option value="hflip">{o.flipH}</option>
+                    <option value="vflip">{o.flipV}</option>
+                  </select>
+                </Field>
+              )}
+              {kind === 'video-speed' && (
+                <Field id="speed" label={o.speedLabel} hint={o.speedHint}>
+                  <select id="speed" class="input" value={options.speed} onChange={(e) => set({ speed: Number(e.currentTarget.value) })}>
+                    {[0.25, 0.5, 0.75, 1.25, 1.5, 2, 3, 4].map((n) => (
+                      <option value={n}>{fill(o.speedX, { n })}</option>
+                    ))}
+                  </select>
+                </Field>
+              )}
+              {(kind === 'video-trim' || kind === 'audio-trim') && (
                 <>
                   <Field id="t-start" label={o.trimStart}>
                     <input id="t-start" class="input" value={startText} onInput={(e) => setStartText(e.currentTarget.value)} inputMode="decimal" />
