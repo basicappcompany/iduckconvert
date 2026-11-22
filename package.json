@@ -31,6 +31,7 @@
     "jszip": "3.10.2",
     "marked": "18.1.0",
     "preact": "11.2.0",
+    "smol-toml": "1.9.1",
     "tailwindcss": "4.3.5",
     "turndown": "7.2.5",
     "utif2": "4.1.0",

@@ -8,7 +8,7 @@ import { STARTERS, respond } from '../../src/lib/helper';
 import { AUDIO_TARGETS, DEFAULT_MEDIA_OPTIONS, acceptsFor, audioArgs, jobFor } from '../../src/tools/media';
 import { parseTime } from '../../src/tools/ffmpeg';
 import { UNIT_SETS } from '../../src/convert/units';
-import { DATA_SPECS } from '../../src/convert/data';
+import { ALL_DATA_SPECS } from '../../src/convert/textdata';
 
 describe('tool registry', () => {
   it('slugs are unique and clean', () => {
@@ -94,7 +94,7 @@ describe('page content', () => {
 describe('tool data is complete', () => {
   it('unit pages point at a unit set, data pages at a spec', () => {
     for (const t of PAGE_TOOLS.filter((x) => x.kind === 'units')) expect(UNIT_SETS[t.units!], t.slug).toBeTruthy();
-    for (const t of PAGE_TOOLS.filter((x) => x.kind === 'data' && x.slug !== 'text-encoding-fixer')) expect(DATA_SPECS[t.slug], t.slug).toBeTruthy();
+    for (const t of PAGE_TOOLS.filter((x) => x.kind === 'data' && x.slug !== 'text-encoding-fixer')) expect(ALL_DATA_SPECS[t.slug], t.slug).toBeTruthy();
   });
   it('every audio and video page maps to ffmpeg arguments and accepted files', () => {
     for (const t of PAGE_TOOLS.filter((x) => ['audio', 'video', 'video-gif', 'gif-video', 'video-compress', 'video-trim'].includes(x.kind))) {

@@ -16,9 +16,9 @@ Resume here in a new session. The full picture is `docs/status.html`. Base = iDu
 - [x] Step 2: overlap list (6 link cards)
 - [x] Step 3: repo created
 - [x] Shell: theme, AppShell, Ctrl K, ToolLayout, home, community pages, helper
-- [x] Converters: audio (14), video (12), images (2 built, 15 linked), data (11), units (11), numbers and text (5), time (2)
+- [x] Converters: audio (14), video (12), images (2 built, 15 linked), data (22), units (11), numbers and text (6), time (2)
 - [x] Site pages, 4 guides, sitemap, robots, canonical, OG/Twitter, og.png, favicon
-- [x] Unit tests (745 in 7 files) and browser tests (101: 96 passed locally on 22 Nov, the WEBM recording test fails on this PC and its 4 dependents did not run; CI is the check for those 5)
+- [x] Unit tests (773 in 8 files) and browser tests (105: 96 of the first 101 passed locally on 22 Nov and the 4 added that day pass, the WEBM recording test fails on this PC and its 4 dependents did not run; CI is the check for those 5)
 - [x] Languages phase 1 (switch, hreflang, home page and every converter in 9 languages)
 - [x] Languages phase 2a: the helper in 9 languages
 - [x] Languages phase 2b: all 47 how-to guides in all nine languages
@@ -36,4 +36,7 @@ Resume here in a new session. The full picture is `docs/status.html`. Base = iDu
 - [x] Helper chat rebuilt (full height, inline sums, follow-ups); home page always light
 - [x] Security and SEO audit (AUDIT.md): headers A+, Search Console and Bing set up; owner steps listed there (GitHub two-factor, DNSSEC DS at GoDaddy)
 - [x] Lighthouse on the live site (mobile): 98 / 100 / 100 / 100 on 13 Nov (before the language work; a re-run on 16 Nov failed here, so refresh it in Chrome DevTools)
+- [x] AI-era converters batch 1: 12 text and data converters in nine languages (status 11.1, 22 Nov)
+- [ ] AI-era converters batch 2: token estimator (11.2), Word and Excel to Markdown (11.3)
+- [ ] AI-era converters batch 3: audio for transcription, split audio, video to frames (11.4)
 - [x] Phone check of video limits (owner, reported done 22 Nov; not checked from here)

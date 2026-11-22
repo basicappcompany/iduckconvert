@@ -203,6 +203,51 @@ test.describe('text converters', () => {
     await expect(page.getByRole('button', { name: /Download \.json/ })).toBeEnabled();
   });
 
+  test('CSV to Markdown table, and the table converts back', async ({ page }) => {
+    await page.goto('/csv-to-markdown-table/');
+    await page.waitForFunction(() => document.querySelector('astro-island[client="load"]:not([ssr])') !== null);
+    await page.getByLabel('CSV in').fill('name,city\nAsha,Pune');
+    await expect(page.getByLabel('Markdown table out')).toHaveValue('| name | city |\n| ---- | ---- |\n| Asha | Pune |');
+    await page.goto('/markdown-table-to-csv/');
+    await page.waitForFunction(() => document.querySelector('astro-island[client="load"]:not([ssr])') !== null);
+    await page.getByLabel('Markdown table in').fill('| name | city |\n| --- | --- |\n| Asha | Pune |');
+    await expect(page.getByLabel('CSV out')).toHaveValue('name,city\nAsha,Pune'); // a text box turns CRLF into LF
+  });
+
+  test('SRT to VTT and VTT to SRT', async ({ page }) => {
+    await page.goto('/srt-to-vtt/');
+    await page.waitForFunction(() => document.querySelector('astro-island[client="load"]:not([ssr])') !== null);
+    await page.getByRole('button', { name: 'Try an example' }).click();
+    await expect(page.getByLabel('VTT out')).toHaveValue(/^WEBVTT\n\n00:00:01\.000 --> 00:00:03\.500\nHello, and welcome\./);
+    await page.goto('/vtt-to-srt/');
+    await page.waitForFunction(() => document.querySelector('astro-island[client="load"]:not([ssr])') !== null);
+    await page.getByRole('button', { name: 'Try an example' }).click();
+    await expect(page.getByLabel('SRT out')).toHaveValue(/^1\n00:00:01,000 --> 00:00:03,500\nHello, and welcome\./);
+  });
+
+  test('JSON to TOML loads its library and a null is reported by name', async ({ page }) => {
+    await page.goto('/json-to-toml/');
+    await page.waitForFunction(() => document.querySelector('astro-island[client="load"]:not([ssr])') !== null);
+    await page.getByLabel('JSON in').fill('{"title":"Quack","owner":{"name":"Asha"}}');
+    await expect(page.getByLabel('TOML out')).toHaveValue(/title = "Quack"[\s\S]*\[owner\][\s\S]*name = "Asha"/);
+    await page.getByLabel('JSON in').fill('{"a":{"b":null}}');
+    await expect(page.getByRole('alert')).toContainText('"a.b"');
+  });
+
+  test('JSON to JSONL, XML to CSV and Clean AI text work with the example', async ({ page }) => {
+    for (const [slug, input, output, pattern] of [
+      ['json-to-jsonl', 'JSON in', 'JSONL out', /^\{"prompt":"Say hi","completion":"Hi!"\}\n\{"prompt":"Say bye"/],
+      ['xml-to-csv', 'XML in', 'CSV out', /^@id,title,year\n1,Quack,2021/],
+      ['clean-chat-text', 'text in', 'clean text out', /^Plan\n\nHere is the plan - it's simple:\n\n- Read the guide \(https:\/\/example\.com\)\n- Use pnpm test$/],
+    ] as const) {
+      await page.goto(`/${slug}/`);
+      await page.waitForFunction(() => document.querySelector('astro-island[client="load"]:not([ssr])') !== null);
+      await page.getByRole('button', { name: 'Try an example' }).click();
+      await expect(page.getByLabel(input)).not.toHaveValue('');
+      await expect(page.getByLabel(output)).toHaveValue(pattern);
+    }
+  });
+
   test('bad JSON shows a message', async ({ page }) => {
     await page.goto('/json-to-csv/');
     await page.waitForFunction(() => document.querySelector('astro-island[client="load"]:not([ssr])') !== null);

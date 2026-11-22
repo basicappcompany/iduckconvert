@@ -8,7 +8,8 @@ import { checkSize, withExtension } from '../lib/files';
 import { fill, useOpts } from '../i18n/options';
 import { useLang } from '../i18n/ui';
 import { localizeError, localizeParseError } from '../lib/errors';
-import { DATA_SPECS, ENCODINGS, decodeBytes, runDataConversion } from '../convert/data';
+import { ENCODINGS, decodeBytes } from '../convert/data';
+import { ALL_DATA_SPECS, runAnyDataConversion } from '../convert/textdata';
 
 function download(name: string, text: string, mime: string): void {
   const url = URL.createObjectURL(new Blob([text], { type: `${mime};charset=utf-8` }));
@@ -22,7 +23,7 @@ function download(name: string, text: string, mime: string): void {
 export function DataTool({ slug }: { slug: string }) {
   const o = useOpts();
   const english = useLang() === 'en';
-  const spec = DATA_SPECS[slug]!;
+  const spec = ALL_DATA_SPECS[slug]!;
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
   const [error, setError] = useState('');
@@ -39,7 +40,7 @@ export function DataTool({ slug }: { slug: string }) {
       return;
     }
     const timer = setTimeout(() => {
-      runDataConversion(slug, input).then(
+      runAnyDataConversion(slug, input).then(
         (result) => {
           if (!current) return;
           setOutput(result);

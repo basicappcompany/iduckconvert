@@ -401,8 +401,60 @@ export function pairContent(pair: UnitPair): PageContent {
   };
 }
 
+/** The first step of the converters that take pasted text, worded once so it is translated once. */
+const PASTE_STEPS = ['Paste your text into the left box, or drop a file in. Try an example if you just want to see it work.', 'The result appears on the right as you type.', 'Press Download, or Copy to paste it somewhere else.'];
+
 function dataContent(t: ToolLink): PageContent {
-  const spec: Record<string, { why: string; steps?: string[]; extra: Faq[] }> = {
+  const spec: Record<string, { why: string; steps?: string[]; extra: Faq[]; noError?: boolean }> = {
+    'csv-to-markdown-table': { why: 'A Markdown table puts rows and columns into a chat message, a README or a note, where pasting a spreadsheet would lose the layout.', steps: PASTE_STEPS, extra: [
+      { q: 'Why are there dashes under the first row?', a: 'Markdown needs a separator row of dashes between the header and the body. The first row of your CSV becomes the header, and the columns are padded so the table also reads well as plain text.' },
+      { q: 'What happens to a cell with a pipe or a line break?', a: 'A pipe is escaped as \\| so it does not split the cell, and a line break becomes <br>, because a Markdown table row has to stay on one line.' },
+    ] },
+    'markdown-table-to-csv': { why: 'Chat tools and documentation write tables in Markdown. CSV lets you open the same table in Excel or Google Sheets.', steps: PASTE_STEPS, extra: [
+      { q: 'Can I paste text that has more than a table in it?', a: 'Yes. The tool finds the first table, a header row followed by a row of dashes, and ignores the text around it. Only that table is converted.' },
+      { q: 'Are alignment colons and escaped pipes handled?', a: 'Yes. Colons in the separator row, such as :---:, only set alignment and are dropped. An escaped pipe (\\|) stays inside its cell, and <br> becomes a line break inside a quoted CSV cell.' },
+    ] },
+    'json-to-jsonl': { why: 'JSON Lines has one JSON value on each line. Training data, batch jobs and log files use it because a program can read it one line at a time.', steps: PASTE_STEPS, extra: [
+      { q: 'What JSON works?', a: 'An array gives one line per item, such as [{"a":1},{"a":2}]. A single object gives one line. Each line is compact JSON with no extra spaces.' },
+      { q: 'What is the difference between JSON and JSONL?', a: 'A JSON file is one value, so a program has to read all of it before using any. A JSONL file is many small values, one per line, so it can be read, added to and split line by line. The data is the same.' },
+    ] },
+    'jsonl-to-json': { why: 'Many editors and tools expect one JSON value, not a file of separate lines. Gathering the lines into one array makes the data easy to open and share.', steps: PASTE_STEPS, extra: [
+      { q: 'What happens to blank lines?', a: 'They are skipped, and so is the byte order mark that some exports start with. Every other line must be valid JSON.' },
+      { q: 'Does the order stay the same?', a: 'Yes. The first line becomes the first item of the array, and the result is indented with two spaces so you can read it.' },
+    ] },
+    'csv-to-jsonl': { why: 'Datasets for fine-tuning and batch jobs are often kept in a spreadsheet but have to be uploaded as JSON Lines, one record per line.', steps: PASTE_STEPS, extra: [
+      { q: 'How do the columns become keys?', a: 'The first row names the keys. Every other row becomes one line with those keys, and plain numbers and true or false become real JSON values.' },
+      { q: 'Will leading zeros survive?', a: 'Values such as 01234 stay as text, so postcodes and IDs are not changed. Only plain numbers like 42 or 3.5 become numbers.' },
+    ] },
+    'srt-to-vtt': { why: 'SRT is the common subtitle file. Web browsers and the HTML video player want WebVTT, so a web page needs the VTT version.', steps: PASTE_STEPS, extra: [
+      { q: 'What changes in the file?', a: 'A WEBVTT line is added at the top and the milliseconds are separated with a dot instead of a comma. The cue numbers, timings and text stay the same.' },
+      { q: 'Does it keep bold, italic and other tags?', a: 'Yes. Tags such as <i> and <b> are left in the text, because WebVTT understands them too.' },
+    ] },
+    'vtt-to-srt': { why: 'WebVTT is the web subtitle format. Many video editors, players and upload forms only accept SRT.', steps: PASTE_STEPS, extra: [
+      { q: 'What is removed from a VTT file?', a: 'The WEBVTT header, notes, style blocks, cue settings such as align:start, and tags such as <v Name> are removed. The cues are numbered from 1 and the times use a comma before the milliseconds.' },
+      { q: 'What about times without hours?', a: 'WebVTT may write 01:02.500 for a time under an hour. SRT always needs hours, so the tool writes 00:01:02,500.' },
+    ] },
+    'subtitles-to-text': { why: 'A transcript is easier to read, search and paste into a document or a chat when the numbers and timings are gone.', steps: PASTE_STEPS, extra: [
+      { q: 'What do I get?', a: 'Only the words, one subtitle after another, each on its own line. Numbers, timings, notes and tags are removed, and a subtitle that runs over two lines is joined into one.' },
+      { q: 'Does it work for both SRT and VTT?', a: 'Yes. The tool finds the timing lines itself, so you can paste either format without choosing.' },
+    ] },
+    'json-to-toml': { why: 'TOML is a settings format that is easy to read by hand. Python projects, Rust and many apps use it for configuration.', steps: PASTE_STEPS, extra: [
+      { q: 'Why does my JSON need to be an object?', a: 'A TOML file is a table of keys, so the top level must be an object such as {"name":"Quack"}. A top-level array or a single value cannot be written as TOML.' },
+      { q: 'What about null values?', a: 'TOML has no null, so a null in your data cannot be written. The page stops with a message naming the key, so you can replace it with a value or remove it.' },
+    ] },
+    'toml-to-json': { why: 'TOML settings are easy to write, but programs and APIs usually want JSON.', steps: PASTE_STEPS, extra: [
+      { q: 'Do tables and arrays of tables work?', a: 'Yes. A [table] section becomes a nested object and a [[table]] section becomes an array of objects.' },
+      { q: 'What happens to dates?', a: 'TOML has real date and time values and JSON does not, so they are written as text in the standard format.' },
+    ] },
+    'xml-to-csv': { why: 'Many exports and feeds are XML, but a spreadsheet needs rows and columns.', steps: PASTE_STEPS, extra: [
+      { q: 'Which part becomes the rows?', a: 'The first repeated tag, such as every <book> inside <books>. Each one becomes a row. If nothing repeats, the whole document becomes a single row.' },
+      { q: 'What happens to attributes and nested tags?', a: 'Attributes become columns with an @ in front, such as @id. Nested tags become dotted columns, such as address.city.' },
+    ] },
+    'clean-chat-text': { why: 'Chat tools write in Markdown, so pasting an answer into an email or a form leaves stars, hashes and backticks in the text. This turns it into plain text.', steps: PASTE_STEPS, noError: true, extra: [
+      { q: 'What is removed?', a: 'Heading marks, bold and italic stars, backticks, code fences, quote marks and horizontal rules are removed and the words stay. A link becomes its words followed by the address in brackets, and bullets become dashes.' },
+      { q: 'What else does it tidy?', a: 'Curly quotes and long dashes become plain ones, the ellipsis character becomes three dots, odd spaces become normal spaces, and invisible characters such as the zero-width space are removed. The joiners that some scripts and emoji need are kept.' },
+      { q: 'Does it change what my text says?', a: 'No. Only formatting marks and odd characters change. The words, numbers and line breaks stay. Read the result before you send it, because a star or underscore that was part of your own text can be taken for formatting.' },
+    ] },
     'csv-to-json': { why: 'CSV is a table in plain text. JSON is what websites and apps use to exchange data.', extra: [
       { q: 'How are the columns named?', a: 'The first row is used as the names of the keys. Empty headings become column1, column2 and so on.' },
       { q: 'Are numbers kept as numbers?', a: 'Plain numbers and true or false become real JSON values. Values like 01234 stay as text so leading zeros are not lost.' },
@@ -455,9 +507,9 @@ function dataContent(t: ToolLink): PageContent {
     ...BASE,
     steps: isEncoding
       ? ['Drop your text file onto the box.', 'Choose the encoding the file was written in and check the preview.', 'Press Convert.', 'Download the UTF-8 copy.']
-      : [`Paste your ${t.from!.toUpperCase()} into the left box, or drop a file in. Try an example if you just want to see it work.`, 'The result appears on the right as you type.', 'Press Download, or Copy to paste it somewhere else.'],
+      : info.steps ?? [`Paste your ${t.from!.toUpperCase()} into the left box, or drop a file in. Try an example if you just want to see it work.`, 'The result appears on the right as you type.', 'Press Download, or Copy to paste it somewhere else.'],
     about: info.why,
-    faqs: [...info.extra, PRIVATE_FAQ(isEncoding ? 'file' : 'data'), { q: 'What if my input has an error?', a: 'The page shows a message saying what is wrong, so you can fix it. Nothing is changed until the input is valid.' }],
+    faqs: [...info.extra, PRIVATE_FAQ(isEncoding ? 'file' : 'data'), ...(info.noError ? [] : [{ q: 'What if my input has an error?', a: 'The page shows a message saying what is wrong, so you can fix it. Nothing is changed until the input is valid.' }])],
   };
 }
 
