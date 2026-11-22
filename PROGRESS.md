@@ -18,7 +18,7 @@ Resume here in a new session. The full picture is `docs/status.html`. Base = iDu
 - [x] Shell: theme, AppShell, Ctrl K, ToolLayout, home, community pages, helper
 - [x] Converters: audio (16), video (13), images (2 built, 15 linked), data (24), units (11), numbers and text (7), time (2)
 - [x] Site pages, 4 guides, sitemap, robots, canonical, OG/Twitter, og.png, favicon
-- [x] Unit tests (783 in 9 files) and browser tests (111: the 10 added for the AI-era converters pass locally; the full suite runs in CI; the WEBM recording test fails on this PC and its 4 dependents do not run there)
+- [x] Unit tests (783 in 9 files) and browser tests (111, all passed in CI on 22 Nov; on this PC the WEBM recording test fails and its 4 dependents do not run, and a full local run can run out of memory)
 - [x] Languages phase 1 (switch, hreflang, home page and every converter in 9 languages)
 - [x] Languages phase 2a: the helper in 9 languages
 - [x] Languages phase 2b: all 47 how-to guides in all nine languages
@@ -35,7 +35,7 @@ Resume here in a new session. The full picture is `docs/status.html`. Base = iDu
 - [x] 47 how-to guides, grouped by topic
 - [x] Helper chat rebuilt (full height, inline sums, follow-ups); home page always light
 - [x] Security and SEO audit (AUDIT.md): headers A+, Search Console and Bing set up; owner steps listed there (GitHub two-factor, DNSSEC DS at GoDaddy)
-- [x] Lighthouse on the live site (mobile): 98 / 100 / 100 / 100 on 13 Nov (before the language work; a re-run on 16 Nov failed here, so refresh it in Chrome DevTools)
+- [x] Lighthouse on the live site (mobile): 98 / 100 / 100 / 100 on 13 Nov (before the language work; re-runs on 16 Nov and twice on 22 Nov failed on this PC, so refresh it in Chrome DevTools)
 - [x] AI-era converters batch 1: 12 text and data converters in nine languages (status 11.1, 22 Nov)
 - [x] AI-era converters batch 2: token counter (11.2), Word to Markdown and Excel to Markdown table (11.3, 22 Nov)
 - [x] AI-era converters batch 3: audio for transcription, split audio, video to frames (11.4, 22 Nov)
