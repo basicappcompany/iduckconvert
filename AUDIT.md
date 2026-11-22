@@ -10,7 +10,7 @@ Started 13 November 2026. Each item is **fixed**, **already fine** or **needs yo
 | Lighthouse mobile, home page (performance / accessibility / best practices / SEO) | 98 / 100 / 100 / 100 | 99 / 100 / 100 / 100 |
 
 ## Accounts
-GitHub (`gh` and browser), Cloudflare, Google and GoDaddy were each checked as the business mailbox. The GoDaddy items could not be checked, so the GoDaddy items below could not be done. No passwords were typed and no accounts were created.
+GitHub (`gh` and browser), Cloudflare, Google and GoDaddy were each checked with the owner's accounts. The GoDaddy items below could not be checked. No passwords were typed and no accounts were created.
 
 ## Part A: security
 | # | Item | Status | Notes |
@@ -29,14 +29,14 @@ GitHub (`gh` and browser), Cloudflare, Google and GoDaddy were each checked as t
 | A6 | Dependabot alerts and security updates | **fixed** | Both enabled through the GitHub API. |
 | A6 | Secret scanning and push protection | **needs you** | The repo was made public on 23 Nov, so this is now free. Checked through the API on 23 Nov: secret scanning and push protection are still disabled. Turning them on is a security setting, so it is left to the owner (status item 10.7). |
 | A6 | Branch protection on `main` | **needs you** | Now available because the repo is public (23 Nov). Checked through the API on 23 Nov: main has no protection yet (404). The rule in use is by habit: branch, pull request, merge on green CI. Owner step in status item 10.7. |
-| A6 | Account login hardening | **needs you** | GitHub says account login hardening is pending. Please turn it on (Settings, Password and authentication). |
+| A6 | Account login hardening | **needs you** | An owner step. The details are kept out of this public repo. |
 | A7 | Always Use HTTPS | **fixed** | Was off; now on. `http://` returns 301 to https. |
 | A7 | Minimum TLS | **fixed** | Was 1.0 (the default); now 1.2. TLS 1.0 and 1.1 handshakes are refused, 1.2 and 1.3 work (tested with curl). |
 | A7 | TLS 1.3, Automatic HTTPS Rewrites | already fine | Both were on. |
 | A7 | Bot Fight Mode | **fixed** | Was off; now on. AI Labyrinth left off (it injects fake links for bots and was not requested). |
 | A7 | SPF and DMARC | **fixed** | The domain sends no mail but does receive it through Cloudflare Email Routing, which needs `include:_spf.mx.cloudflare.net`, so SPF is `v=spf1 include:_spf.mx.cloudflare.net -all` (hard fail for everyone else) instead of a bare `-all`. DMARC is `v=DMARC1; p=reject;` (it had been GoDaddy's `p=quarantine` with reports sent to GoDaddy). Verified at Cloudflare's own nameserver. A real test email to hello@ has not been sent. |
-| A8 | DNSSEC | **needs you** | Enabled at Cloudflare (status: pending). Cloudflare publishes the signatures but they are not trusted until the DS record is entered at the registrar, and it could not be done from here, so that step was not done. Nothing can break while it is pending. The values to enter are at the end of this file. |
-| A9 | GoDaddy lock and auto-renew | **needs you** | Could not check: this could not be checked. |
+| A8 | DNSSEC | **needs you** | Enabled at Cloudflare (status: pending). Cloudflare publishes the signatures but they are not trusted until the DS record is entered at the registrar, and that step could not be done from here. Nothing can break while it is pending. The values to enter are at the end of this file. |
+| A9 | GoDaddy lock and auto-renew | **needs you** | Could not be checked from here. |
 | A10 | security.txt | **fixed** | `/.well-known/security.txt` with the feedback page and feedback@ as contacts, expiring 2027-11-13. |
 | A11 | Privacy page and FAQs | **fixed** | Name cdn.jsdelivr.net, the one file it serves, the fingerprint check, and that jsDelivr sees an IP address when serving it. A new page, /how-it-works/, lists every engine and where it loads from. |
 
@@ -73,7 +73,7 @@ GitHub (`gh` and browser), Cloudflare, Google and GoDaddy were each checked as t
 | Built pages | 150, 0 broken internal links, no duplicate titles or descriptions, 145 sitemap URLs each with a lastmod |
 
 ## Things only you can do
-1. **Turn on account login login on GitHub** (Settings, Password and authentication). It is off.
+1. **Account login hardening on GitHub** (an owner step; the details are kept out of this public repo).
 2. **DNSSEC, at GoDaddy**: sign in, open the domain, find DNSSEC (or DS records) and add this DS record exactly: key tag `2371`, algorithm `13` (ECDSA P-256 with SHA-256), digest type `2` (SHA-256), digest `C50F2B9DBB8CE4772050417FCBFFD36F400E3F72D6100E4F5FF2B82C7AC65693`. Flags 257 (KSK) and the public key `mdsswUyr3DPW132mOi8V9xESWE8jTo0dxCjjnopKl+GqJxpVXckHAeF+KkxLbxILfDLUT0rAK9iUzy1L53eKGQ==` are shown if GoDaddy asks. Then check the site still loads; if it does not, delete the DS record at GoDaddy and the site returns to normal.
 3. **At GoDaddy, check that the domain lock and auto-renew are on.**
 4. **Send a test email** to hello@ and feedback@iduckconvert.com from another address and tell me if it does not arrive.

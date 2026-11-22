@@ -40,7 +40,7 @@ Resume here in a new session. The full picture is `docs/status.html`. Base = iDu
 - [x] AI-era converters batch 2: token counter (11.2), Word to Markdown and Excel to Markdown table (11.3, 22 Nov)
 - [x] AI-era converters batch 3: audio for transcription, split audio, video to frames (11.4, 22 Nov)
 - [x] Audio and video presets: trim audio, change audio volume, remove audio from video, rotate video, change video speed (11.6, merged as PR #33 on 23 Nov, live)
-- [x] Repo made public by the owner (23 Nov) after GitHub refused to start CI for free CI minutes; CI re-run passed. History searched for keys and tokens: none
+- [x] Repo made public by the owner (23 Nov) for free CI minutes; CI re-run passed. History searched for keys and tokens: none
 - [ ] Turn on secret scanning, push protection and branch protection (status 10.7, owner)
 - [ ] Merge clips, extra audio formats (11.7); developer and AI-era utilities (11.8)
 - [x] Phone check of video limits (owner, reported done 22 Nov; not checked from here)

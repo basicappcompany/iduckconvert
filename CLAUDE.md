@@ -8,7 +8,7 @@ Free converters that run in the browser: audio, video, spreadsheets and data, un
 - Spreadsheets: SheetJS (`xlsx` from cdn.sheetjs.com, not the stale npm package). Data: js-yaml, marked, turndown, fast-xml-parser, smol-toml (TOML; imported only when a TOML page converts), mammoth (Word .docx to HTML for Word to Markdown; imported only when a .docx is converted). TIFF: utif2. GIF: gifenc.
 
 ## Workflow
-- Never push to main (the only exception was the first commit on the empty repo): branch, PR, fix CI on the same PR, merge when green. The repo has been public since 23 Nov 2026 (GitHub refused to start CI on the private repo for free CI minutes; public repos get free Actions minutes), so never commit a key, token or personal detail: the history is readable by anyone.
+- Never push to main (the only exception was the first commit on the empty repo): branch, PR, fix CI on the same PR, merge when green. The repo has been public since 23 Nov 2026 (public repos get free Actions minutes), so never commit a key, token or personal detail: the history is readable by anyone.
 - `pnpm verify` (check, lint, test) before each commit; `pnpm test:e2e` runs the real converters in Chrome against the production build (port 4411; do not reuse a port another project's preview may hold).
 - Docs-only changes are batched to one PR at the end of the day (the `docs-sync` skill). `docs/status.html` is the single source for the status page.
 
