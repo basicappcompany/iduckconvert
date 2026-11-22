@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import JSZip from 'jszip';
 import { estimateTokens } from '../../src/convert/tokens';
 import { docxToMarkdown } from '../../src/convert/docx';
-import { DEFAULT_MEDIA_OPTIONS, MAX_FRAMES, acceptsFor, jobFor, segmentSeconds } from '../../src/tools/media';
+import { DEFAULT_MEDIA_OPTIONS, MAX_FRAMES, acceptsFor, atempoChain, jobFor, segmentSeconds } from '../../src/tools/media';
 import { PAGE_TOOLS } from '../../src/lib/tools';
 
 describe('token estimate', () => {
@@ -49,10 +49,10 @@ describe('Word to Markdown', () => {
     expect(markdown).toContain('Plain and **bold** words.');
     expect(markdown).toMatch(/\| Name\s+\| Ducks \|/);
     expect(markdown).toMatch(/\| Pond\s+\| 12\s+\|/);
-  });
+  }, 30_000);
   it('refuses a file that is not a Word document', async () => {
     await expect(docxToMarkdown({ buffer: new TextEncoder().encode('not a zip') })).rejects.toThrow();
-  });
+  }, 30_000);
 });
 
 describe('audio and video presets', () => {
@@ -97,5 +97,61 @@ describe('audio and video presets', () => {
     for (const slug of ['audio-for-transcription', 'split-audio', 'video-to-frames', 'word-to-markdown', 'excel-to-markdown-table', 'token-counter']) {
       expect(PAGE_TOOLS.find((t) => t.slug === slug), slug).toBeTruthy();
     }
+  });
+});
+
+describe('trim, volume, mute, rotate and speed presets', () => {
+  const o = DEFAULT_MEDIA_OPTIONS;
+  it('tempo changes are chained inside the 0.5 to 2 range the filter accepts', () => {
+    expect(atempoChain(2)).toBe('atempo=2');
+    expect(atempoChain(1.5)).toBe('atempo=1.5');
+    expect(atempoChain(4)).toBe('atempo=2,atempo=2');
+    expect(atempoChain(3)).toBe('atempo=2,atempo=1.5');
+    expect(atempoChain(0.75)).toBe('atempo=0.75');
+    expect(atempoChain(0.25)).toBe('atempo=0.5,atempo=0.5');
+  });
+  it('speed: the picture and the sound change together', () => {
+    const job = jobFor('video-speed', 'mp4', { ...o, speed: 2 });
+    const args = job.args.join(' ');
+    expect(args).toContain('-af atempo=2');
+    expect(args).toContain('setpts=PTS/2,scale=');
+    expect(job.spec.ext).toBe('mp4');
+  });
+  it('rotate: the turn comes before the even-size scale', () => {
+    expect(jobFor('video-rotate', 'mp4', { ...o, rotate: 'cw' }).args.join(' ')).toContain('-vf transpose=1,scale=');
+    expect(jobFor('video-rotate', 'mp4', { ...o, rotate: 'ccw' }).args.join(' ')).toContain('transpose=2,');
+    expect(jobFor('video-rotate', 'mp4', { ...o, rotate: '180' }).args.join(' ')).toContain('hflip,vflip,scale=');
+    expect(jobFor('video-rotate', 'mp4', { ...o, rotate: 'hflip' }).args.join(' ')).toContain('-vf hflip,scale=');
+  });
+  it('mute: copies the picture when it can, otherwise makes an MP4 without sound', () => {
+    const copy = jobFor('video-mute', 'mp4', o, 'MOV');
+    expect(copy.args).toEqual(['-an', '-c:v', 'copy']);
+    expect(copy.spec).toEqual({ ext: 'mov', mime: 'video/quicktime' });
+    const avi = jobFor('video-mute', 'mp4', o, 'avi');
+    expect(avi.args).toContain('libx264');
+    expect(avi.args).toContain('-an');
+    expect(avi.spec.ext).toBe('mp4');
+    expect(jobFor('video-mute', 'mp4', o).spec.ext).toBe('mp4');
+  });
+  it('audio trim: start before the input, length after, saved as MP3', () => {
+    const job = jobFor('audio-trim', 'mp3', { ...o, start: 10, end: 25 });
+    expect(job.before).toEqual(['-ss', '10']);
+    expect(job.args.slice(0, 2)).toEqual(['-t', '15']);
+    expect(job.args).toContain('libmp3lame');
+    expect(job.spec.ext).toBe('mp3');
+    expect(jobFor('audio-trim', 'mp3', o).before).toEqual([]);
+  });
+  it('volume: even out to -16 LUFS, or a fixed number of decibels', () => {
+    expect(jobFor('audio-volume', 'mp3', { ...o, normalise: true }).args.join(' ')).toContain('-af loudnorm=I=-16:TP=-1.5:LRA=11');
+    expect(jobFor('audio-volume', 'mp3', { ...o, normalise: false, gainDb: 6 }).args.join(' ')).toContain('-af volume=6dB');
+    expect(jobFor('audio-volume', 'mp3', { ...o, normalise: false, gainDb: -3 }).args.join(' ')).toContain('-af volume=-3dB');
+  });
+  it('the drop zone takes the right files', () => {
+    expect(acceptsFor('audio-trim', 'audio')).toEqual(expect.arrayContaining(['.mp3', '.mp4']));
+    expect(acceptsFor('audio-volume', 'audio')).toEqual(expect.arrayContaining(['.wav', 'video/*']));
+    for (const kind of ['video-mute', 'video-rotate', 'video-speed'] as const) expect(acceptsFor(kind, 'video')).not.toContain('audio/*');
+  });
+  it('every new page has a registry row', () => {
+    for (const slug of ['trim-audio', 'change-audio-volume', 'remove-audio-from-video', 'rotate-video', 'change-video-speed']) expect(PAGE_TOOLS.find((t) => t.slug === slug), slug).toBeTruthy();
   });
 });

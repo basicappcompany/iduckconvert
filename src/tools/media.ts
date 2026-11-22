@@ -21,12 +21,21 @@ export interface MediaOptions {
   frameEvery: number;
   /** Audio for transcription: a small MP3 or a WAV file. */
   speechFormat: 'mp3' | 'wav';
+  /** Rotate or flip video. */
+  rotate: Rotation;
+  /** Change video speed: 2 means twice as fast, 0.5 half speed. */
+  speed: number;
+  /** Change audio volume: even out the loudness (normalise) or change it by `gainDb` decibels. */
+  normalise: boolean;
+  gainDb: number;
 }
+
+export type Rotation = 'cw' | 'ccw' | '180' | 'hflip' | 'vflip';
 
 /** The most pictures "Video to frames" saves, so a long video cannot fill the browser's memory. */
 export const MAX_FRAMES = 200;
 
-export const DEFAULT_MEDIA_OPTIONS: MediaOptions = { bitrate: 192, quality: 'medium', width: 480, fps: 12, start: 0, duration: 6, end: 0, partMb: 24, frameEvery: 5, speechFormat: 'mp3' };
+export const DEFAULT_MEDIA_OPTIONS: MediaOptions = { bitrate: 192, quality: 'medium', width: 480, fps: 12, start: 0, duration: 6, end: 0, partMb: 24, frameEvery: 5, speechFormat: 'mp3', rotate: 'cw', speed: 2, normalise: true, gainDb: 6 };
 
 export interface MediaSpec {
   ext: string;
@@ -67,8 +76,8 @@ export function audioArgs(to: string, o: MediaOptions): string[] {
 const EVEN = 'scale=trunc(iw/2)*2:trunc(ih/2)*2';
 
 /** The MP4 encode used by every "to MP4" converter. */
-export function mp4Args(crf = 23, width = 0): string[] {
-  const scale = width > 0 ? `scale='min(${width},iw)':-2` : EVEN;
+export function mp4Args(crf = 23, width = 0, before = ''): string[] {
+  const scale = (before ? `${before},` : '') + (width > 0 ? `scale='min(${width},iw)':-2` : EVEN);
   return ['-c:v', 'libx264', '-preset', 'veryfast', '-crf', String(crf), '-pix_fmt', 'yuv420p', '-vf', scale, '-c:a', 'aac', '-b:a', '128k', '-movflags', '+faststart'];
 }
 
@@ -101,10 +110,56 @@ export interface ManyOutputs {
   match: RegExp;
 }
 
+/** ffmpeg's tempo filter takes 0.5 to 2 at a time, so a bigger or smaller change is a chain of steps. */
+export function atempoChain(speed: number): string {
+  const steps: number[] = [];
+  let left = speed;
+  while (left > 2) {
+    steps.push(2);
+    left /= 2;
+  }
+  while (left < 0.5) {
+    steps.push(0.5);
+    left /= 0.5;
+  }
+  steps.push(Number(left.toFixed(4)));
+  return steps.map((x) => `atempo=${x}`).join(',');
+}
+
+const ROTATE_FILTER: Record<Rotation, string> = { cw: 'transpose=1', ccw: 'transpose=2', '180': 'hflip,vflip', hflip: 'hflip', vflip: 'vflip' };
+
+/** Containers whose video can be copied as it is when only the sound is removed. Anything else becomes an MP4. */
+const COPYABLE = ['mp4', 'm4v', 'mov', 'mkv', 'webm'];
+const COPY_MIME: Record<string, string> = { mp4: 'video/mp4', m4v: 'video/mp4', mov: 'video/quicktime', mkv: 'video/x-matroska', webm: 'video/webm' };
+
 const CRF: Record<MediaOptions['quality'], number> = { high: 22, medium: 28, small: 34 };
 
-export function jobFor(kind: ToolKind, to: string, o: MediaOptions): { before: string[]; args: string[]; spec: MediaSpec; many?: ManyOutputs } {
+/** `ext` is the dropped file's extension; "Remove audio" keeps it when the video can be copied. */
+export function jobFor(kind: ToolKind, to: string, o: MediaOptions, ext = ''): { before: string[]; args: string[]; spec: MediaSpec; many?: ManyOutputs } {
   switch (kind) {
+    case 'audio-trim':
+      return {
+        before: o.start > 0 ? ['-ss', String(o.start)] : [],
+        args: [...(o.end > o.start ? ['-t', String(o.end - o.start)] : []), ...audioArgs('mp3', o)],
+        spec: AUDIO_TARGETS['mp3']!,
+      };
+    case 'audio-volume':
+      return {
+        before: [],
+        // Loudness is evened out in one pass (EBU R128, -16 LUFS), or the level is moved by a fixed number of decibels.
+        args: ['-af', o.normalise ? 'loudnorm=I=-16:TP=-1.5:LRA=11' : `volume=${o.gainDb}dB`, ...audioArgs('mp3', o)],
+        spec: AUDIO_TARGETS['mp3']!,
+      };
+    case 'video-mute': {
+      const copy = COPYABLE.includes(ext.toLowerCase());
+      return copy
+        ? { before: [], args: ['-an', '-c:v', 'copy'], spec: { ext: ext.toLowerCase(), mime: COPY_MIME[ext.toLowerCase()]! } }
+        : { before: [], args: ['-an', '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '23', '-pix_fmt', 'yuv420p', '-vf', EVEN, '-movflags', '+faststart'], spec: { ext: 'mp4', mime: 'video/mp4' } };
+    }
+    case 'video-rotate':
+      return { before: [], args: mp4Args(23, 0, ROTATE_FILTER[o.rotate]), spec: { ext: 'mp4', mime: 'video/mp4' } };
+    case 'video-speed':
+      return { before: [], args: ['-af', atempoChain(o.speed), ...mp4Args(23, 0, `setpts=PTS/${o.speed}`)], spec: { ext: 'mp4', mime: 'video/mp4' } };
     case 'audio-speech':
       // Speech to text works best from one channel at 16 kHz, which is also what Whisper resamples to.
       return o.speechFormat === 'wav'
@@ -152,8 +207,8 @@ const VIDEO_EXT = ['.mp4', '.m4v', '.mov', '.mkv', '.webm', '.avi', '.wmv', '.fl
 
 /** What the drop zone accepts for a converter's source format. Browsers label some files oddly, so extensions come first. */
 export function acceptsFor(kind: ToolKind, from: string): string[] {
-  if (kind === 'audio-speech' || kind === 'audio-split') return [...AUDIO_EXT, ...VIDEO_EXT, 'audio/*', 'video/*'];
-  if (kind === 'video-frames') return [...VIDEO_EXT, 'video/*'];
+  if (kind === 'audio-speech' || kind === 'audio-split' || kind === 'audio-trim' || kind === 'audio-volume') return [...AUDIO_EXT, ...VIDEO_EXT, 'audio/*', 'video/*'];
+  if (kind === 'video-frames' || kind === 'video-mute' || kind === 'video-rotate' || kind === 'video-speed') return [...VIDEO_EXT, 'video/*'];
   if (from === 'video' || kind === 'video-compress' || kind === 'video-trim') return [...VIDEO_EXT, 'video/*', ...(kind === 'audio' ? [...AUDIO_EXT, 'audio/*'] : [])];
   if (kind === 'video-gif') return [...VIDEO_EXT, 'video/*'];
   const map: Record<string, string[]> = {

@@ -27,6 +27,11 @@ export type ToolKind =
   | 'audio-speech'
   | 'audio-split'
   | 'video-frames'
+  | 'audio-trim'
+  | 'audio-volume'
+  | 'video-mute'
+  | 'video-rotate'
+  | 'video-speed'
   | 'docx'
   | 'tokens'
   | 'data'
@@ -219,6 +224,30 @@ export const TOOLS: readonly ToolLink[] = [
     quick: 'To split a long recording, drop the audio or video in, choose the largest size for a part, and press Convert. You get numbered MP3 parts that each stay under that size, for upload limits like 25 MB.',
     keywords: 'split cut chunks parts 25mb limit whisper upload transcription long recording podcast lecture',
   },
+  {
+    slug: 'trim-audio',
+    name: 'Trim audio',
+    summary: 'Cut an audio file down to the part you want.',
+    group: 'Audio',
+    emoji: '⏱️',
+    kind: 'audio-trim',
+    from: 'audio',
+    to: 'mp3',
+    quick: 'To trim audio, drop the file in, type the start and end time, then press Trim. You get the part you cut as an MP3, made in your browser tab.',
+    keywords: 'cut audio trim clip shorten ringtone mp3 wav start end seconds podcast voice',
+  },
+  {
+    slug: 'change-audio-volume',
+    name: 'Change audio volume',
+    summary: 'Make a quiet recording louder, or even out the volume.',
+    group: 'Audio',
+    emoji: '🔊',
+    kind: 'audio-volume',
+    from: 'audio',
+    to: 'mp3',
+    quick: 'To fix the volume of a recording, drop the file in, choose to even it out or change it by a set amount, then press Convert. You get an MP3 with the new volume.',
+    keywords: 'volume louder quieter boost increase decrease normalise normalize loudness decibel db audio mp3 voice',
+  },
   // Video
   ...VIDEO_PAIRS.map(videoTool),
   {
@@ -280,6 +309,42 @@ export const TOOLS: readonly ToolLink[] = [
     to: 'jpg',
     quick: 'To get pictures from a video, drop it in, choose how often to take a frame, and press Convert. You get numbered JPG files, up to 200 of them, to download one by one or as a ZIP.',
     keywords: 'frames screenshots stills images jpg extract thumbnails keyframes video to images ai vision',
+  },
+  {
+    slug: 'remove-audio-from-video',
+    name: 'Remove audio from video',
+    summary: 'Mute a video by taking its sound out.',
+    group: 'Video',
+    emoji: '🔇',
+    kind: 'video-mute',
+    from: 'video',
+    to: 'mp4',
+    quick: 'To remove the sound from a video, drop it in and press Convert. The picture is kept as it is, copied without being encoded again when the format allows, so it is quick and loses no quality.',
+    keywords: 'mute video remove sound audio silent no audio strip soundtrack mp4 mov',
+  },
+  {
+    slug: 'rotate-video',
+    name: 'Rotate video',
+    summary: 'Turn a sideways video upright, or flip it.',
+    group: 'Video',
+    emoji: '🔄',
+    kind: 'video-rotate',
+    from: 'video',
+    to: 'mp4',
+    quick: 'To rotate a video, drop it in, choose a turn or a flip, then press Convert. You get an MP4 turned the way you chose, made in your browser tab.',
+    keywords: 'rotate video turn sideways upside down flip mirror 90 degrees portrait landscape phone mp4',
+  },
+  {
+    slug: 'change-video-speed',
+    name: 'Change video speed',
+    summary: 'Make a video faster or slower, with the sound kept in step.',
+    group: 'Video',
+    emoji: '⏩',
+    kind: 'video-speed',
+    from: 'video',
+    to: 'mp4',
+    quick: 'To change the speed of a video, drop it in, choose a speed from a quarter to four times, then press Convert. The sound speeds up or slows down with the picture. You get an MP4.',
+    keywords: 'video speed faster slower slow motion time lapse fast forward 2x 0.5x playback mp4',
   },
   // Images: only what iDuckIMG does not have; the rest link out (each to its own iDuckIMG page; PDF conversions stay with iDuckPDF).
   link('heic-to-jpg', 'HEIC to JPG', 'iPhone photos to JPG. Lives on iDuckIMG.', 'iDuckIMG', `${IMG}/heic-to-jpg/`),

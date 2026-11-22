@@ -21,7 +21,7 @@ const from = tool.from ?? '';
 const to = tool.to ?? '';
 ---
 
-{(k === 'audio' || k === 'video' || k === 'gif-video' || k === 'video-gif' || k === 'video-compress' || k === 'video-trim' || k === 'audio-speech' || k === 'audio-split' || k === 'video-frames') && (
+{(k === 'audio' || k === 'video' || k === 'gif-video' || k === 'video-gif' || k === 'video-compress' || k === 'video-trim' || k === 'audio-speech' || k === 'audio-split' || k === 'video-frames' || k === 'audio-trim' || k === 'audio-volume' || k === 'video-mute' || k === 'video-rotate' || k === 'video-speed') && (
   <MediaTool client:load kind={k} from={from} to={to} runLabel={runLabel} />
 )}
 {k === 'excel' && <ExcelTool client:load to={to as 'xlsx' | 'csv' | 'md'} runLabel={runLabel} />}

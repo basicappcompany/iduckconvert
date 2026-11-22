@@ -24,7 +24,7 @@ test.describe('languages: pages', () => {
       await expect(page.locator('.lang-list a')).toHaveCount(10);
       await expect(page.locator('[data-machine-note]')).toBeVisible();
       // Every converter is linked in the language.
-      expect(await page.locator('[data-card] a[href^="/' + path + '/"]').count()).toBeGreaterThanOrEqual(75);
+      expect(await page.locator('[data-card] a[href^="/' + path + '/"]').count()).toBeGreaterThanOrEqual(80);
 
       await page.goto(`/${path}/csv-to-json/`);
       await expect(page.locator('html')).toHaveAttribute('lang', tag);
