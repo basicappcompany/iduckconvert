@@ -34,13 +34,13 @@ Resume here in a new session. The full picture is `docs/status.html`. Base = iDu
 - [x] Cloudflare Pages project, domain, Email Routing (done 13 Nov; send a real test email to hello@ still to do)
 - [x] 47 how-to guides, grouped by topic
 - [x] Helper chat rebuilt (full height, inline sums, follow-ups); home page always light
-- [x] Security and SEO audit (AUDIT.md): headers A+, Search Console and Bing set up; owner steps listed there (GitHub two-factor, DNSSEC DS at GoDaddy)
+- [x] Security and SEO audit (AUDIT.md): headers A+, Search Console and Bing set up; owner steps listed there (account steps, DNSSEC DS at GoDaddy)
 - [x] Lighthouse on the live site (mobile): 98 / 100 / 100 / 100 on 13 Nov (before the language work; re-runs on 16 Nov and twice on 22 Nov failed on this PC, so refresh it in Chrome DevTools)
 - [x] AI-era converters batch 1: 12 text and data converters in nine languages (status 11.1, 22 Nov)
 - [x] AI-era converters batch 2: token counter (11.2), Word to Markdown and Excel to Markdown table (11.3, 22 Nov)
 - [x] AI-era converters batch 3: audio for transcription, split audio, video to frames (11.4, 22 Nov)
 - [x] Audio and video presets: trim audio, change audio volume, remove audio from video, rotate video, change video speed (11.6, merged as PR #33 on 23 Nov, live)
-- [x] Repo made public by the owner (23 Nov) after GitHub refused to start CI over billing; CI re-run passed. History searched for keys and tokens: none
+- [x] Repo made public by the owner (23 Nov) for free CI minutes; CI re-run passed. History searched for keys and tokens: none
 - [ ] Turn on secret scanning, push protection and branch protection (status 10.7, owner)
 - [ ] Merge clips, extra audio formats (11.7); developer and AI-era utilities (11.8)
 - [x] Phone check of video limits (owner, reported done 22 Nov; not checked from here)

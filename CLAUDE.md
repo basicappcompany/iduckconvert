@@ -8,7 +8,7 @@ Free converters that run in the browser: audio, video, spreadsheets and data, un
 - Spreadsheets: SheetJS (`xlsx` from cdn.sheetjs.com, not the stale npm package). Data: js-yaml, marked, turndown, fast-xml-parser, smol-toml (TOML; imported only when a TOML page converts), mammoth (Word .docx to HTML for Word to Markdown; imported only when a .docx is converted). TIFF: utif2. GIF: gifenc.
 
 ## Workflow
-- Never push to main (the only exception was the first commit on the empty repo): branch, PR, fix CI on the same PR, merge when green. The repo has been public since 23 Nov 2026 (GitHub refused to start CI on the private repo over billing; public repos get free Actions minutes), so never commit a key, token or personal detail: the history is readable by anyone.
+- Never push to main (the only exception was the first commit on the empty repo): branch, PR, fix CI on the same PR, merge when green. The repo has been public since 23 Nov 2026 (public repos get free Actions minutes), so never commit a key, token or personal detail: the history is readable by anyone.
 - `pnpm verify` (check, lint, test) before each commit; `pnpm test:e2e` runs the real converters in Chrome against the production build (port 4411; do not reuse a port another project's preview may hold).
 - Docs-only changes are batched to one PR at the end of the day (the `docs-sync` skill). `docs/status.html` is the single source for the status page.
 
@@ -40,7 +40,7 @@ Free converters that run in the browser: audio, video, spreadsheets and data, un
 - Theme: light is the default on every page (the site ignores the system setting until someone chooses). The toggle in the top bar, on every page including the start page, saves the choice (light, dark or "match my device") and it is used on every page until it is changed; Settings, Clear saved settings goes back to light. The choice is read by an inline script before first paint (`THEME_STORAGE_KEY`), so there is no flash. `tests/e2e/helper-theme.spec.ts` covers it.
 
 ## Hosting
-- Cloudflare Pages project `iduckconvert` (build `pnpm build`, output `dist`, NODE_VERSION=22.23.4), deploys on merge to main. DNS is on Cloudflare (Free plan); the domain is registered at GoDaddy with Cloudflare nameservers. Email Routing forwards hello@ and feedback@ to the business Gmail; the catch-all drops.
+- Cloudflare Pages project `iduckconvert` (build `pnpm build`, output `dist`, NODE_VERSION=22.23.4), deploys on merge to main. DNS is on Cloudflare (Free plan); the domain is registered at GoDaddy with Cloudflare nameservers. Email Routing forwards hello@ and feedback@ to the business mailbox; the catch-all drops.
 
 ## Languages (English plus nine, like iDuckPDF and iDuckIMG)
 
