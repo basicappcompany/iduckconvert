@@ -33,7 +33,10 @@ describe('tool registry', () => {
     }
   });
   it('rebuilds nothing the sister sites already have', () => {
-    for (const s of ['heic-to-jpg', 'avif-to-jpg', 'avif-to-png', 'svg-to-png', 'bmp-to-jpg', 'png-to-ico']) expect(toolBySlug(s)?.kind, s).toBe('link');
+    const onImg = ['heic-to-jpg', 'heic-to-png', 'avif-to-jpg', 'avif-to-png', 'svg-to-png', 'svg-to-jpg', 'bmp-to-jpg', 'gif-to-png', 'jpg-to-png', 'png-to-jpg', 'webp-to-jpg', 'webp-to-png', 'jpg-to-webp', 'png-to-webp', 'png-to-ico'];
+    for (const s of onImg) expect(toolBySlug(s)?.kind, s).toBe('link');
+    // Each card opens its own iDuckIMG page (the same slug), except the favicon maker.
+    for (const s of onImg.filter((x) => x !== 'png-to-ico')) expect(toolBySlug(s)?.href, s).toBe(`https://iduckimg.com/${s}/`);
     expect(TOOLS.some((t) => /pdf/.test(t.slug) && t.kind !== 'link')).toBe(false);
   });
   it('Popular right now has the eight asked for', () => {
