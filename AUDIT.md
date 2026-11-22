@@ -25,10 +25,10 @@ GitHub (`gh` and browser), Cloudflare, Google and GoDaddy were each checked as b
 | A4 | YAML | already fine | js-yaml 5 `load` uses the safe default schema; a unit test confirms `!!js/function` and `!!js/regexp` are refused. |
 | A4 | Safe download names | **fixed** | `safeFileName` strips slashes, colons, control characters and leading dots, and caps length. Used for every output name; tested, including a hostile name in the browser. |
 | A4 | Big files | **fixed** | Spreadsheet 50 MB, TIFF 150 MB, WEBP 50 MB, text 20 to 50 MB, media 1.9 GB (existing). Each gives a friendly message. Tested in a browser with a 51 MB file. |
-| A5 | Forms and helper | already fine | The feedback and request forms only build a `mailto:` link or copy text; nothing is posted, so no spam protection is needed (no Turnstile added). The helper runs in the page and sends nothing. No `fetch` to a server in `src`. No keys or secrets in the tree or the last 50 commits (searched). |
+| A5 | Forms and helper | already fine | The feedback and request forms only build a `mailto:` link or copy text; nothing is posted, so no spam protection is needed (no Turnstile added). The helper runs in the page and sends nothing. No `fetch` to a server in `src`. No keys or secrets in the tree or in the whole history (95 commits, all branches, searched with grep on 23 Nov: key and token patterns and sensitive file names; a pattern search, not a full scanner). |
 | A6 | Dependabot alerts and security updates | **fixed** | Both enabled through the GitHub API. |
-| A6 | Secret scanning and push protection | **needs you** | GitHub answers "not available for this repository": it needs GitHub Advanced Security (paid) for a private repo. Making the repo public would enable it. Not changed. |
-| A6 | Branch protection on `main` | **needs you** | GitHub answers "Upgrade to GitHub Pro or make this repository public". Not upgraded. The rule in use is by habit: branch, pull request, merge on green CI. |
+| A6 | Secret scanning and push protection | **needs you** | The repo was made public on 23 Nov, so this is now free. Checked through the API on 23 Nov: secret scanning and push protection are still disabled. Turning them on is a security setting, so it is left to the owner (status item 10.7). |
+| A6 | Branch protection on `main` | **needs you** | Now available because the repo is public (23 Nov). Checked through the API on 23 Nov: main has no protection yet (404). The rule in use is by habit: branch, pull request, merge on green CI. Owner step in status item 10.7. |
 | A6 | Two-factor login | **needs you** | GitHub says **two-factor authentication is not enabled** on basicappcompany. Please turn it on (Settings, Password and authentication). |
 | A7 | Always Use HTTPS | **fixed** | Was off; now on. `http://` returns 301 to https. |
 | A7 | Minimum TLS | **fixed** | Was 1.0 (the default); now 1.2. TLS 1.0 and 1.1 handshakes are refused, 1.2 and 1.3 work (tested with curl). |
@@ -78,7 +78,7 @@ GitHub (`gh` and browser), Cloudflare, Google and GoDaddy were each checked as b
 3. **At GoDaddy, check that the domain lock and auto-renew are on.**
 4. **Send a test email** to hello@ and feedback@iduckconvert.com from another address and tell me if it does not arrive.
 5. **Look at Search Console in a day or two**: the sitemap should change from "Couldn't fetch" to "Success".
-6. **Secret scanning and branch protection** need GitHub Pro (or a public repo). Say if you want to upgrade; nothing was bought.
+6. **Secret scanning, push protection and branch protection** are free now that the repo is public. Turn them on in the repo settings (status item 10.7); nothing was bought.
 7. **Indian land units by state** (bigha, biswa, katha, guntha, cent): have someone check the values against each state's official land-revenue source.
 8. **Ask whether iDuckPDF and iDuckIMG should link to iDuckConvert** (the other two sites were not edited).
 9. **Have a person who reads each language check the translations** (all nine are machine-translated; see status item 10.5).

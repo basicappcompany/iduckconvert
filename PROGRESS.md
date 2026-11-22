@@ -3,7 +3,7 @@
 Resume here in a new session. The full picture is `docs/status.html`. Base = iDuckImg (Astro 7, Preact islands, Tailwind 4, pnpm).
 
 ## Decisions
-- Private repo. Never push to main after the first commit: branch, PR, merge on green CI.
+- Public repo since 23 Nov (private before). Never commit keys or tokens. Never push to main after the first commit: branch, PR, merge on green CI.
 - PDF conversions belong to iDuckPDF; image conversions iDuckIMG already has (HEIC, AVIF, BMP, SVG, GIF, WEBP, JPG and PNG to each other, favicon/ICO) are link cards, each to its own iDuckIMG page. PDF conversions are not carded one by one.
 - Languages: English plus 9 (hi, bn, pt-BR, id, ru, de, es, fr, tr). All phases done (home, converters, helper, guides, converter page text, unit pairs, About/Privacy/Terms/How it works, Ctrl K, converter options, names and dates, the other site pages). All machine-translated; none read by a native speaker yet.
 - Contact: hello@iduckconvert.com (general), feedback@iduckconvert.com (forms). Cloudflare Email Routing is set up (13 Nov); a real test email has not been sent yet.
@@ -18,7 +18,7 @@ Resume here in a new session. The full picture is `docs/status.html`. Base = iDu
 - [x] Shell: theme, AppShell, Ctrl K, ToolLayout, home, community pages, helper
 - [x] Converters: audio (18), video (16), images (2 built, 15 linked), data (24), units (11), numbers and text (7), time (2)
 - [x] Site pages, 4 guides, sitemap, robots, canonical, OG/Twitter, og.png, favicon
-- [x] Unit tests (791 in 9 files) and browser tests (114: 111 passed in CI on 22 Nov, the 3 for the presets are not in a CI run yet; on this PC the WEBM recording test fails and its 4 dependents do not run, and a full local run can run out of memory)
+- [x] Unit tests (791 in 9 files) and browser tests (114, all passed in CI on 23 Nov; on this PC the WEBM recording test fails and its 4 dependents do not run, and a full local run can run out of memory)
 - [x] Languages phase 1 (switch, hreflang, home page and every converter in 9 languages)
 - [x] Languages phase 2a: the helper in 9 languages
 - [x] Languages phase 2b: all 47 how-to guides in all nine languages
@@ -39,6 +39,8 @@ Resume here in a new session. The full picture is `docs/status.html`. Base = iDu
 - [x] AI-era converters batch 1: 12 text and data converters in nine languages (status 11.1, 22 Nov)
 - [x] AI-era converters batch 2: token counter (11.2), Word to Markdown and Excel to Markdown table (11.3, 22 Nov)
 - [x] AI-era converters batch 3: audio for transcription, split audio, video to frames (11.4, 22 Nov)
-- [x] Audio and video presets: trim audio, change audio volume, remove audio from video, rotate video, change video speed (11.6, 22 Nov)
+- [x] Audio and video presets: trim audio, change audio volume, remove audio from video, rotate video, change video speed (11.6, merged as PR #33 on 23 Nov, live)
+- [x] Repo made public by the owner (23 Nov) after GitHub refused to start CI over billing; CI re-run passed. History searched for keys and tokens: none
+- [ ] Turn on secret scanning, push protection and branch protection (status 10.7, owner)
 - [ ] Merge clips, extra audio formats (11.7); developer and AI-era utilities (11.8)
 - [x] Phone check of video limits (owner, reported done 22 Nov; not checked from here)
