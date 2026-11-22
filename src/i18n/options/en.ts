@@ -53,6 +53,26 @@ export const en = {
   chooseCase: 'Choose a case',
   /** {chars} {words} */
   countLine: '{chars} characters, {words} words',
+  // token counter
+  /** {n} */
+  tokensEstimate: 'About {n} tokens',
+  /** {a} {b} */
+  tokensRange: 'By characters: {a}. By words: {b}.',
+  /** {chars} {words} {lines} */
+  tokensStats: '{chars} characters, {words} words, {lines} lines',
+  tokensNote: 'This is an estimate: about 4 characters, or three quarters of a word, per token in English. Other languages and code use more, and each AI model counts a little differently.',
+  // audio and video presets
+  speechFormat: 'File type',
+  speechMp3: 'Small MP3 (for upload)',
+  speechWav: 'WAV (for Whisper on your own computer)',
+  partSize: 'Largest part',
+  partSizeHint: 'Each part stays under this size. 24 MB fits a 25 MB upload limit.',
+  /** {n} */
+  mbSize: '{n} MB',
+  framesEvery: 'Take a picture',
+  /** {n} */
+  everySeconds: 'every {n} seconds',
+  framesHint: 'You get at most 200 pictures, so for a long video choose a longer gap.',
   // colours
   /** {kind} is HEX, RGB or HSL. */
   colourBad: 'That {kind} value is not valid yet.',

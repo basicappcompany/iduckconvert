@@ -5,7 +5,7 @@ import type { ToolDefinition } from '../engine/types';
 import { withExtension, formatBytes } from '../lib/files';
 import { fill, useOpts } from '../i18n/options';
 import type { ToolKind } from '../lib/tools';
-import { HARD_LIMIT_MB, LIMIT_DESKTOP_MB, LIMIT_PHONE_MB, isPhone, parseTime, runFfmpeg } from './ffmpeg';
+import { HARD_LIMIT_MB, LIMIT_DESKTOP_MB, LIMIT_PHONE_MB, isPhone, parseTime, runFfmpeg, runFfmpegMany } from './ffmpeg';
 import { DEFAULT_MEDIA_OPTIONS, acceptsFor, jobFor, type MediaOptions } from './media';
 
 interface Props {
@@ -23,6 +23,11 @@ function makeTool(kind: ToolKind, from: string, to: string, tooBig: string): Too
     run: async (file, options, ctx) => {
       if (file.size > HARD_LIMIT_MB * 1024 * 1024) throw new Error(fill(tooBig, { size: formatBytes(file.size) }));
       const job = jobFor(kind, to, options);
+      if (job.many) {
+        const base = file.name.replace(/\.[^./\\]*$/, '');
+        const parts = await runFfmpegMany({ file, args: job.args, before: job.before, outName: job.many.pattern, match: job.many.match, signal: ctx.signal, onProgress: ctx.onProgress });
+        return parts.map((p) => ({ name: `${base}-${p.name.replace('_', '-')}`, blob: new Blob([p.data as BlobPart], { type: job.spec.mime }) }));
+      }
       const data = await runFfmpeg({ file, args: job.args, before: job.before, outName: `output.${job.spec.ext}`, signal: ctx.signal, onProgress: ctx.onProgress });
       return [{ name: withExtension(file.name, job.spec.ext), blob: new Blob([data as BlobPart], { type: job.spec.mime }) }];
     },
@@ -37,7 +42,7 @@ const num = (value: string, fallback: number): number => {
 export default function MediaTool({ kind, from, to, runLabel }: Props) {
   const o = useOpts();
   const tool = useMemo(() => makeTool(kind, from, to, o.tooBig), [kind, from, to, o.tooBig]);
-  const [options, setOptions] = useState<MediaOptions>(DEFAULT_MEDIA_OPTIONS);
+  const [options, setOptions] = useState<MediaOptions>(kind === 'audio-split' ? { ...DEFAULT_MEDIA_OPTIONS, bitrate: 64 } : kind === 'video-frames' ? { ...DEFAULT_MEDIA_OPTIONS, width: 0 } : DEFAULT_MEDIA_OPTIONS);
   const [startText, setStartText] = useState('0');
   const [endText, setEndText] = useState('');
   const set = (patch: Partial<MediaOptions>) => setOptions((o) => ({ ...o, ...patch }));
@@ -70,7 +75,7 @@ export default function MediaTool({ kind, from, to, runLabel }: Props) {
               {fill(isPhone() ? o.overLimitPhone : o.overLimit, { limit })}
             </p>
           )}
-          {(audioKinds || kind === 'video-gif' || kind === 'video-compress' || kind === 'video-trim') && (
+          {(audioKinds || ['video-gif', 'video-compress', 'video-trim', 'audio-speech', 'audio-split', 'video-frames'].includes(kind)) && (
             <OptionsPanel title={o.options}>
               {audioKinds && (
                 <Field id="bitrate" label={o.bitrate} hint={o.bitrateHint}>
@@ -116,6 +121,51 @@ export default function MediaTool({ kind, from, to, runLabel }: Props) {
                   </Field>
                   <Field id="vw" label={o.widthPixels} hint={o.widthHint}>
                     <select id="vw" class="input" value={options.width} onChange={(e) => set({ width: Number(e.currentTarget.value) })}>
+                      <option value={0}>{o.keepOriginal}</option>
+                      {[480, 720, 1080].map((w) => (
+                        <option value={w}>{w}</option>
+                      ))}
+                    </select>
+                  </Field>
+                </>
+              )}
+              {kind === 'audio-speech' && (
+                <Field id="speech-format" label={o.speechFormat}>
+                  <select id="speech-format" class="input" value={options.speechFormat} onChange={(e) => set({ speechFormat: e.currentTarget.value as MediaOptions['speechFormat'] })}>
+                    <option value="mp3">{o.speechMp3}</option>
+                    <option value="wav">{o.speechWav}</option>
+                  </select>
+                </Field>
+              )}
+              {kind === 'audio-split' && (
+                <>
+                  <Field id="part-size" label={o.partSize} hint={o.partSizeHint}>
+                    <select id="part-size" class="input" value={options.partMb} onChange={(e) => set({ partMb: Number(e.currentTarget.value) })}>
+                      {[10, 24, 49].map((n) => (
+                        <option value={n}>{fill(o.mbSize, { n })}</option>
+                      ))}
+                    </select>
+                  </Field>
+                  <Field id="split-bitrate" label={o.bitrate}>
+                    <select id="split-bitrate" class="input" value={options.bitrate} onChange={(e) => set({ bitrate: Number(e.currentTarget.value) })}>
+                      {[32, 48, 64, 96, 128].map((b) => (
+                        <option value={b}>{fill(o.kbit, { n: b })}</option>
+                      ))}
+                    </select>
+                  </Field>
+                </>
+              )}
+              {kind === 'video-frames' && (
+                <>
+                  <Field id="frame-every" label={o.framesEvery} hint={o.framesHint}>
+                    <select id="frame-every" class="input" value={options.frameEvery} onChange={(e) => set({ frameEvery: Number(e.currentTarget.value) })}>
+                      {[1, 2, 5, 10, 30, 60].map((n) => (
+                        <option value={n}>{fill(o.everySeconds, { n })}</option>
+                      ))}
+                    </select>
+                  </Field>
+                  <Field id="frame-width" label={o.widthPixels}>
+                    <select id="frame-width" class="input" value={options.width} onChange={(e) => set({ width: Number(e.currentTarget.value) })}>
                       <option value={0}>{o.keepOriginal}</option>
                       {[480, 720, 1080].map((w) => (
                         <option value={w}>{w}</option>
