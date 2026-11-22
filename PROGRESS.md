@@ -18,7 +18,7 @@ Resume here in a new session. The full picture is `docs/status.html`. Base = iDu
 - [x] Shell: theme, AppShell, Ctrl K, ToolLayout, home, community pages, helper
 - [x] Converters: audio (16), video (13), images (2 built, 15 linked), data (24), units (11), numbers and text (7), time (2)
 - [x] Site pages, 4 guides, sitemap, robots, canonical, OG/Twitter, og.png, favicon
-- [x] Unit tests (783 in 9 files) and browser tests (111: the 10 added for the AI-era converters pass locally; the full suite runs in CI; the WEBM recording test fails on this PC and its 4 dependents do not run there)
+- [x] Unit tests (783 in 9 files) and browser tests (111, all passed in CI on 22 Nov; on this PC the WEBM recording test fails and its 4 dependents do not run, and a full local run can run out of memory)
 - [x] Languages phase 1 (switch, hreflang, home page and every converter in 9 languages)
 - [x] Languages phase 2a: the helper in 9 languages
 - [x] Languages phase 2b: all 47 how-to guides in all nine languages
