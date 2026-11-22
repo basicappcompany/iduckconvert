@@ -233,6 +233,18 @@ function baseContent(t: ToolLink): PageContent {
         ],
       );
     case 'excel':
+      if (t.to === 'md')
+        return simple(
+          ['Drop your Excel file (.xlsx, .xls or .ods) onto the box.', 'Press Convert.', 'Download the .md file. A workbook with several sheets gives one file per sheet.'],
+          'Chat tools and notes apps cannot take a pasted spreadsheet, but they can show a Markdown table. This turns each sheet into one, with the first row as the header.',
+          [
+            { q: 'What happens to formulas and formatting?', a: 'You get the values the sheet shows. Formulas, colours, merged cells and charts are not part of a Markdown table and are dropped.' },
+            { q: 'What happens to a cell with a pipe or a line break?', a: 'A pipe is escaped as \\| so it does not split the cell, and a line break becomes <br>, because a Markdown table row has to stay on one line.' },
+            { q: 'Can I turn a big sheet into a table?', a: 'Yes, but a large table is hard to read in Markdown and may be too long for a chat message. For a big sheet, keep only the rows you need first.' },
+            PRIVATE_FAQ('spreadsheet'),
+            BATCH_FAQ,
+          ],
+        );
       return t.to === 'xlsx'
         ? simple(
             ['Drop your CSV file onto the box.', 'Press Convert.', 'Download the .xlsx file and open it in Excel, Google Sheets or LibreOffice.'],
@@ -258,6 +270,68 @@ function baseContent(t: ToolLink): PageContent {
               BATCH_FAQ,
             ],
           );
+    case 'audio-speech':
+      return simple(
+        ['Drop your recording onto the box. A video works too: only its sound is used.', 'Choose a small MP3 for upload, or a WAV file if your transcriber needs one. Then press Convert.', 'Download the file and give it to your transcription tool.'],
+        'Speech-to-text tools such as Whisper listen at 16 kHz on one channel. Giving them that directly makes the file much smaller and quicker to upload, and the transcript is usually just as good.',
+        [
+          { q: 'Why 16 kHz and mono?', a: 'Speech models are trained on single-channel sound sampled 16,000 times a second. Extra channels and higher rates only make the file bigger, so they are removed here.' },
+          { q: 'How small does the file get?', a: 'The MP3 uses 32 kbit/s, which is about 14 MB for an hour of speech, well under the 25 MB upload limit that many services have. A WAV file is about 115 MB per hour.' },
+          { q: 'Is it good for music?', a: 'No. This setting is made for voices. Music loses a lot at 16 kHz mono, so use the MP3 or WAV converters for that.' },
+          PRIVATE_FAQ('audio'),
+          ENGINE_FAQ,
+          SIZE_FAQ(),
+        ],
+      );
+    case 'audio-split':
+      return simple(
+        ['Drop a long recording onto the box. A video works too: only its sound is used.', 'Choose the largest size for one part. 24 MB stays under the 25 MB limit that many transcription services have.', 'Press Convert. The sound is saved as numbered MP3 parts.', 'Download the parts one by one, or all of them as a ZIP.'],
+        'Many upload forms and transcription services refuse files over a size limit, for example 25 MB. Cutting a long recording into parts that each stay under the limit lets you send it in pieces.',
+        [
+          { q: 'How long is each part?', a: 'It depends on the size and the quality you choose. At 64 kbit/s a 24 MB part is about 50 minutes of sound, and at 32 kbit/s about 100 minutes.' },
+          { q: 'Does it cut words in half?', a: 'Parts are cut at a fixed length, so a word may be split at the join. Most transcription tools cope with that. If you need clean breaks, cut at pauses with a sound editor.' },
+          { q: 'Why is the sound saved again as MP3?', a: 'A fixed bitrate makes the size of each part predictable, so every part stays under your limit. The cost is a small loss of quality, which hardly matters for speech.' },
+          PRIVATE_FAQ('audio'),
+          ENGINE_FAQ,
+          SIZE_FAQ(),
+        ],
+      );
+    case 'video-frames':
+      return simple(
+        ['Drop your video onto the box.', 'Choose how often to take a picture, such as one every 5 seconds, and how wide the pictures should be.', 'Press Convert. The first time, your browser downloads the converter engine, then the video is converted while you watch a progress bar.', 'Download the pictures one by one, or all of them as a ZIP.'],
+        'A video is many pictures shown quickly. Pulling out one every few seconds gives you stills for slides, notes or thumbnails, or for an AI tool that reads pictures but cannot watch a video.',
+        [
+          { q: 'How many pictures do I get?', a: 'One for every gap you choose, up to 200. A 10-minute video with a picture every 5 seconds gives 120. For a longer video, choose a longer gap or trim it first.' },
+          { q: 'What quality are the pictures?', a: 'They are JPG files at high quality. Choose a width to make them smaller, or keep the original size for the sharpest result.' },
+          { q: 'Does it find the important moments?', a: 'No. It takes pictures at even gaps, so it can miss a quick moment. Use a shorter gap for fast-moving videos.' },
+          PRIVATE_FAQ('video'),
+          ENGINE_FAQ,
+          SIZE_FAQ(),
+        ],
+      );
+    case 'docx':
+      return simple(
+        ['Drop your Word file (.docx) onto the box.', 'Press Convert.', 'Download the Markdown (.md) file, or open it and copy the text into a chat, a README or a note.'],
+        'Word files are built for printing. Markdown is plain text with simple marks, so chat tools, README files and notes apps can read it.',
+        [
+          { q: 'What carries over?', a: 'Headings, paragraphs, bold and italic, links, lists and tables. Colours, fonts, page layout, headers and footers do not exist in Markdown and are dropped.' },
+          { q: 'What happens to pictures?', a: 'They are left out, so the Markdown stays small and easy to read. Copy any picture you need from the Word file itself.' },
+          { q: 'Does it work with old .doc files?', a: 'No. Only the newer .docx format works. Open an old .doc file in Word or LibreOffice and save it as .docx first.' },
+          PRIVATE_FAQ('file'),
+          BATCH_FAQ,
+        ],
+      );
+    case 'tokens':
+      return simple(
+        ['Paste or type your text in the box.', 'Read the estimated number of tokens, with the characters, words and lines below it.', 'Compare it with the limit of the AI model you use.'],
+        'AI models read text in pieces called tokens, and their limits and prices are counted in tokens. A token is roughly four characters, or three quarters of a word, of English.',
+        [
+          { q: 'How accurate is this?', a: 'It is an estimate. Each model splits text in its own way, so only that model\'s own tokenizer gives an exact count. For English prose the estimate is usually close; treat it as a guide, not a bill.' },
+          { q: 'How is the estimate worked out?', a: 'Two rules of thumb are used: one token for every 4 characters, and 3 tokens for every 4 words. The page shows both and headlines the middle of the two.' },
+          { q: 'Why can my language or code give more tokens?', a: 'Text in other languages, numbers, code and unusual symbols usually split into more tokens than the same amount of English, so the real count can be higher than the estimate.' },
+          { q: 'Is anything sent to a server?', a: 'No. It is all calculated in your browser as you type.' },
+        ],
+      );
     case 'data':
       return dataContent(t);
     case 'units':
@@ -368,7 +442,7 @@ export function unitFacts(setKey: string, from: string, to: string): UnitFacts {
 
 export function contentFor(t: ToolLink): PageContent {
   const c = baseContent(t);
-  const answer = c.answer || `${t.quick} ${t.kind === 'units' || ['bases', 'words', 'roman', 'case', 'colour', 'timezone', 'dates'].includes(t.kind) ? TAIL_CALC : TAIL_FILES}`;
+  const answer = c.answer || `${t.quick} ${t.kind === 'units' || ['bases', 'words', 'roman', 'case', 'colour', 'timezone', 'dates', 'tokens'].includes(t.kind) ? TAIL_CALC : TAIL_FILES}`;
   const unit = t.kind === 'units' && t.units ? unitFacts(t.units, UNIT_SETS[t.units]!.defaultFrom, UNIT_SETS[t.units]!.defaultTo) : undefined;
   return { ...c, answer, ...(unit ? { unit } : {}) };
 }
@@ -401,8 +475,60 @@ export function pairContent(pair: UnitPair): PageContent {
   };
 }
 
+/** The first step of the converters that take pasted text, worded once so it is translated once. */
+const PASTE_STEPS = ['Paste your text into the left box, or drop a file in. Try an example if you just want to see it work.', 'The result appears on the right as you type.', 'Press Download, or Copy to paste it somewhere else.'];
+
 function dataContent(t: ToolLink): PageContent {
-  const spec: Record<string, { why: string; steps?: string[]; extra: Faq[] }> = {
+  const spec: Record<string, { why: string; steps?: string[]; extra: Faq[]; noError?: boolean }> = {
+    'csv-to-markdown-table': { why: 'A Markdown table puts rows and columns into a chat message, a README or a note, where pasting a spreadsheet would lose the layout.', steps: PASTE_STEPS, extra: [
+      { q: 'Why are there dashes under the first row?', a: 'Markdown needs a separator row of dashes between the header and the body. The first row of your CSV becomes the header, and the columns are padded so the table also reads well as plain text.' },
+      { q: 'What happens to a cell with a pipe or a line break?', a: 'A pipe is escaped as \\| so it does not split the cell, and a line break becomes <br>, because a Markdown table row has to stay on one line.' },
+    ] },
+    'markdown-table-to-csv': { why: 'Chat tools and documentation write tables in Markdown. CSV lets you open the same table in Excel or Google Sheets.', steps: PASTE_STEPS, extra: [
+      { q: 'Can I paste text that has more than a table in it?', a: 'Yes. The tool finds the first table, a header row followed by a row of dashes, and ignores the text around it. Only that table is converted.' },
+      { q: 'Are alignment colons and escaped pipes handled?', a: 'Yes. Colons in the separator row, such as :---:, only set alignment and are dropped. An escaped pipe (\\|) stays inside its cell, and <br> becomes a line break inside a quoted CSV cell.' },
+    ] },
+    'json-to-jsonl': { why: 'JSON Lines has one JSON value on each line. Training data, batch jobs and log files use it because a program can read it one line at a time.', steps: PASTE_STEPS, extra: [
+      { q: 'What JSON works?', a: 'An array gives one line per item, such as [{"a":1},{"a":2}]. A single object gives one line. Each line is compact JSON with no extra spaces.' },
+      { q: 'What is the difference between JSON and JSONL?', a: 'A JSON file is one value, so a program has to read all of it before using any. A JSONL file is many small values, one per line, so it can be read, added to and split line by line. The data is the same.' },
+    ] },
+    'jsonl-to-json': { why: 'Many editors and tools expect one JSON value, not a file of separate lines. Gathering the lines into one array makes the data easy to open and share.', steps: PASTE_STEPS, extra: [
+      { q: 'What happens to blank lines?', a: 'They are skipped, and so is the byte order mark that some exports start with. Every other line must be valid JSON.' },
+      { q: 'Does the order stay the same?', a: 'Yes. The first line becomes the first item of the array, and the result is indented with two spaces so you can read it.' },
+    ] },
+    'csv-to-jsonl': { why: 'Datasets for fine-tuning and batch jobs are often kept in a spreadsheet but have to be uploaded as JSON Lines, one record per line.', steps: PASTE_STEPS, extra: [
+      { q: 'How do the columns become keys?', a: 'The first row names the keys. Every other row becomes one line with those keys, and plain numbers and true or false become real JSON values.' },
+      { q: 'Will leading zeros survive?', a: 'Values such as 01234 stay as text, so postcodes and IDs are not changed. Only plain numbers like 42 or 3.5 become numbers.' },
+    ] },
+    'srt-to-vtt': { why: 'SRT is the common subtitle file. Web browsers and the HTML video player want WebVTT, so a web page needs the VTT version.', steps: PASTE_STEPS, extra: [
+      { q: 'What changes in the file?', a: 'A WEBVTT line is added at the top and the milliseconds are separated with a dot instead of a comma. The cue numbers, timings and text stay the same.' },
+      { q: 'Does it keep bold, italic and other tags?', a: 'Yes. Tags such as <i> and <b> are left in the text, because WebVTT understands them too.' },
+    ] },
+    'vtt-to-srt': { why: 'WebVTT is the web subtitle format. Many video editors, players and upload forms only accept SRT.', steps: PASTE_STEPS, extra: [
+      { q: 'What is removed from a VTT file?', a: 'The WEBVTT header, notes, style blocks, cue settings such as align:start, and tags such as <v Name> are removed. The cues are numbered from 1 and the times use a comma before the milliseconds.' },
+      { q: 'What about times without hours?', a: 'WebVTT may write 01:02.500 for a time under an hour. SRT always needs hours, so the tool writes 00:01:02,500.' },
+    ] },
+    'subtitles-to-text': { why: 'A transcript is easier to read, search and paste into a document or a chat when the numbers and timings are gone.', steps: PASTE_STEPS, extra: [
+      { q: 'What do I get?', a: 'Only the words, one subtitle after another, each on its own line. Numbers, timings, notes and tags are removed, and a subtitle that runs over two lines is joined into one.' },
+      { q: 'Does it work for both SRT and VTT?', a: 'Yes. The tool finds the timing lines itself, so you can paste either format without choosing.' },
+    ] },
+    'json-to-toml': { why: 'TOML is a settings format that is easy to read by hand. Python projects, Rust and many apps use it for configuration.', steps: PASTE_STEPS, extra: [
+      { q: 'Why does my JSON need to be an object?', a: 'A TOML file is a table of keys, so the top level must be an object such as {"name":"Quack"}. A top-level array or a single value cannot be written as TOML.' },
+      { q: 'What about null values?', a: 'TOML has no null, so a null in your data cannot be written. The page stops with a message naming the key, so you can replace it with a value or remove it.' },
+    ] },
+    'toml-to-json': { why: 'TOML settings are easy to write, but programs and APIs usually want JSON.', steps: PASTE_STEPS, extra: [
+      { q: 'Do tables and arrays of tables work?', a: 'Yes. A [table] section becomes a nested object and a [[table]] section becomes an array of objects.' },
+      { q: 'What happens to dates?', a: 'TOML has real date and time values and JSON does not, so they are written as text in the standard format.' },
+    ] },
+    'xml-to-csv': { why: 'Many exports and feeds are XML, but a spreadsheet needs rows and columns.', steps: PASTE_STEPS, extra: [
+      { q: 'Which part becomes the rows?', a: 'The first repeated tag, such as every <book> inside <books>. Each one becomes a row. If nothing repeats, the whole document becomes a single row.' },
+      { q: 'What happens to attributes and nested tags?', a: 'Attributes become columns with an @ in front, such as @id. Nested tags become dotted columns, such as address.city.' },
+    ] },
+    'clean-chat-text': { why: 'Chat tools write in Markdown, so pasting an answer into an email or a form leaves stars, hashes and backticks in the text. This turns it into plain text.', steps: PASTE_STEPS, noError: true, extra: [
+      { q: 'What is removed?', a: 'Heading marks, bold and italic stars, backticks, code fences, quote marks and horizontal rules are removed and the words stay. A link becomes its words followed by the address in brackets, and bullets become dashes.' },
+      { q: 'What else does it tidy?', a: 'Curly quotes and long dashes become plain ones, the ellipsis character becomes three dots, odd spaces become normal spaces, and invisible characters such as the zero-width space are removed. The joiners that some scripts and emoji need are kept.' },
+      { q: 'Does it change what my text says?', a: 'No. Only formatting marks and odd characters change. The words, numbers and line breaks stay. Read the result before you send it, because a star or underscore that was part of your own text can be taken for formatting.' },
+    ] },
     'csv-to-json': { why: 'CSV is a table in plain text. JSON is what websites and apps use to exchange data.', extra: [
       { q: 'How are the columns named?', a: 'The first row is used as the names of the keys. Empty headings become column1, column2 and so on.' },
       { q: 'Are numbers kept as numbers?', a: 'Plain numbers and true or false become real JSON values. Values like 01234 stay as text so leading zeros are not lost.' },
@@ -455,9 +581,9 @@ function dataContent(t: ToolLink): PageContent {
     ...BASE,
     steps: isEncoding
       ? ['Drop your text file onto the box.', 'Choose the encoding the file was written in and check the preview.', 'Press Convert.', 'Download the UTF-8 copy.']
-      : [`Paste your ${t.from!.toUpperCase()} into the left box, or drop a file in. Try an example if you just want to see it work.`, 'The result appears on the right as you type.', 'Press Download, or Copy to paste it somewhere else.'],
+      : info.steps ?? [`Paste your ${t.from!.toUpperCase()} into the left box, or drop a file in. Try an example if you just want to see it work.`, 'The result appears on the right as you type.', 'Press Download, or Copy to paste it somewhere else.'],
     about: info.why,
-    faqs: [...info.extra, PRIVATE_FAQ(isEncoding ? 'file' : 'data'), { q: 'What if my input has an error?', a: 'The page shows a message saying what is wrong, so you can fix it. Nothing is changed until the input is valid.' }],
+    faqs: [...info.extra, PRIVATE_FAQ(isEncoding ? 'file' : 'data'), ...(info.noError ? [] : [{ q: 'What if my input has an error?', a: 'The page shows a message saying what is wrong, so you can fix it. Nothing is changed until the input is valid.' }])],
   };
 }
 

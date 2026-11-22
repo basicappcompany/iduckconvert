@@ -74,7 +74,34 @@ export interface FfmpegRun {
 const extOf = (name: string): string => (/\.([a-z0-9]{1,5})$/i.exec(name)?.[1] ?? 'bin').toLowerCase();
 
 /** Run one conversion and return the output bytes. Cancelling stops the engine; the next run starts a fresh one. */
-export async function runFfmpeg({ file, args, before = [], outName, signal, onProgress: report }: FfmpegRun): Promise<Uint8Array> {
+export async function runFfmpeg(run: FfmpegRun): Promise<Uint8Array> {
+  return execute(run, async (ff) => {
+    const data = await ff.readFile(run.outName);
+    if (typeof data === 'string') throw new Error('Unexpected text output.');
+    // Copy out of the engine's memory so the file can be freed.
+    const copy = new Uint8Array(data);
+    await ff.deleteFile(run.outName).catch(() => undefined);
+    return copy;
+  });
+}
+
+/** For a run that writes numbered files (parts of a recording, frames of a video): every output whose name matches, in order. */
+export async function runFfmpegMany(run: FfmpegRun & { match: RegExp }): Promise<{ name: string; data: Uint8Array }[]> {
+  return execute(run, async (ff) => {
+    const names = (await ff.listDir('/')).filter((e) => !e.isDir && run.match.test(e.name)).map((e) => e.name).sort();
+    if (names.length === 0) throw new Error('The conversion produced no files. The file may be empty or too short.');
+    const out: { name: string; data: Uint8Array }[] = [];
+    for (const name of names) {
+      const data = await ff.readFile(name);
+      if (typeof data === 'string') throw new Error('Unexpected text output.');
+      out.push({ name, data: new Uint8Array(data) });
+      await ff.deleteFile(name).catch(() => undefined);
+    }
+    return out;
+  });
+}
+
+async function execute<T>({ file, args, before = [], outName, signal, onProgress: report }: FfmpegRun, collect: (ff: FFmpegInstance) => Promise<T>): Promise<T> {
   if (signal.aborted) throw new AbortError();
   report(0);
   const ff = await load();
@@ -95,14 +122,10 @@ export async function runFfmpeg({ file, args, before = [], outName, signal, onPr
     const code = await ff.exec([...before, '-i', inName, ...args, '-y', outName]);
     if (signal.aborted) throw new AbortError();
     if (code !== 0) throw new Error(friendlyError(tail));
-    const data = await ff.readFile(outName);
-    if (typeof data === 'string') throw new Error('Unexpected text output.');
+    const result = await collect(ff);
     report(1);
-    // Copy out of the engine's memory so the file can be freed.
-    const copy = new Uint8Array(data);
     await ff.deleteFile(inName).catch(() => undefined);
-    await ff.deleteFile(outName).catch(() => undefined);
-    return copy;
+    return result;
   } catch (error) {
     if (signal.aborted) throw new AbortError();
     throw error;

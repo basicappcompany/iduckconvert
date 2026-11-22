@@ -1,4 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
+import JSZip from 'jszip';
+import gifenc from 'gifenc';
+const { GIFEncoder } = gifenc;
 
 /** Run a converter on one file and give back the bytes of its first download. */
 async function convert(page: Page, path: string, file: { name: string; mimeType: string; buffer: Buffer }, button = 'Convert'): Promise<Buffer> {
@@ -138,6 +141,69 @@ test.describe('media converters (ffmpeg.wasm)', () => {
     expect(ascii(cut, 4, 8)).toBe('ftyp');
   });
 
+  test('Audio for transcription makes a small mono MP3 (and a WAV on request)', async ({ page }) => {
+    const out = await convert(page, '/audio-for-transcription/', { name: 'tone.wav', mimeType: 'audio/wav', buffer: wav() });
+    expect(ascii(out, 0, 3) === 'ID3' || (out[0] === 0xff && (out[1]! & 0xe0) === 0xe0)).toBe(true);
+    await page.getByLabel('File type').selectOption('wav');
+    await page.getByRole('button', { name: 'Convert', exact: true }).click();
+    // The new result replaces the old one. A WAV starts with RIFF and says one channel at 16,000 samples a second.
+    await expect(page.locator('a[download]').first()).toHaveAttribute('download', /\.wav$/, { timeout: 120_000 });
+    const href = (await page.locator('a[download]').first().getAttribute('href'))!;
+    const head = await page.evaluate(async (url) => Array.from(new Uint8Array(await (await fetch(url)).arrayBuffer()).slice(0, 44)), href);
+    expect(String.fromCharCode(...head.slice(0, 4))).toBe('RIFF');
+    expect(head[22]).toBe(1);
+    expect(head[24]! + head[25]! * 256).toBe(16000);
+  });
+
+  test('Split audio cuts a long recording into parts under the size limit', async ({ page }) => {
+    // About 11 minutes of 8 kHz sound is a 10.5 MB WAV. At 128 kbit/s a 10 MB part is about 10 minutes, so two parts come out.
+    const rate = 8000;
+    const n = rate * 660;
+    const big = Buffer.alloc(44 + n * 2);
+    big.write('RIFF', 0);
+    big.writeUInt32LE(36 + n * 2, 4);
+    big.write('WAVEfmt ', 8);
+    big.writeUInt32LE(16, 16);
+    big.writeUInt16LE(1, 20);
+    big.writeUInt16LE(1, 22);
+    big.writeUInt32LE(rate, 24);
+    big.writeUInt32LE(rate * 2, 28);
+    big.writeUInt16LE(2, 32);
+    big.writeUInt16LE(16, 34);
+    big.write('data', 36);
+    big.writeUInt32LE(n * 2, 40);
+    for (let i = 0; i < n; i++) big.writeInt16LE(Math.round(Math.sin((2 * Math.PI * 300 * i) / rate) * 9000), 44 + i * 2);
+    await page.goto('/split-audio/');
+    await page.waitForFunction(() => document.querySelector('astro-island[client="load"]:not([ssr])') !== null);
+    await page.locator('input[type=file]').first().setInputFiles({ name: 'lecture.wav', mimeType: 'audio/wav', buffer: big });
+    await page.getByLabel('Largest part').selectOption('10');
+    await page.getByLabel('Quality (bitrate)').selectOption('128');
+    await page.getByRole('button', { name: 'Convert', exact: true }).click();
+    await expect(page.getByRole('button', { name: /Download all \(2\) as ZIP/ })).toBeVisible({ timeout: 280_000 });
+    await expect(page.locator('a[download]').first()).toHaveAttribute('download', /^lecture-part-000\.mp3$/);
+  });
+
+  test('Video to frames gives numbered JPG pictures in a ZIP', async ({ page }) => {
+    // A three-second video made from a three-frame GIF, so this test does not depend on recording in the browser.
+    const encoder = GIFEncoder();
+    const palette = [[255, 210, 63], [20, 20, 20], [40, 120, 220]];
+    for (const colour of [0, 1, 2]) encoder.writeFrame(new Uint8Array(64 * 48).fill(colour), 64, 48, { palette, delay: 1000 });
+    encoder.finish();
+    const video = await convert(page, '/gif-to-mp4/', { name: 'three.gif', mimeType: 'image/gif', buffer: Buffer.from(encoder.bytes()) });
+    expect(ascii(video, 4, 8)).toBe('ftyp');
+    await page.goto('/video-to-frames/');
+    await page.waitForFunction(() => document.querySelector('astro-island[client="load"]:not([ssr])') !== null);
+    await page.locator('input[type=file]').first().setInputFiles({ name: 'clip.mp4', mimeType: 'video/mp4', buffer: video });
+    await page.getByLabel('Take a picture').selectOption('1');
+    await page.getByRole('button', { name: 'Convert', exact: true }).click();
+    await expect(page.getByRole('button', { name: /Download all \(\d+\) as ZIP/ })).toBeVisible({ timeout: 240_000 });
+    const first = page.locator('a[download]').first();
+    await expect(first).toHaveAttribute('download', /^clip-frame-0001\.jpg$/);
+    const href = (await first.getAttribute('href'))!;
+    const head = await page.evaluate(async (url) => Array.from(new Uint8Array(await (await fetch(url)).arrayBuffer()).slice(0, 3)), href);
+    expect(head).toEqual([0xff, 0xd8, 0xff]);
+  });
+
   test('a broken file gives a clear message, not a crash', async ({ page }) => {
     await page.goto('/mp3-to-wav/');
     await page.waitForFunction(() => document.querySelector('astro-island[client="load"]:not([ssr])') !== null);
@@ -155,6 +221,28 @@ test.describe('file converters', () => {
     const back = await convert(page, '/excel-to-csv/', { name: 'data.xlsx', mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', buffer: out });
     const text = back.toString('utf8').replace(/^﻿/, '');
     expect(text).toBe('zip,qty\r\n01234,5\r\n"a, b",7');
+  });
+
+  test('Excel to Markdown table writes an aligned table, with the pipe escaped', async ({ page }) => {
+    const xlsx = await convert(page, '/csv-to-excel/', { name: 'data.csv', mimeType: 'text/csv', buffer: Buffer.from('name,qty\nDuck | pond,5\nGoose,12\n') });
+    const md = await convert(page, '/excel-to-markdown-table/', { name: 'data.xlsx', mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', buffer: xlsx });
+    expect(md.toString('utf8')).toBe('| name         | qty |\n| ------------ | --- |\n| Duck \\| pond | 5   |\n| Goose        | 12  |\n');
+  });
+
+  test('Word to Markdown keeps a heading, bold text and a table', async ({ page }) => {
+    const zip = new JSZip();
+    zip.file('[Content_Types].xml', '<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/></Types>');
+    zip.file('_rels/.rels', '<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>');
+    zip.file('word/_rels/document.xml.rels', '<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>');
+    zip.file('word/styles.xml', '<?xml version="1.0" encoding="UTF-8"?><w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:style w:type="paragraph" w:styleId="Heading1"><w:name w:val="heading 1"/></w:style></w:styles>');
+    const cell = (t: string) => `<w:tc><w:p><w:r><w:t>${t}</w:t></w:r></w:p></w:tc>`;
+    zip.file('word/document.xml', `<?xml version="1.0" encoding="UTF-8"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body><w:p><w:pPr><w:pStyle w:val="Heading1"/></w:pPr><w:r><w:t>Duck report</w:t></w:r></w:p><w:p><w:r><w:t xml:space="preserve">Plain and </w:t></w:r><w:r><w:rPr><w:b/></w:rPr><w:t>bold</w:t></w:r></w:p><w:tbl><w:tr>${cell('Name')}${cell('Ducks')}</w:tr><w:tr>${cell('Pond')}${cell('12')}</w:tr></w:tbl></w:body></w:document>`);
+    const docx = Buffer.from(await zip.generateAsync({ type: 'uint8array' }));
+    const out = await convert(page, '/word-to-markdown/', { name: 'report.docx', mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', buffer: docx });
+    const text = out.toString('utf8');
+    expect(text).toContain('# Duck report');
+    expect(text).toContain('Plain and **bold**');
+    expect(text).toMatch(/\| Name\s+\| Ducks \|/);
   });
 
   test('TIFF to JPG makes a JPG', async ({ page }) => {
@@ -201,6 +289,51 @@ test.describe('text converters', () => {
     await page.getByLabel('CSV in').fill('name,age\nAsha,29');
     await expect(page.getByLabel('JSON out')).toHaveValue(/"name": "Asha"/);
     await expect(page.getByRole('button', { name: /Download \.json/ })).toBeEnabled();
+  });
+
+  test('CSV to Markdown table, and the table converts back', async ({ page }) => {
+    await page.goto('/csv-to-markdown-table/');
+    await page.waitForFunction(() => document.querySelector('astro-island[client="load"]:not([ssr])') !== null);
+    await page.getByLabel('CSV in').fill('name,city\nAsha,Pune');
+    await expect(page.getByLabel('Markdown table out')).toHaveValue('| name | city |\n| ---- | ---- |\n| Asha | Pune |');
+    await page.goto('/markdown-table-to-csv/');
+    await page.waitForFunction(() => document.querySelector('astro-island[client="load"]:not([ssr])') !== null);
+    await page.getByLabel('Markdown table in').fill('| name | city |\n| --- | --- |\n| Asha | Pune |');
+    await expect(page.getByLabel('CSV out')).toHaveValue('name,city\nAsha,Pune'); // a text box turns CRLF into LF
+  });
+
+  test('SRT to VTT and VTT to SRT', async ({ page }) => {
+    await page.goto('/srt-to-vtt/');
+    await page.waitForFunction(() => document.querySelector('astro-island[client="load"]:not([ssr])') !== null);
+    await page.getByRole('button', { name: 'Try an example' }).click();
+    await expect(page.getByLabel('VTT out')).toHaveValue(/^WEBVTT\n\n00:00:01\.000 --> 00:00:03\.500\nHello, and welcome\./);
+    await page.goto('/vtt-to-srt/');
+    await page.waitForFunction(() => document.querySelector('astro-island[client="load"]:not([ssr])') !== null);
+    await page.getByRole('button', { name: 'Try an example' }).click();
+    await expect(page.getByLabel('SRT out')).toHaveValue(/^1\n00:00:01,000 --> 00:00:03,500\nHello, and welcome\./);
+  });
+
+  test('JSON to TOML loads its library and a null is reported by name', async ({ page }) => {
+    await page.goto('/json-to-toml/');
+    await page.waitForFunction(() => document.querySelector('astro-island[client="load"]:not([ssr])') !== null);
+    await page.getByLabel('JSON in').fill('{"title":"Quack","owner":{"name":"Asha"}}');
+    await expect(page.getByLabel('TOML out')).toHaveValue(/title = "Quack"[\s\S]*\[owner\][\s\S]*name = "Asha"/);
+    await page.getByLabel('JSON in').fill('{"a":{"b":null}}');
+    await expect(page.getByRole('alert')).toContainText('"a.b"');
+  });
+
+  test('JSON to JSONL, XML to CSV and Clean AI text work with the example', async ({ page }) => {
+    for (const [slug, input, output, pattern] of [
+      ['json-to-jsonl', 'JSON in', 'JSONL out', /^\{"prompt":"Say hi","completion":"Hi!"\}\n\{"prompt":"Say bye"/],
+      ['xml-to-csv', 'XML in', 'CSV out', /^@id,title,year\n1,Quack,2021/],
+      ['clean-chat-text', 'text in', 'clean text out', /^Plan\n\nHere is the plan - it's simple:\n\n- Read the guide \(https:\/\/example\.com\)\n- Use pnpm test$/],
+    ] as const) {
+      await page.goto(`/${slug}/`);
+      await page.waitForFunction(() => document.querySelector('astro-island[client="load"]:not([ssr])') !== null);
+      await page.getByRole('button', { name: 'Try an example' }).click();
+      await expect(page.getByLabel(input)).not.toHaveValue('');
+      await expect(page.getByLabel(output)).toHaveValue(pattern);
+    }
   });
 
   test('bad JSON shows a message', async ({ page }) => {
@@ -269,6 +402,15 @@ test.describe('calculators', () => {
     await page.getByLabel('Your text').fill('hello big world');
     await page.getByRole('button', { name: 'snake_case' }).click();
     await expect(page.locator('#c-out')).toHaveValue('hello_big_world');
+  });
+
+  test('token counter estimates tokens and says it is an estimate', async ({ page }) => {
+    await page.goto('/token-counter/');
+    await page.waitForFunction(() => document.querySelector('astro-island[client="load"]:not([ssr])') !== null);
+    await page.locator('#tk-in').fill('The quick brown fox jumps over the lazy dog');
+    await expect(page.locator('#tk-out')).toHaveText('About 12 tokens');
+    await expect(page.getByText('By characters: 11. By words: 12.')).toBeVisible();
+    await expect(page.getByText(/This is an estimate/)).toBeVisible();
   });
 
   test('time zone converter shows next-day rows', async ({ page }) => {

@@ -5,6 +5,7 @@ import { copyText } from '../lib/clipboard';
 import { fill, useOpts } from '../i18n/options';
 import { useLang } from '../i18n/ui';
 import { numberToWordsIn } from '../convert/words-i18n';
+import { estimateTokens } from '../convert/tokens';
 import { useNames } from '../i18n/names';
 import { UNIT_SETS, convertUnit, formatNumber } from '../convert/units';
 import { CASES, formatBase, fromRoman, parseBase, parseHex, parseHsl, parseRgb, rgbToHsl, toHex, toRoman, type Rgb, type WordStyle } from '../convert/numbers';
@@ -236,6 +237,27 @@ export function CaseTool() {
         <CopyButton text={out} />
         <p class="self-center text-sm text-muted">{fill(o.countLine, { chars: text.length, words: text.trim() ? text.trim().split(/\s+/).length : 0 })}</p>
       </div>
+    </div>
+  );
+}
+
+// ---------- token counter ----------
+export function TokenTool() {
+  const o = useOpts();
+  const lang = useLang();
+  const [text, setText] = useState('');
+  const n = estimateTokens(text);
+  return (
+    <div class="grid gap-4">
+      <Field id="tk-in" label={o.yourText}>
+        <textarea id="tk-in" class="input min-h-48" value={text} onInput={(e) => setText(e.currentTarget.value)} placeholder={o.typeHere} />
+      </Field>
+      <div class="card grid gap-1 p-4" role="status" aria-live="polite">
+        <p class="text-2xl font-extrabold" id="tk-out">{fill(o.tokensEstimate, { n: n.tokens.toLocaleString(lang) })}</p>
+        <p class="text-sm">{fill(o.tokensRange, { a: n.byChars, b: n.byWords })}</p>
+        <p class="text-sm text-muted">{fill(o.tokensStats, { chars: n.chars, words: n.words, lines: n.lines })}</p>
+      </div>
+      <p class="text-sm text-muted">{o.tokensNote}</p>
     </div>
   );
 }

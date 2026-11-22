@@ -5,7 +5,7 @@ Free converters that run in the browser: audio, video, spreadsheets and data, un
 ## Stack (exact pins in package.json)
 - Fork of iDuckImg's setup: Astro 7 (static), Preact 11 islands only for tool UIs, Tailwind 4 via `@tailwindcss/vite`, TypeScript 6.0.3 (strict), Vitest, Playwright (installed Chrome), pnpm, Cloudflare Pages.
 - Audio and video: `@ffmpeg/ffmpeg` 0.12.15 bundled; the engine (`@ffmpeg/core` 0.12.10, single-thread, about 30 MB) is fetched at runtime from jsDelivr by `src/tools/ffmpeg.ts`. Single-thread means no COOP/COEP headers are needed. Suggested limits 500 MB desktop, 100 MB phone, hard stop 1.9 GB.
-- Spreadsheets: SheetJS (`xlsx` from cdn.sheetjs.com, not the stale npm package). Data: js-yaml, marked, turndown, fast-xml-parser. TIFF: utif2. GIF: gifenc.
+- Spreadsheets: SheetJS (`xlsx` from cdn.sheetjs.com, not the stale npm package). Data: js-yaml, marked, turndown, fast-xml-parser, smol-toml (TOML; imported only when a TOML page converts), mammoth (Word .docx to HTML for Word to Markdown; imported only when a .docx is converted). TIFF: utif2. GIF: gifenc.
 
 ## Workflow
 - Never push to main (the only exception was the first commit on the empty repo): branch, PR, fix CI on the same PR, merge when green.
@@ -16,7 +16,7 @@ Free converters that run in the browser: audio, video, spreadsheets and data, un
 - `src/lib/tools.ts`: the registry. Home page, sidebar, Ctrl K, sitemap, "More in" and the helper all read it. A `link` tool lives on a sister site (card only, no page). Do not rebuild what iDuckPDF or iDuckIMG has: link to it.
 - `src/pages/[slug].astro` renders every converter; it must list each island kind explicitly (Astro cannot hydrate a component picked from a lookup table). New kind = new line there.
 - `src/lib/content.ts`: steps, 4 to 6 FAQs and the explainer per page. `src/lib/guides.ts`: the guides (a unit test checks structure and length).
-- `src/convert/*`: pure conversion logic (data, units, numbers, time) with unit tests. `src/tools/*`: the islands and the ffmpeg wrapper.
+- `src/convert/*`: pure conversion logic (data, textdata, units, numbers, time) with unit tests. `textdata.ts` holds the text converters for AI-era data (Markdown tables, JSON Lines, SRT/VTT, TOML, XML to CSV, Clean AI text) with their page specs (`NEW_DATA_SPECS`); the paste-or-drop island reads `ALL_DATA_SPECS` and `runAnyDataConversion`. `docx.ts` (Word to Markdown, mammoth plus Turndown) and `tokens.ts` (the token estimate: 1 per 4 characters and 3 per 4 words, always labelled as an estimate). `src/tools/*`: the islands and the ffmpeg wrapper; `media.ts` holds the ffmpeg arguments, including the presets for audio for transcription (16 kHz mono), split audio (fixed MP3 bitrate so each part's size is predictable) and video to frames; `runFfmpegMany` returns the numbered files of such a run.
 - `src/engine`, `FileDropzone`, `DownloadPanel`, `SimpleToolShell`: the shared file flow, inherited from iDuckImg (input files, options, job, outputs, ZIP).
 - Design system: neo-brutalist duck theme from iDuckImg/iDuckPDF (`src/styles/global.css`, `src/lib/theme.ts`; dark theme colour #121212). Use the shared classes (`card`, `btn`, `pill`, `chip`, `prose`...).
 
