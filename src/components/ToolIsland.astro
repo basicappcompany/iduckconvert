@@ -4,9 +4,9 @@
  * only the run button's label (and, inside the islands, the shared control text) changes with the language.
  */
 import MediaTool from '../tools/MediaTool';
-import { ExcelTool, TiffTool, WebpGifTool } from '../tools/FileTools';
+import { DocxTool, ExcelTool, TiffTool, WebpGifTool } from '../tools/FileTools';
 import { DataTool, EncodingTool } from '../tools/TextTools';
-import { BasesTool, CaseTool, ColourTool, DatesTool, RomanTool, TimeZoneTool, UnitsTool, WordsTool } from '../tools/Calculators';
+import { BasesTool, CaseTool, ColourTool, DatesTool, RomanTool, TimeZoneTool, TokenTool, UnitsTool, WordsTool } from '../tools/Calculators';
 import type { ToolLink } from '../lib/tools';
 import type { UnitPair } from '../lib/unit-pages';
 
@@ -21,10 +21,11 @@ const from = tool.from ?? '';
 const to = tool.to ?? '';
 ---
 
-{(k === 'audio' || k === 'video' || k === 'gif-video' || k === 'video-gif' || k === 'video-compress' || k === 'video-trim') && (
+{(k === 'audio' || k === 'video' || k === 'gif-video' || k === 'video-gif' || k === 'video-compress' || k === 'video-trim' || k === 'audio-speech' || k === 'audio-split' || k === 'video-frames') && (
   <MediaTool client:load kind={k} from={from} to={to} runLabel={runLabel} />
 )}
-{k === 'excel' && <ExcelTool client:load to={to as 'xlsx' | 'csv'} runLabel={runLabel} />}
+{k === 'excel' && <ExcelTool client:load to={to as 'xlsx' | 'csv' | 'md'} runLabel={runLabel} />}
+{k === 'docx' && <DocxTool client:load runLabel={runLabel} />}
 {k === 'tiff' && <TiffTool client:load runLabel={runLabel} />}
 {k === 'webp-gif' && <WebpGifTool client:load runLabel={runLabel} />}
 {k === 'data' && tool.slug !== 'text-encoding-fixer' && <DataTool client:load slug={tool.slug} />}
@@ -37,3 +38,4 @@ const to = tool.to ?? '';
 {k === 'colour' && <ColourTool client:load />}
 {k === 'timezone' && <TimeZoneTool client:load />}
 {k === 'dates' && <DatesTool client:load />}
+{k === 'tokens' && <TokenTool client:load />}

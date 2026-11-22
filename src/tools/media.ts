@@ -15,9 +15,18 @@ export interface MediaOptions {
   duration: number;
   /** Seconds. Trim stops here; 0 means to the end. */
   end: number;
+  /** Split audio: the largest size of one part, in MB. */
+  partMb: number;
+  /** Video to frames: take one picture every this many seconds. */
+  frameEvery: number;
+  /** Audio for transcription: a small MP3 or a WAV file. */
+  speechFormat: 'mp3' | 'wav';
 }
 
-export const DEFAULT_MEDIA_OPTIONS: MediaOptions = { bitrate: 192, quality: 'medium', width: 480, fps: 12, start: 0, duration: 6, end: 0 };
+/** The most pictures "Video to frames" saves, so a long video cannot fill the browser's memory. */
+export const MAX_FRAMES = 200;
+
+export const DEFAULT_MEDIA_OPTIONS: MediaOptions = { bitrate: 192, quality: 'medium', width: 480, fps: 12, start: 0, duration: 6, end: 0, partMb: 24, frameEvery: 5, speechFormat: 'mp3' };
 
 export interface MediaSpec {
   ext: string;
@@ -77,10 +86,44 @@ export const gifArgs = (o: MediaOptions): { before: string[]; args: string[] } =
   ],
 });
 
+/**
+ * Seconds per part so that a part at a fixed MP3 bitrate stays under `partMb`. A constant bitrate makes the size
+ * predictable without reading the file first; 4 percent is kept back for headers and the last frame.
+ */
+export function segmentSeconds(partMb: number, kbps: number): number {
+  return Math.max(10, Math.floor((partMb * 1024 * 1024 * 0.96 * 8) / (kbps * 1000)));
+}
+
+/** Several output files from one run: ffmpeg writes numbered files and the tool collects every one that matches. */
+export interface ManyOutputs {
+  /** The ffmpeg output name, with the number pattern. */
+  pattern: string;
+  match: RegExp;
+}
+
 const CRF: Record<MediaOptions['quality'], number> = { high: 22, medium: 28, small: 34 };
 
-export function jobFor(kind: ToolKind, to: string, o: MediaOptions): { before: string[]; args: string[]; spec: MediaSpec } {
+export function jobFor(kind: ToolKind, to: string, o: MediaOptions): { before: string[]; args: string[]; spec: MediaSpec; many?: ManyOutputs } {
   switch (kind) {
+    case 'audio-speech':
+      // Speech to text works best from one channel at 16 kHz, which is also what Whisper resamples to.
+      return o.speechFormat === 'wav'
+        ? { before: [], args: ['-vn', '-ac', '1', '-ar', '16000', '-c:a', 'pcm_s16le'], spec: AUDIO_TARGETS['wav']! }
+        : { before: [], args: ['-vn', '-ac', '1', '-ar', '16000', '-c:a', 'libmp3lame', '-b:a', '32k'], spec: AUDIO_TARGETS['mp3']! };
+    case 'audio-split':
+      return {
+        before: [],
+        args: ['-vn', '-c:a', 'libmp3lame', '-b:a', `${o.bitrate}k`, '-f', 'segment', '-segment_time', String(segmentSeconds(o.partMb, o.bitrate)), '-reset_timestamps', '1'],
+        spec: AUDIO_TARGETS['mp3']!,
+        many: { pattern: 'part_%03d.mp3', match: /^part_\d{3}\.mp3$/ },
+      };
+    case 'video-frames':
+      return {
+        before: [],
+        args: ['-vf', `fps=1/${Math.max(0.1, o.frameEvery)}${o.width > 0 ? `,scale='min(${o.width},iw)':-2` : ''}`, '-frames:v', String(MAX_FRAMES), '-q:v', '3'],
+        spec: { ext: 'jpg', mime: 'image/jpeg' },
+        many: { pattern: 'frame_%04d.jpg', match: /^frame_\d{4}\.jpg$/ },
+      };
     case 'audio':
       return { before: [], args: audioArgs(to, o), spec: AUDIO_TARGETS[to]! };
     case 'video':
@@ -109,6 +152,8 @@ const VIDEO_EXT = ['.mp4', '.m4v', '.mov', '.mkv', '.webm', '.avi', '.wmv', '.fl
 
 /** What the drop zone accepts for a converter's source format. Browsers label some files oddly, so extensions come first. */
 export function acceptsFor(kind: ToolKind, from: string): string[] {
+  if (kind === 'audio-speech' || kind === 'audio-split') return [...AUDIO_EXT, ...VIDEO_EXT, 'audio/*', 'video/*'];
+  if (kind === 'video-frames') return [...VIDEO_EXT, 'video/*'];
   if (from === 'video' || kind === 'video-compress' || kind === 'video-trim') return [...VIDEO_EXT, 'video/*', ...(kind === 'audio' ? [...AUDIO_EXT, 'audio/*'] : [])];
   if (kind === 'video-gif') return [...VIDEO_EXT, 'video/*'];
   const map: Record<string, string[]> = {

@@ -6,6 +6,7 @@ import type { OutputFile, ToolDefinition } from '../engine/types';
 import { checkSize, withExtension } from '../lib/files';
 import { fill, useOpts } from '../i18n/options';
 import { parseCsv, stringifyCsv } from '../convert/data';
+import { csvToMarkdownTable } from '../convert/textdata';
 
 // ---------- CSV <-> Excel ----------
 interface ExcelOptions {
@@ -17,7 +18,7 @@ export function cellValue(text: string): string | number {
   return /^-?(0|[1-9]\d*)(\.\d+)?$/.test(text) && text.length < 16 ? Number(text) : text;
 }
 
-const excelTool = (to: string): ToolDefinition<ExcelOptions> => ({
+const excelTool = (to: 'xlsx' | 'csv' | 'md'): ToolDefinition<ExcelOptions> => ({
   id: `excel-${to}`,
   accepts: to === 'xlsx' ? ['.csv', '.tsv', '.txt', 'text/csv'] : ['.xlsx', '.xls', '.xlsm', '.ods'],
   defaultOptions: { bom: true },
@@ -36,6 +37,18 @@ const excelTool = (to: string): ToolDefinition<ExcelOptions> => ({
     }
     const book = XLSX.read(new Uint8Array(await file.arrayBuffer()), { type: 'array', cellDates: true });
     const base = withExtension(file.name, 'csv').replace(/\.csv$/, '');
+    if (to === 'md') {
+      const tables = book.SheetNames.flatMap((sheetName) => {
+        const rows = XLSX.utils.sheet_to_json<unknown[]>(book.Sheets[sheetName]!, { header: 1, raw: false, blankrows: false, defval: '' });
+        return rows.length === 0 ? [] : [{ sheetName, markdown: csvToMarkdownTable(stringifyCsv(rows)) }];
+      });
+      if (tables.length === 0) throw new Error('There are no rows to turn into a table.');
+      const stem = withExtension(file.name, 'md').replace(/\.md$/, '');
+      return tables.map((t) => ({
+        name: tables.length === 1 ? `${stem}.md` : `${stem}-${t.sheetName.replace(/[\\/:*?"<>|]/g, '_')}.md`,
+        blob: new Blob([t.markdown, '\n'], { type: 'text/markdown;charset=utf-8' }),
+      }));
+    }
     const outputs: OutputFile[] = book.SheetNames.map((sheetName) => {
       const rows = XLSX.utils.sheet_to_json<unknown[]>(book.Sheets[sheetName]!, { header: 1, raw: false, blankrows: false, defval: '' });
       const csv = stringifyCsv(rows);
@@ -46,14 +59,14 @@ const excelTool = (to: string): ToolDefinition<ExcelOptions> => ({
   },
 });
 
-export function ExcelTool({ to, runLabel }: { to: 'xlsx' | 'csv'; runLabel: string }) {
+export function ExcelTool({ to, runLabel }: { to: 'xlsx' | 'csv' | 'md'; runLabel: string }) {
   const o = useOpts();
   const tool = useMemo(() => excelTool(to), [to]);
   const [bom, setBom] = useState(true);
   return (
     <SimpleToolShell tool={tool} options={{ bom }} canRun runLabel={runLabel}>
       {() =>
-        to === 'csv' ? (
+        to === 'md' ? null : to === 'csv' ? (
           <OptionsPanel title={o.options}>
             <label class="flex items-center gap-2 text-sm font-bold">
               <input type="checkbox" checked={bom} onChange={(e) => setBom(e.currentTarget.checked)} />
@@ -181,6 +194,28 @@ export function WebpGifTool({ runLabel }: { runLabel: string }) {
           <p class="text-sm text-muted">{o.webpNote}</p>
         </OptionsPanel>
       )}
+    </SimpleToolShell>
+  );
+}
+
+// ---------- Word -> Markdown ----------
+const docxTool: ToolDefinition<Record<string, never>> = {
+  id: 'word-to-markdown',
+  accepts: ['.docx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+  defaultOptions: {},
+  run: async (file, _options, ctx) => {
+    checkSize(file, 50, 'document');
+    ctx.onProgress(0.2);
+    const { docxToMarkdown } = await import('../convert/docx');
+    const { markdown } = await docxToMarkdown({ arrayBuffer: await file.arrayBuffer() });
+    return [{ name: withExtension(file.name, 'md'), blob: new Blob([markdown], { type: 'text/markdown;charset=utf-8' }) }];
+  },
+};
+
+export function DocxTool({ runLabel }: { runLabel: string }) {
+  return (
+    <SimpleToolShell tool={docxTool} options={{}} canRun runLabel={runLabel}>
+      {() => null}
     </SimpleToolShell>
   );
 }

@@ -24,6 +24,11 @@ export type ToolKind =
   | 'gif-video'
   | 'video-compress'
   | 'video-trim'
+  | 'audio-speech'
+  | 'audio-split'
+  | 'video-frames'
+  | 'docx'
+  | 'tokens'
   | 'data'
   | 'excel'
   | 'tiff'
@@ -190,6 +195,30 @@ export const TOOLS: readonly ToolLink[] = [
     quick: 'To turn an MP4 into an MP3, drop the video in and press Convert. Only the sound is kept, and nothing is uploaded.',
     keywords: 'mp4 mp3 extract audio video to audio youtube music',
   },
+  {
+    slug: 'audio-for-transcription',
+    name: 'Audio for transcription',
+    summary: 'Make a small mono 16 kHz file for Whisper and other transcribers.',
+    group: 'Audio',
+    emoji: '🎙️',
+    kind: 'audio-speech',
+    from: 'audio',
+    to: 'mp3',
+    quick: 'To prepare a recording for transcription, drop an audio or video file in and press Convert. You get a small mono file at 16 kHz, the setting speech-to-text tools such as Whisper work best with.',
+    keywords: 'transcribe transcription whisper speech to text mono 16khz meeting interview recording ai small upload',
+  },
+  {
+    slug: 'split-audio',
+    name: 'Split audio for upload',
+    summary: 'Cut a long recording into parts that stay under a size limit.',
+    group: 'Audio',
+    emoji: '🍰',
+    kind: 'audio-split',
+    from: 'audio',
+    to: 'mp3',
+    quick: 'To split a long recording, drop the audio or video in, choose the largest size for a part, and press Convert. You get numbered MP3 parts that each stay under that size, for upload limits like 25 MB.',
+    keywords: 'split cut chunks parts 25mb limit whisper upload transcription long recording podcast lecture',
+  },
   // Video
   ...VIDEO_PAIRS.map(videoTool),
   {
@@ -239,6 +268,18 @@ export const TOOLS: readonly ToolLink[] = [
     to: 'mp4',
     quick: 'To trim a video, drop it in, type the start and end time, then press Trim. The cut clip is saved as an MP4 in your browser.',
     keywords: 'cut clip shorten crop start end seconds',
+  },
+  {
+    slug: 'video-to-frames',
+    name: 'Video to frames',
+    summary: 'Save still pictures from a video as JPG files.',
+    group: 'Video',
+    emoji: '🖼️',
+    kind: 'video-frames',
+    from: 'video',
+    to: 'jpg',
+    quick: 'To get pictures from a video, drop it in, choose how often to take a frame, and press Convert. You get numbered JPG files, up to 200 of them, to download one by one or as a ZIP.',
+    keywords: 'frames screenshots stills images jpg extract thumbnails keyframes video to images ai vision',
   },
   // Images: only what iDuckIMG does not have; the rest link out (each to its own iDuckIMG page; PDF conversions stay with iDuckPDF).
   link('heic-to-jpg', 'HEIC to JPG', 'iPhone photos to JPG. Lives on iDuckIMG.', 'iDuckIMG', `${IMG}/heic-to-jpg/`),
@@ -304,6 +345,8 @@ export const TOOLS: readonly ToolLink[] = [
   { slug: 'json-to-toml', name: 'JSON to TOML', summary: 'Turn JSON into TOML settings.', group: 'Data & documents', emoji: '⚙️', kind: 'data', from: 'json', to: 'toml', quick: 'To convert JSON to TOML, paste a JSON object or drop the file in. Keys become TOML keys and nested objects become tables, easy to read and edit by hand.', keywords: 'json toml config settings pyproject cargo convert' },
   { slug: 'toml-to-json', name: 'TOML to JSON', summary: 'Turn TOML settings into JSON.', group: 'Data & documents', emoji: '🛠️', kind: 'data', from: 'toml', to: 'json', quick: 'To convert TOML to JSON, paste your TOML or drop the file in. Tables become nested objects and arrays stay arrays, as indented JSON that programs and APIs can read.', keywords: 'toml json config settings pyproject cargo convert' },
   { slug: 'xml-to-csv', name: 'XML to CSV', summary: 'Turn the repeated records in an XML file into CSV rows.', group: 'Data & documents', emoji: '🗂️', kind: 'data', from: 'xml', to: 'csv', quick: 'To convert XML to CSV, paste your XML or drop the file in. The repeated tag becomes the rows, and its attributes and child tags become columns you can open in Excel.', keywords: 'xml csv spreadsheet excel records feed export convert' },
+  { slug: 'excel-to-markdown-table', name: 'Excel to Markdown table', summary: 'Turn an Excel sheet into a Markdown table.', group: 'Data & documents', emoji: '🧾', kind: 'excel', from: 'xlsx', to: 'md', quick: 'To turn an Excel sheet into a Markdown table, drop your .xlsx or .xls file in and press Convert. Each sheet becomes its own .md file with a table to paste into a chat, a README or a note.', keywords: 'excel xlsx xls markdown table md spreadsheet chatgpt copy paste sheets' },
+  { slug: 'word-to-markdown', name: 'Word to Markdown', summary: 'Turn a Word document into clean Markdown.', group: 'Data & documents', emoji: '📄', kind: 'docx', from: 'docx', to: 'md', quick: 'To convert Word to Markdown, drop your .docx file in and press Convert. Headings, lists, bold text, links and tables carry over as plain Markdown you can paste into a chat or a README.', keywords: 'word docx doc markdown md convert document ai chatgpt readme' },
   // Units
   unitTool('length-converter', 'Length', 'length', 'Metres, feet, inches, miles, kilometres and more.', 'meter metre feet foot inch mile km cm mm yard', '📏'),
   unitTool('weight-converter', 'Weight', 'weight', 'Kilograms, pounds, ounces, grams, tonnes and more.', 'kg lb pound ounce gram tonne mass', '⚖️'),
@@ -323,6 +366,7 @@ export const TOOLS: readonly ToolLink[] = [
   { slug: 'text-case-converter', name: 'Text case', summary: 'UPPER, lower, Title, camelCase, snake_case and more.', group: 'Numbers & text', emoji: '🔠', kind: 'case', quick: 'To change text case, paste your text and press the case you want, such as upper, lower, Title or camelCase. Copy the result with one click.', keywords: 'uppercase lowercase title case camel snake kebab sentence' },
   { slug: 'color-code-converter', name: 'Colour codes', summary: 'HEX, RGB and HSL, with a live swatch.', group: 'Numbers & text', emoji: '🎨', kind: 'colour', quick: 'To convert a colour code, type a HEX, RGB or HSL value in any box. The other two update and you see the colour.', keywords: 'color colour hex rgb hsl picker code css' },
   { slug: 'clean-chat-text', name: 'Clean AI text', summary: 'Remove Markdown and stray characters from copied chat answers.', group: 'Numbers & text', emoji: '🧼', kind: 'data', from: 'text', to: 'txt', quick: 'To clean text copied from an AI chat, paste it in. The Markdown stars, hashes and backticks are removed, odd characters are tidied, and you get plain text for an email or document.', keywords: 'clean ai text chatgpt claude gemini remove markdown formatting asterisks hashtags plain text paste' },
+  { slug: 'token-counter', name: 'Token counter', summary: 'Estimate how many tokens your prompt uses.', group: 'Numbers & text', emoji: '🪙', kind: 'tokens', quick: 'To estimate the tokens in a prompt, paste your text. You see its characters and words and an estimated token count, based on about 4 characters or three quarters of a word per token in English.', keywords: 'token counter tokens prompt chatgpt claude gpt llm context window length limit characters words estimate' },
   // Time & money
   { slug: 'time-zone-converter', name: 'Time zone converter', summary: 'Compare a time across cities and zones.', group: 'Time & money', emoji: '🕐', kind: 'timezone', quick: 'To convert a time between zones, pick the time and the city you start from, then add the cities you want to compare. Daylight saving is handled for you.', keywords: 'timezone time zone ist utc gmt est pst convert meeting world clock' },
   { slug: 'date-format-converter', name: 'Date format converter', summary: 'Show one date in every common format.', group: 'Time & money', emoji: '📅', kind: 'dates', quick: 'To convert a date format, pick a date and see it written as DD/MM/YYYY, MM/DD/YYYY, ISO and more. Copy the one you need.', keywords: 'date format dd/mm/yyyy mm/dd/yyyy iso 8601 convert' },

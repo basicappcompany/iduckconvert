@@ -97,7 +97,7 @@ describe('tool data is complete', () => {
     for (const t of PAGE_TOOLS.filter((x) => x.kind === 'data' && x.slug !== 'text-encoding-fixer')) expect(ALL_DATA_SPECS[t.slug], t.slug).toBeTruthy();
   });
   it('every audio and video page maps to ffmpeg arguments and accepted files', () => {
-    for (const t of PAGE_TOOLS.filter((x) => ['audio', 'video', 'video-gif', 'gif-video', 'video-compress', 'video-trim'].includes(x.kind))) {
+    for (const t of PAGE_TOOLS.filter((x) => ['audio', 'video', 'video-gif', 'gif-video', 'video-compress', 'video-trim', 'audio-speech', 'audio-split', 'video-frames'].includes(x.kind))) {
       const job = jobFor(t.kind, t.to!, DEFAULT_MEDIA_OPTIONS);
       expect(job.args.length, t.slug).toBeGreaterThan(0);
       expect(acceptsFor(t.kind, t.from!).length, t.slug).toBeGreaterThan(0);
