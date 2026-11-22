@@ -49,7 +49,7 @@ test.describe('pages added for search and answer engines', () => {
     expect(llms).toContain('/cm-to-inches/');
     expect(llms).not.toContain('iduckimg.com/heic-to-jpg');
     await page.goto('/');
-    await expect(page.getByRole('heading', { name: /All 75 converters here/ })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /All 80 converters here/ })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'On our sister sites' })).toBeVisible();
   });
 

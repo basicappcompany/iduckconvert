@@ -204,6 +204,84 @@ test.describe('media converters (ffmpeg.wasm)', () => {
     expect(head).toEqual([0xff, 0xd8, 0xff]);
   });
 
+  /** A three-second 64 by 48 video at 10 frames a second, made from a GIF, so these tests do not depend on recording in the browser. */
+  async function gifVideo(page: Page): Promise<Buffer> {
+    const encoder = GIFEncoder();
+    const palette = [[255, 210, 63], [20, 20, 20], [40, 120, 220]];
+    for (let i = 0; i < 30; i++) encoder.writeFrame(new Uint8Array(64 * 48).fill(i % 3), 64, 48, { palette, delay: 100 });
+    encoder.finish();
+    return convert(page, '/gif-to-mp4/', { name: 'three.gif', mimeType: 'image/gif', buffer: Buffer.from(encoder.bytes()) });
+  }
+
+  /** What the browser itself reads from a video: its size and length. */
+  async function probe(page: Page, bytes: Buffer): Promise<{ w: number; h: number; d: number }> {
+    return page.evaluate(async (b64) => {
+      const bin = atob(b64);
+      const data = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) data[i] = bin.charCodeAt(i);
+      const video = document.createElement('video');
+      video.muted = true;
+      video.src = URL.createObjectURL(new Blob([data], { type: 'video/mp4' }));
+      await new Promise<void>((resolve, reject) => {
+        video.onloadedmetadata = () => resolve();
+        video.onerror = () => reject(new Error('the browser could not read the video'));
+      });
+      return { w: video.videoWidth, h: video.videoHeight, d: video.duration };
+    }, bytes.toString('base64'));
+  }
+
+  const downloadName = async (page: Page): Promise<string> => (await page.locator('a[download]').first().getAttribute('download'))!;
+
+  test('Trim audio cuts part of a recording and Change audio volume saves an MP3', async ({ page }) => {
+    await page.goto('/trim-audio/');
+    await page.waitForFunction(() => document.querySelector('astro-island[client="load"]:not([ssr])') !== null);
+    await page.locator('input[type=file]').first().setInputFiles({ name: 'tone.wav', mimeType: 'audio/wav', buffer: wav() });
+    await page.locator('#t-start').fill('0.25');
+    await page.locator('#t-end').fill('0.75');
+    await page.getByRole('button', { name: 'Trim', exact: true }).click();
+    await expect(page.locator('a[download]').first()).toBeVisible({ timeout: 120_000 });
+    expect(await downloadName(page)).toBe('tone-trimmed.mp3');
+    const cut = await page.evaluate(async (url) => (await (await fetch(url)).arrayBuffer()).byteLength, (await page.locator('a[download]').first().getAttribute('href'))!);
+    expect(cut).toBeGreaterThan(500);
+
+    const loud = await convert(page, '/change-audio-volume/', { name: 'tone.wav', mimeType: 'audio/wav', buffer: wav() });
+    expect(ascii(loud, 0, 3) === 'ID3' || (loud[0] === 0xff && (loud[1]! & 0xe0) === 0xe0)).toBe(true);
+    expect(await downloadName(page)).toBe('tone-volume.mp3');
+    await page.locator('#vol-mode').selectOption('fixed');
+    await page.locator('#vol-gain').selectOption('10');
+    await page.getByRole('button', { name: 'Convert', exact: true }).click();
+    await expect(page.locator('a[download]').first()).toBeVisible({ timeout: 120_000 });
+  });
+
+  test('Rotate video swaps the size, Change video speed halves the length, Remove audio keeps the picture', async ({ page }) => {
+    const video = await gifVideo(page);
+    expect(await probe(page, video)).toMatchObject({ w: 64, h: 48 });
+    expect((await probe(page, video)).d).toBeGreaterThan(2.5);
+
+    const turned = await convert(page, '/rotate-video/', { name: 'clip.mp4', mimeType: 'video/mp4', buffer: video });
+    expect(await downloadName(page)).toBe('clip-rotated.mp4');
+    expect(await probe(page, turned)).toMatchObject({ w: 48, h: 64 });
+
+    const fast = await convert(page, '/change-video-speed/', { name: 'clip.mp4', mimeType: 'video/mp4', buffer: video });
+    expect(await downloadName(page)).toBe('clip-speed.mp4');
+    const d = (await probe(page, fast)).d;
+    expect(d).toBeGreaterThan(1.2);
+    expect(d).toBeLessThan(1.9);
+
+    const muted = await convert(page, '/remove-audio-from-video/', { name: 'clip.mp4', mimeType: 'video/mp4', buffer: video });
+    expect(await downloadName(page)).toBe('clip-muted.mp4');
+    expect(ascii(muted, 4, 8)).toBe('ftyp');
+    expect(await probe(page, muted)).toMatchObject({ w: 64, h: 48 });
+    expect(muted.includes(Buffer.from('soun'))).toBe(false);
+  });
+
+  test('Remove audio drops the sound track of a recording that had one', async ({ page }) => {
+    expect(mp4.includes(Buffer.from('soun'))).toBe(true);
+    const muted = await convert(page, '/remove-audio-from-video/', { name: 'clip.mp4', mimeType: 'video/mp4', buffer: mp4 });
+    expect(ascii(muted, 4, 8)).toBe('ftyp');
+    expect(muted.includes(Buffer.from('soun'))).toBe(false);
+  });
+
   test('a broken file gives a clear message, not a crash', async ({ page }) => {
     await page.goto('/mp3-to-wav/');
     await page.waitForFunction(() => document.querySelector('astro-island[client="load"]:not([ssr])') !== null);

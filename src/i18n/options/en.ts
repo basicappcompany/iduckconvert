@@ -73,6 +73,24 @@ export const en = {
   /** {n} */
   everySeconds: 'every {n} seconds',
   framesHint: 'You get at most 200 pictures, so for a long video choose a longer gap.',
+  // trim, volume, rotate and speed presets
+  rotateLabel: 'Turn',
+  rotateCw: 'Quarter turn clockwise',
+  rotateCcw: 'Quarter turn counter-clockwise',
+  rotate180: 'Half turn (upside down)',
+  flipH: 'Mirror left to right',
+  flipV: 'Flip top to bottom',
+  speedLabel: 'Speed',
+  /** {n} */
+  speedX: '{n}x',
+  speedHint: 'Below 1 is slow motion, above 1 is fast forward. The sound follows.',
+  volMode: 'What to do',
+  volNormalise: 'Even out the volume',
+  volGain: 'Change by a fixed amount',
+  gainLabel: 'Change by',
+  /** {n} */
+  dbN: '{n} dB',
+  gainHint: 'Plus makes it louder, minus makes it quieter. +6 dB doubles the signal level, and loud parts can distort.',
   // colours
   /** {kind} is HEX, RGB or HSL. */
   colourBad: 'That {kind} value is not valid yet.',
