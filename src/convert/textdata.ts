@@ -1,6 +1,7 @@
 /** Text conversions for data that AI tools produce or take in: Markdown tables, JSON Lines, subtitles, TOML, XML rows, clean text. Pure functions. */
 import { XMLParser } from 'fast-xml-parser';
 import { DATA_SPECS, csvToJson, jsonToCsv, parseCsv, runDataConversion, type DataSpec } from './data';
+import { base64Decode, base64Encode, chatgptToMarkdown, fixBrokenJson, jsonFormat, urlDecode, urlEncode } from './devdata';
 
 // ---------- Markdown tables ----------
 
@@ -231,6 +232,13 @@ export const NEW_DATA_SPECS: Record<string, DataSpec> = {
   'json-to-toml': { inputLabel: 'JSON', outputLabel: 'TOML', ext: 'toml', mime: 'application/toml', accepts: ['.json', 'application/json'], sample: '{"title":"Quack","owner":{"name":"Asha"},"ports":[8000,8001]}' },
   'toml-to-json': { inputLabel: 'TOML', outputLabel: 'JSON', ext: 'json', mime: 'application/json', accepts: ['.toml', '.txt'], sample: 'title = "Quack"\nports = [8000, 8001]\n\n[owner]\nname = "Asha"' },
   'xml-to-csv': { inputLabel: 'XML', outputLabel: 'CSV', ext: 'csv', mime: 'text/csv', accepts: ['.xml', 'application/xml', 'text/xml'], sample: '<books><book id="1"><title>Quack</title><year>2021</year></book><book id="2"><title>Pond</title><year>2024</year></book></books>' },
+  'base64-encode': { inputLabel: 'text', outputLabel: 'Base64', ext: 'txt', mime: 'text/plain', accepts: ['.txt', '.md', '.json', '.csv', '.log'], sample: 'Hello, duck! \u{1F986}' },
+  'base64-decode': { inputLabel: 'Base64', outputLabel: 'text', ext: 'txt', mime: 'text/plain', accepts: ['.txt', '.b64', '.base64'], sample: 'SGVsbG8sIGR1Y2shIPCfpoY=' },
+  'url-encode': { inputLabel: 'text', outputLabel: 'URL-encoded text', ext: 'txt', mime: 'text/plain', accepts: ['.txt'], sample: 'name=Asha & Ben&city=Zürich?q=ducks in a row' },
+  'url-decode': { inputLabel: 'URL-encoded text', outputLabel: 'text', ext: 'txt', mime: 'text/plain', accepts: ['.txt'], sample: 'name%3DAsha%20%26%20Ben%26city%3DZ%C3%BCrich%3Fq%3Dducks%20in%20a%20row' },
+  'json-formatter': { inputLabel: 'JSON', outputLabel: 'formatted JSON', ext: 'json', mime: 'application/json', accepts: ['.json', '.txt', 'application/json'], sample: '{"name":"Quack","tags":["duck","pond"],"size":{"w":12,"h":8},"big":12345678901234567890}' },
+  'fix-broken-json': { inputLabel: 'broken JSON', outputLabel: 'fixed JSON', ext: 'json', mime: 'application/json', accepts: ['.json', '.txt', 'application/json'], sample: "```json\n{\n  // the pond\n  name: 'Quack',\n  tags: ['duck', 'pond',],\n  swims: True,\n  owner: None,\n}\n```" },
+  'chatgpt-to-markdown': { inputLabel: 'ChatGPT export', outputLabel: 'Markdown', ext: 'md', mime: 'text/markdown', accepts: ['.json', 'application/json'], sample: '[{"title":"Duck facts","create_time":1700000000,"current_node":"c","mapping":{"a":{"id":"a","message":null,"parent":null,"children":["b"]},"b":{"id":"b","parent":"a","children":["c"],"message":{"author":{"role":"user"},"content":{"content_type":"text","parts":["Why do ducks float?"]}}},"c":{"id":"c","parent":"b","children":[],"message":{"author":{"role":"assistant"},"content":{"content_type":"text","parts":["Their feathers trap air and are coated in oil."]}}}}}]' },
   'clean-chat-text': { inputLabel: 'text', outputLabel: 'clean text', ext: 'txt', mime: 'text/plain', accepts: ['.txt', '.md', '.markdown'], sample: '## Plan\n\nHere is **the plan** — it’s _simple_:\n\n* Read the [guide](https://example.com)\n* Use `pnpm test`' },
 };
 
@@ -249,6 +257,13 @@ const NEW_RUNNERS: Record<string, (input: string) => string | Promise<string>> =
   'toml-to-json': tomlToJson,
   'xml-to-csv': xmlToCsv,
   'clean-chat-text': cleanChatText,
+  'base64-encode': base64Encode,
+  'base64-decode': base64Decode,
+  'url-encode': urlEncode,
+  'url-decode': urlDecode,
+  'json-formatter': jsonFormat,
+  'fix-broken-json': fixBrokenJson,
+  'chatgpt-to-markdown': chatgptToMarkdown,
 };
 
 export async function runAnyDataConversion(slug: string, input: string): Promise<string> {
