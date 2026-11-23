@@ -1,5 +1,5 @@
 /** The "how to" steps, the questions and answers and the short explainer on each converter page. */
-import { FORMAT_NAMES, type ToolLink } from './tools';
+import { FORMAT_NAMES, NO_FILE_KINDS, type ToolLink } from './tools';
 import { KBPS, MEDIA_PAGES, SETTINGS, mb, sizeLine } from './media-pages';
 import { UNIT_PAIRS, UNIT_SOURCES, factorStatement, pairsForSet, unitWord, valueTable, type TableRow, type UnitPair, type UnitSource } from './unit-pages';
 import { UNIT_SETS, convertUnit, formatNumber } from '../convert/units';
@@ -332,6 +332,55 @@ function baseContent(t: ToolLink): PageContent {
           { q: 'Is anything sent to a server?', a: 'No. It is all calculated in your browser as you type.' },
         ],
       );
+    case 'timestamp':
+      return simple(
+        ['Type or paste a Unix timestamp, or a date such as 2026-03-04 10:30. Press "Use the current time" to start from now.', 'Read it as seconds, as milliseconds, as ISO 8601 in UTC and in your own time zone.', 'Press Copy next to the form you need.'],
+        'A Unix timestamp counts the seconds since 1 January 1970 at 00:00 UTC. Programs, databases and logs use it because it is one number with no time zone and no daylight saving to get wrong.',
+        [
+          { q: 'How does it tell seconds from milliseconds?', a: 'By the length. A whole number of up to 11 digits is seconds, 12 to 14 digits is milliseconds, 15 to 17 is microseconds and anything longer is nanoseconds. The page says which one it used, so check it matches what you expected.' },
+          { q: 'What happens to a date with no time zone?', a: 'It is read as UTC, so the answer is the same on every computer. Add an offset such as +05:30, or the letter Z, if you mean a different zone.' },
+          { q: 'Why does my local time differ from UTC?', a: 'UTC is the same everywhere. Your local time adds your time zone\'s offset, and any daylight saving at that moment, as set on your device.' },
+          { q: 'What is the year 2038 problem?', a: 'Old systems that keep the timestamp in a signed 32-bit number run out on 19 January 2038. Modern 64-bit systems and JavaScript do not have this limit.' },
+          { q: 'Is anything sent to a server?', a: 'No. It is all calculated in your browser.' },
+        ],
+      );
+    case 'uuid':
+      return simple(
+        ['Choose version 4 (random) or version 7 (starts with the time), and how many you want.', 'Set capital letters or hyphens if you need them. Press "Make new ones" for a fresh batch.', 'Press Copy to take them all, one per line.'],
+        'A UUID is a 128-bit label written as 32 hexadecimal digits. It lets many programs create ids on their own without ever picking the same one twice.',
+        [
+          { q: 'What is the difference between version 4 and version 7?', a: 'Version 4 is random. Version 7 starts with the time in milliseconds, so new ids sort in the order they were made, which keeps database indexes tidy. Both are unique in practice.' },
+          { q: 'Can two UUIDs ever be the same?', a: 'In theory yes, in practice no. A version 4 UUID has 122 random bits, so you would have to make billions every second for many years before a repeat became likely.' },
+          { q: 'Are they safe to use as secrets?', a: 'No. They are made to be unique, not to be secret. Do not use one as a password or as a token that gives access to something.' },
+          { q: 'Is a GUID the same as a UUID?', a: 'Yes. GUID is Microsoft\'s name for the same thing. Some Microsoft tools write it in capital letters, which you can choose here.' },
+          { q: 'Is anything sent to a server?', a: 'No. They are made in your browser with its secure random number generator.' },
+        ],
+      );
+    case 'hash':
+      return simple(
+        ['Paste your text, or press "Choose file" to hash a file.', 'Read the MD5, SHA-1, SHA-256, SHA-384 and SHA-512 hashes. They appear as you type.', 'To check a download, paste the hash you were given into the compare box and see which one matches.'],
+        'A hash is a short fingerprint of some data. The same input always gives the same hash, and changing even one character changes it completely, so a hash is a quick way to check that a file arrived unchanged.',
+        [
+          { q: 'Which hash should I use?', a: 'Use SHA-256 for checking downloads and files. MD5 and SHA-1 are broken for security, but they still catch accidental damage and many sites only publish those, so they are listed too.' },
+          { q: 'Can I get my text back from a hash?', a: 'No. A hash cannot be reversed. It only lets you check whether two pieces of data are the same.' },
+          { q: 'Can I use it for passwords?', a: 'No. A plain hash is far too fast for storing passwords. Use a slow password method such as bcrypt, scrypt or Argon2 on a server.' },
+          { q: 'Why is my hash different from another tool\'s?', a: 'Text is hashed as UTF-8. A different line ending, or a space at the end, gives a different hash, so make sure both sides hash exactly the same characters.' },
+          { q: 'How big a file can I hash?', a: 'Up to about 300 MB, because the whole file is read into your browser\'s memory. A computer copes better than a phone.' },
+          PRIVATE_FAQ('file'),
+        ],
+      );
+    case 'chunker':
+      return simple(
+        ['Paste your long text in the box.', 'Choose the largest part, in tokens, and how much each part should overlap the one before it.', 'Press Copy on each part and paste them into your AI tool one by one.'],
+        'AI tools can only read so much at once, which is called the context window or the input limit. Splitting a long document into parts that fit lets you work through it one piece at a time, or prepare it for search.',
+        [
+          { q: 'How big should each part be?', a: 'Stay well under your tool\'s limit, because its answer needs room too. Parts of 1000 to 2000 tokens suit most chat tools, and smaller parts, around 500, are common when preparing text for search.' },
+          { q: 'Where does it cut the text?', a: 'At the end of a paragraph if one fits, then at the end of a sentence, then at a word. It only cuts through a word that is longer than a whole part, such as a very long web address.' },
+          { q: 'What is the overlap for?', a: 'Each part can start with the last few words of the one before it, so a sentence that straddles a cut is not lost. Choose no overlap if each part stands alone.' },
+          { q: 'How are the tokens counted?', a: 'As an estimate of 4 characters per token, like the Token counter. Each AI model counts a little differently, so leave some room.' },
+          PRIVATE_FAQ('text'),
+        ],
+      );
     case 'audio-trim':
       return simple(
         ['Drop your recording onto the box. A video works too: only its sound is used.', 'Type the start and end time. Use seconds (90) or minutes and seconds (1:30). Leave the end empty to keep everything after the start.', 'Press Trim.', 'Download the cut part as an MP3.'],
@@ -507,7 +556,7 @@ export function unitFacts(setKey: string, from: string, to: string): UnitFacts {
 
 export function contentFor(t: ToolLink): PageContent {
   const c = baseContent(t);
-  const answer = c.answer || `${t.quick} ${t.kind === 'units' || ['bases', 'words', 'roman', 'case', 'colour', 'timezone', 'dates', 'tokens'].includes(t.kind) ? TAIL_CALC : TAIL_FILES}`;
+  const answer = c.answer || `${t.quick} ${t.kind === 'units' || NO_FILE_KINDS.includes(t.kind) ? TAIL_CALC : TAIL_FILES}`;
   const unit = t.kind === 'units' && t.units ? unitFacts(t.units, UNIT_SETS[t.units]!.defaultFrom, UNIT_SETS[t.units]!.defaultTo) : undefined;
   return { ...c, answer, ...(unit ? { unit } : {}) };
 }

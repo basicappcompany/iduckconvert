@@ -520,6 +520,78 @@ test.describe('calculators', () => {
     await expect(page.getByText(/This is an estimate/)).toBeVisible();
   });
 
+  test('Unix timestamp converter reads seconds and shows every form', async ({ page }) => {
+    await page.goto('/unix-timestamp-converter/');
+    await page.waitForFunction(() => document.querySelector('astro-island[client="load"]:not([ssr])') !== null);
+    await page.locator('#ts-in').fill('1700000000');
+    await expect(page.locator('#ts-read')).toHaveText('Read as seconds.');
+    await expect(page.locator('#ts-out')).toContainText('2023-11-14T22:13:20.000Z');
+    await expect(page.locator('#ts-out')).toContainText('1700000000000');
+    await page.locator('#ts-in').fill('1700000000000');
+    await expect(page.locator('#ts-read')).toHaveText('Read as milliseconds.');
+    await expect(page.locator('#ts-out')).toContainText('2023-11-14T22:13:20.000Z');
+    await page.locator('#ts-in').fill('2023-11-14 22:13:20');
+    await expect(page.locator('#ts-read')).toHaveText('Read as a date.');
+    await expect(page.locator('#ts-out')).toContainText('1700000000');
+    await page.locator('#ts-in').fill('not a time');
+    await expect(page.getByRole('alert')).toContainText('not a timestamp or a date');
+    await page.getByRole('button', { name: 'Use the current time' }).click();
+    await expect(page.locator('#ts-in')).toHaveValue(/^\d{10}$/);
+  });
+
+  test('UUID generator makes version 4 and version 7 ids', async ({ page }) => {
+    await page.goto('/uuid-generator/');
+    await page.waitForFunction(() => document.querySelector('astro-island[client="load"]:not([ssr])') !== null);
+    const lines = async () => (await page.locator('#uuid-out').inputValue()).split('\n');
+    await expect(page.locator('#uuid-out')).toHaveValue(/^([0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\n){4}[0-9a-f]{8}-[0-9a-f]{4}-4/);
+    expect(await lines()).toHaveLength(5);
+    const before = await page.locator('#uuid-out').inputValue();
+    await page.getByRole('button', { name: 'Make new ones' }).click();
+    await expect(page.locator('#uuid-out')).not.toHaveValue(before);
+    await page.locator('#uuid-version').selectOption('v7');
+    await page.locator('#uuid-count').fill('3');
+    await expect(page.locator('#uuid-out')).toHaveValue(/^([0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\n){2}[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
+    await page.getByLabel('Capital letters').check();
+    await page.getByLabel('Keep the hyphens').uncheck();
+    await expect(page.locator('#uuid-out')).toHaveValue(/^([0-9A-F]{32}\n){2}[0-9A-F]{32}$/);
+  });
+
+  test('hash generator hashes text and a file and checks a given hash', async ({ page }) => {
+    await page.goto('/hash-generator/');
+    await page.waitForFunction(() => document.querySelector('astro-island[client="load"]:not([ssr])') !== null);
+    await page.locator('#hash-in').fill('abc');
+    await expect(page.locator('[data-hash="md5"]')).toHaveText('900150983cd24fb0d6963f7d28e17f72');
+    await expect(page.locator('[data-hash="sha256"]')).toHaveText('ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad');
+    await page.locator('#hash-given').fill('BA7816BF8F01CFEA414140DE5DAE2223B00361A396177A9CB410FF61F20015AD');
+    await expect(page.locator('#hash-compare')).toHaveText('It matches the SHA-256 hash.');
+    await expect(page.locator('[data-match="true"]')).toHaveCount(1);
+    await page.locator('#hash-given').fill('deadbeef');
+    await expect(page.locator('#hash-compare')).toContainText('does not match');
+    await page.locator('#hash-given').fill('');
+    await page.locator('input[type="file"]').setInputFiles({ name: 'abc.txt', mimeType: 'text/plain', buffer: Buffer.from('abc') });
+    await expect(page.getByText('File: abc.txt')).toBeVisible();
+    await expect(page.locator('[data-hash="md5"]')).toHaveText('900150983cd24fb0d6963f7d28e17f72');
+    await page.getByRole('button', { name: 'Clear' }).click();
+    await expect(page.locator('[data-hash]')).toHaveCount(0);
+  });
+
+  test('text chunker splits long text into parts and each can be copied', async ({ page }) => {
+    await page.goto('/text-chunker/');
+    await page.waitForFunction(() => document.querySelector('astro-island[client="load"]:not([ssr])') !== null);
+    const text = Array.from({ length: 40 }, (_, i) => `Paragraph ${i + 1}. ` + 'The duck swam across the pond and quacked at the geese. '.repeat(8).trim()).join('\n\n');
+    await page.locator('#chunk-in').fill(text);
+    await expect(page.locator('#chunk-summary')).toHaveText(/^Parts: [3-9]\d?\. About [\d,]+ tokens in all\.$/);
+    const parts = await page.locator('#chunk-out li pre').allTextContents();
+    expect(parts.length).toBeGreaterThan(2);
+    for (const p of parts) expect(p.length).toBeLessThanOrEqual(4000);
+    expect(parts[0]).toMatch(/^Paragraph 1\./);
+    await page.locator('#chunk-size').selectOption('2000');
+    await page.locator('#chunk-overlap').selectOption('0');
+    const fewer = await page.locator('#chunk-out li').count();
+    expect(fewer).toBeLessThan(parts.length);
+    await expect(page.getByText(/Sizes are estimates of about 4 characters/)).toBeVisible();
+  });
+
   test('time zone converter shows next-day rows', async ({ page }) => {
     await page.goto('/time-zone-converter/');
     await page.waitForFunction(() => document.querySelector('astro-island[client="load"]:not([ssr])') !== null);

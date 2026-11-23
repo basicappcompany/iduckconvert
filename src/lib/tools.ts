@@ -34,6 +34,10 @@ export type ToolKind =
   | 'video-speed'
   | 'docx'
   | 'tokens'
+  | 'timestamp'
+  | 'uuid'
+  | 'hash'
+  | 'chunker'
   | 'data'
   | 'excel'
   | 'tiff'
@@ -440,12 +444,19 @@ export const TOOLS: readonly ToolLink[] = [
   { slug: 'fix-broken-json', name: 'Fix broken JSON', summary: 'Repair JSON from a chat answer or a hand-edited file.', group: 'Data & documents', emoji: '🩹', kind: 'data', from: 'json', to: 'json', quick: 'To fix broken JSON, paste it in. Single quotes, comments, trailing commas, unquoted keys, True and None, a Markdown code fence and a cut-off ending are repaired. You get valid JSON to download or copy.', keywords: 'fix broken json repair invalid json chatgpt output trailing comma single quotes validator' },
   { slug: 'chatgpt-to-markdown', name: 'ChatGPT export to Markdown', summary: 'Turn your ChatGPT data export into readable Markdown.', group: 'Data & documents', emoji: '🗂️', kind: 'data', from: 'json', to: 'markdown', quick: 'To read your ChatGPT history, unzip the data export from OpenAI and drop in conversations.json. Each chat becomes a heading with your messages and the replies below it, as Markdown you can search, keep or paste into notes.', keywords: 'chatgpt export conversations.json markdown backup history openai data export convert chat' },
   // Time & money
+  { slug: 'unix-timestamp-converter', name: 'Unix timestamp converter', summary: 'Turn a Unix timestamp into a date, or a date into a timestamp.', group: 'Time & money', emoji: '⏱️', kind: 'timestamp', quick: 'To convert a Unix timestamp, type or paste it. Seconds, milliseconds, microseconds and nanoseconds are told apart by their length. You see the date in UTC and in your own time zone.', keywords: 'unix timestamp epoch time seconds milliseconds date convert posix' },
+  { slug: 'uuid-generator', name: 'UUID generator', summary: 'Make random UUIDs, version 4 or version 7.', group: 'Numbers & text', emoji: '🆔', kind: 'uuid', quick: 'To make a UUID, open the page: one is ready already. Choose version 4 (random) or version 7 (starts with the time), pick how many you want, and copy them.', keywords: 'uuid guid generator random unique id v4 v7 identifier' },
+  { slug: 'hash-generator', name: 'Hash generator', summary: 'MD5, SHA-1, SHA-256 and more for text or a file.', group: 'Numbers & text', emoji: '#️⃣', kind: 'hash', quick: 'To get a hash, paste your text or choose a file. MD5, SHA-1, SHA-256, SHA-384 and SHA-512 appear at once. Paste the hash you were given to see which one it matches.', keywords: 'hash checksum md5 sha1 sha256 sha512 digest file integrity verify' },
+  { slug: 'text-chunker', name: 'Text chunker', summary: 'Split long text into parts that fit an AI tool.', group: 'Numbers & text', emoji: '✂️', kind: 'chunker', quick: 'To split long text for an AI tool, paste it and choose the largest part. Parts end at a paragraph, a sentence or a word, and you copy them one by one.', keywords: 'chunk split text tokens context window rag long document prompt limit divide' },
   { slug: 'time-zone-converter', name: 'Time zone converter', summary: 'Compare a time across cities and zones.', group: 'Time & money', emoji: '🕐', kind: 'timezone', quick: 'To convert a time between zones, pick the time and the city you start from, then add the cities you want to compare. Daylight saving is handled for you.', keywords: 'timezone time zone ist utc gmt est pst convert meeting world clock' },
   { slug: 'date-format-converter', name: 'Date format converter', summary: 'Show one date in every common format.', group: 'Time & money', emoji: '📅', kind: 'dates', quick: 'To convert a date format, pick a date and see it written as DD/MM/YYYY, MM/DD/YYYY, ISO and more. Copy the one you need.', keywords: 'date format dd/mm/yyyy mm/dd/yyyy iso 8601 convert' },
 ];
 
 /** Tools that have a page of their own. */
 export const PAGE_TOOLS = TOOLS.filter((t) => t.kind !== 'link');
+
+/** The kinds that work on typed or pasted values and not on dropped files: the page says "works as you type". */
+export const NO_FILE_KINDS: readonly string[] = ['units', 'bases', 'words', 'roman', 'case', 'colour', 'timezone', 'dates', 'tokens', 'timestamp', 'uuid', 'hash', 'chunker'];
 
 export const toolPath = (slug: string): string => `/${slug}/`;
 
