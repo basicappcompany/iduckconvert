@@ -129,6 +129,15 @@ test.describe('media converters (ffmpeg.wasm)', () => {
     expect(ascii(out, 0, 3) === 'ID3' || out[0] === 0xff).toBe(true);
   });
 
+  test('MP4 to WAV and MP4 to M4A extract the sound', async ({ page }) => {
+    const wavOut = await convert(page, '/mp4-to-wav/', { name: 'clip.mp4', mimeType: 'video/mp4', buffer: mp4 });
+    expect(ascii(wavOut, 0, 4)).toBe('RIFF');
+    expect(ascii(wavOut, 8, 12)).toBe('WAVE');
+    const m4aOut = await convert(page, '/mp4-to-m4a/', { name: 'clip.mp4', mimeType: 'video/mp4', buffer: mp4 });
+    expect(ascii(m4aOut, 4, 8)).toBe('ftyp');
+    expect(m4aOut.length).toBeGreaterThan(500);
+  });
+
   test('Video to GIF makes a GIF, and GIF to MP4 turns it back', async ({ page }) => {
     gif = await convert(page, '/video-to-gif/', { name: 'clip.mp4', mimeType: 'video/mp4', buffer: mp4 }, 'Make GIF');
     expect(ascii(gif, 0, 6)).toBe('GIF89a');
