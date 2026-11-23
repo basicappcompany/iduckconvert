@@ -113,7 +113,7 @@ describe.each(MACHINE.map((l) => [l.code]))('%s converter text', (code) => {
     }
   });
   it('names the run button the page really shows, in quotes', () => {
-    const withButton = new Set(['audio', 'video', 'gif-video', 'video-gif', 'video-compress', 'video-trim', 'audio-speech', 'audio-split', 'video-frames', 'audio-trim', 'audio-volume', 'video-mute', 'video-rotate', 'video-speed', 'docx', 'excel', 'tiff', 'webp-gif']);
+    const withButton = new Set(['audio', 'video', 'gif-video', 'video-gif', 'video-compress', 'video-trim', 'audio-speech', 'audio-split', 'video-frames', 'audio-trim', 'audio-volume', 'video-mute', 'video-rotate', 'video-speed', 'merge-video', 'merge-audio', 'docx', 'excel', 'tiff', 'webp-gif']);
     for (const tool of PAGE_TOOLS.filter((t) => withButton.has(t.kind))) {
       const label = runLabelFor(code!, tool);
       expect(toolText(code!, tool).quick, tool.slug).toContain(`"${label}"`);

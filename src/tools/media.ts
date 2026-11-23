@@ -208,6 +208,8 @@ const VIDEO_EXT = ['.mp4', '.m4v', '.mov', '.mkv', '.webm', '.avi', '.wmv', '.fl
 /** What the drop zone accepts for a converter's source format. Browsers label some files oddly, so extensions come first. */
 export function acceptsFor(kind: ToolKind, from: string): string[] {
   if (kind === 'audio-speech' || kind === 'audio-split' || kind === 'audio-trim' || kind === 'audio-volume') return [...AUDIO_EXT, ...VIDEO_EXT, 'audio/*', 'video/*'];
+  if (kind === 'merge-audio') return [...AUDIO_EXT, 'audio/*'];
+  if (kind === 'merge-video') return [...VIDEO_EXT, 'video/*'];
   if (kind === 'video-frames' || kind === 'video-mute' || kind === 'video-rotate' || kind === 'video-speed') return [...VIDEO_EXT, 'video/*'];
   if (from === 'video' || kind === 'video-compress' || kind === 'video-trim') return [...VIDEO_EXT, 'video/*', ...(kind === 'audio' ? [...AUDIO_EXT, 'audio/*'] : [])];
   if (kind === 'video-gif') return [...VIDEO_EXT, 'video/*'];
@@ -217,4 +219,55 @@ export function acceptsFor(kind: ToolKind, from: string): string[] {
     mp4: ['.mp4', '.m4v', 'video/mp4'], mov: ['.mov', 'video/quicktime'], mkv: ['.mkv', 'video/x-matroska'], webm: ['.webm', 'video/webm'], avi: ['.avi', 'video/x-msvideo'], gif: ['.gif', 'image/gif'],
   };
   return map[from] ?? ['.' + from];
+}
+
+// ---------- Merge several clips into one ----------
+
+/** The most files one merge takes, so the browser's memory is not asked for too much at once. */
+export const MAX_MERGE_FILES = 20;
+
+export interface Probe {
+  hasVideo: boolean;
+  hasAudio: boolean;
+  /** Picture size as it will be shown, after any rotation stored in the file. 0 when there is no picture. */
+  width: number;
+  height: number;
+}
+
+/** Read what ffmpeg prints when it opens a file (its stream list) to learn whether there is a picture, sound, and how big. */
+export function parseProbe(log: string): Probe {
+  const video = /Stream #\d+:\d+[^\n]*?: Video:[^\n]*?(?:,| )(\d{2,5})x(\d{2,5})/.exec(log);
+  let width = video ? Number(video[1]) : 0;
+  let height = video ? Number(video[2]) : 0;
+  const turn = /rotation of (-?\d+(?:\.\d+)?) degrees/.exec(log);
+  if (turn && Math.round(Math.abs(Number(turn[1]))) % 180 === 90) [width, height] = [height, width];
+  return { hasVideo: video !== null, hasAudio: /Stream #\d+:\d+[^\n]*?: Audio:/.test(log), width, height };
+}
+
+/** The size every clip is fitted to: the first clip's, with even numbers (H.264 needs them) and no side over 1920. */
+export function mergeSize(width: number, height: number): { width: number; height: number } {
+  if (width < 2 || height < 2) return { width: 1280, height: 720 };
+  const scale = Math.min(1, 1920 / Math.max(width, height));
+  const even = (n: number): number => Math.max(2, Math.round((n * scale) / 2) * 2);
+  return { width: even(width), height: even(height) };
+}
+
+/** ffmpeg arguments that turn one clip into the shared format: same size, 30 frames per second, H.264 and stereo AAC at 44.1 kHz. A clip with no sound gets silence. */
+export function clipArgs(inName: string, outName: string, hasAudio: boolean, size: { width: number; height: number }): string[] {
+  const { width: w, height: h } = size;
+  const filter = `scale=${w}:${h}:force_original_aspect_ratio=decrease,pad=${w}:${h}:(ow-iw)/2:(oh-ih)/2,setsar=1,fps=30,format=yuv420p`;
+  const encode = ['-vf', filter, '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '23', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '128k', '-ar', '44100', '-ac', '2', '-movflags', '+faststart'];
+  return hasAudio
+    ? ['-i', inName, '-map', '0:v:0', '-map', '0:a:0', ...encode, '-y', outName]
+    : ['-i', inName, '-f', 'lavfi', '-i', 'anullsrc=r=44100:cl=stereo', '-map', '0:v:0', '-map', '1:a:0', ...encode, '-shortest', '-y', outName];
+}
+
+/** The list file for ffmpeg's concat reader. Names are ones we made ourselves, so they hold no quotes. */
+export const concatList = (names: readonly string[]): string => names.map((n) => `file '${n}'`).join('\n') + '\n';
+
+/** One run that joins audio files: each is brought to 44.1 kHz stereo, then they are placed end to end and saved as an MP3. */
+export function audioMergeArgs(inNames: readonly string[], outName: string, bitrate = 192): string[] {
+  const prepared = inNames.map((_, i) => `[${i}:a:0]aresample=44100,aformat=sample_fmts=fltp:sample_rates=44100:channel_layouts=stereo[a${i}]`).join(';');
+  const joined = inNames.map((_, i) => `[a${i}]`).join('') + `concat=n=${inNames.length}:v=0:a=1[out]`;
+  return [...inNames.flatMap((n) => ['-i', n]), '-filter_complex', `${prepared};${joined}`, '-map', '[out]', '-c:a', 'libmp3lame', '-b:a', `${bitrate}k`, '-y', outName];
 }

@@ -32,6 +32,8 @@ export type ToolKind =
   | 'video-mute'
   | 'video-rotate'
   | 'video-speed'
+  | 'merge-video'
+  | 'merge-audio'
   | 'docx'
   | 'tokens'
   | 'timestamp'
@@ -256,6 +258,30 @@ export const TOOLS: readonly ToolLink[] = [
     keywords: 'volume louder quieter boost increase decrease normalise normalize loudness decibel db audio mp3 voice',
   },
   // Video
+  {
+    slug: 'merge-videos',
+    name: 'Merge videos',
+    summary: 'Join several video clips into one MP4, in the order you choose.',
+    group: 'Video',
+    emoji: '🎞️',
+    kind: 'merge-video',
+    from: 'video',
+    to: 'mp4',
+    quick: 'To merge videos, drop your clips in, put them in order and press Merge. One MP4 is made in your browser and nothing is uploaded. Clips of different sizes are fitted to the first clip.',
+    keywords: 'merge join combine videos clips mp4 concatenate stitch together one video',
+  },
+  {
+    slug: 'merge-audio-files',
+    name: 'Merge audio files',
+    summary: 'Join several audio files into one MP3, in the order you choose.',
+    group: 'Audio',
+    emoji: '🔗',
+    kind: 'merge-audio',
+    from: 'audio',
+    to: 'mp3',
+    quick: 'To join audio files, drop them in, put them in order and press Merge. One MP3 is made in your browser and nothing is uploaded. Different formats and sample rates can be mixed.',
+    keywords: 'merge join combine audio files mp3 wav m4a concatenate podcast lecture tracks one file',
+  },
   ...VIDEO_PAIRS.map(videoTool),
   {
     slug: 'video-to-gif',

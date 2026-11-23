@@ -402,6 +402,32 @@ function baseContent(t: ToolLink): PageContent {
           PRIVATE_FAQ('text'),
         ],
       );
+    case 'merge-video':
+      return simple(
+        ['Drop your clips onto the box, or press Choose files.', 'Put them in the order you want with the arrows, and remove any you do not need.', 'Press Merge. The first time, your browser downloads the converter engine; then each clip is prepared and joined while a progress bar shows how far along it is.', 'Download the merged MP4.'],
+        'Merging joins several clips into one video that plays from start to end without a gap. It suits stitching together phone clips from one day, the parts of a screen recording, or an intro and a main video.',
+        [
+          { q: 'What if my clips have different sizes or frame rates?', a: 'Every clip is fitted to the size of the first clip, with black bars if the shape differs, and set to 30 frames per second, so the parts join cleanly. Put the clip with the size you want first.' },
+          { q: 'What happens to a clip with no sound?', a: 'It gets silence for its length, so the sound of the other clips stays in step with the picture.' },
+          { q: 'Why does merging take a while?', a: 'Each clip is encoded once, in your browser, with the same settings as our other MP4 converters. That is slower than copying. Short clips take moments; a long, high-resolution clip can take several minutes, and a laptop is much faster than a phone.' },
+          { q: 'Is there a limit on how many clips I can merge?', a: 'Up to 20 clips at once. Their total size should stay under about 500 MB on a computer and 100 MB on a phone, because the browser keeps everything in memory.' },
+          PRIVATE_FAQ('video'),
+          ENGINE_FAQ,
+        ],
+      );
+    case 'merge-audio':
+      return simple(
+        ['Drop your audio files onto the box, or press Choose files.', 'Put them in the order you want with the arrows, and remove any you do not need.', 'Press Merge and wait for the progress bar to finish.', 'Download the merged MP3.'],
+        'Merging joins several recordings into one file that plays straight through. It suits the parts of a lecture or a podcast, voice notes from one meeting, or tracks you want as a single mix.',
+        [
+          { q: 'Can I mix different audio formats?', a: 'Yes. MP3, WAV, M4A, OGG, FLAC and other formats can be joined in one go. They are all brought to the same sample rate and to stereo, then saved as one MP3 at 192 kbit/s.' },
+          { q: 'Is there a gap between the files?', a: 'No. The files are placed end to end with nothing in between. If you want a pause, add a short silent recording as one of the files.' },
+          { q: 'Why is the result an MP3?', a: 'MP3 plays everywhere and keeps the file small. To change the result to another format afterwards, use one of the audio converters, such as MP3 to WAV or MP3 to M4A.' },
+          { q: 'Can I change the order after merging?', a: 'Yes. Move the files with the arrows and press Merge again. Nothing is changed in your original files.' },
+          PRIVATE_FAQ('audio'),
+          SIZE_FAQ(),
+        ],
+      );
     case 'audio-trim':
       return simple(
         ['Drop your recording onto the box. A video works too: only its sound is used.', 'Type the start and end time. Use seconds (90) or minutes and seconds (1:30). Leave the end empty to keep everything after the start.', 'Press Trim.', 'Download the cut part as an MP3.'],

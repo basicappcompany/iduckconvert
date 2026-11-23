@@ -330,6 +330,14 @@ const t: OptText = {
   qrLong: 'Bu düzeyde tek bir QR kod için çok uzun. Sınır {max} bayttır (İngilizce harf başına bir bayt, diğer yazılarda daha fazla). Metni kısaltın veya daha düşük bir düzey seçin.',
   qrAlt: 'QR kodunuz',
   qrNote: 'Kod tarayıcınızda oluşturulur ve hiçbir yere bir şey gönderilmez. Yazdırmadan önce bir telefonla tarayın.',
+  mergeUp: '{name} dosyasını yukarı taşı',
+  mergeDown: '{name} dosyasını aşağı taşı',
+  mergeRemove: '{name} dosyasını kaldır',
+  mergeOrder: 'Dosyalar bu sırayla birleştirilir:',
+  mergeNeedTwo: 'Birleştirmek için en az iki dosya ekleyin.',
+  mergeTooMany: 'Aynı anda en fazla {max} dosya birleştirebilirsiniz.',
+  mergeNoteVideo: 'Her klip ilk klibin boyutuna uyarlanır ve temiz birleşmeleri için saniyede 30 kareye ayarlanır. Sesi olmayan klibe sessizlik eklenir. Daha uzun klipler birkaç dakika sürer.',
+  mergeNoteAudio: 'Dosyalar tek bir örnekleme hızına getirilir ve aralarında boşluk olmadan 192 kbit/s\'lik tek bir MP3 olarak kaydedilir.',
   errDetail: 'Bu girdi dönüştürülemedi. Ayrıntılar (İngilizce): {message}',
 };
 export default t;
