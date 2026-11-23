@@ -330,6 +330,14 @@ const t: OptText = {
   qrLong: 'Terlalu panjang untuk satu kode QR pada tingkat ini. Batasnya {max} byte (satu byte per huruf Inggris, lebih banyak untuk aksara lain). Persingkat teks atau pilih tingkat yang lebih rendah.',
   qrAlt: 'Kode QR Anda',
   qrNote: 'Kode dibuat di browser Anda dan tidak ada yang dikirim ke mana pun. Pindai dengan ponsel sebelum Anda mencetaknya.',
+  mergeUp: 'Naikkan {name}',
+  mergeDown: 'Turunkan {name}',
+  mergeRemove: 'Hapus {name}',
+  mergeOrder: 'File digabung dalam urutan ini:',
+  mergeNeedTwo: 'Tambahkan minimal dua file untuk digabung.',
+  mergeTooMany: 'Anda bisa menggabungkan hingga {max} file sekaligus.',
+  mergeNoteVideo: 'Setiap klip disesuaikan dengan ukuran klip pertama dan diatur ke 30 bingkai per detik agar menyatu rapi. Klip tanpa suara diberi keheningan. Klip yang lebih panjang butuh beberapa menit.',
+  mergeNoteAudio: 'File disamakan ke satu laju sampel dan disimpan sebagai satu MP3 pada 192 kbit/s, tanpa jeda di antaranya.',
   errDetail: 'Masukan itu tidak bisa dikonversi. Detail (dalam bahasa Inggris): {message}',
 };
 export default t;

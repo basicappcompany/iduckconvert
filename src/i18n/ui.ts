@@ -34,6 +34,7 @@ const en: UiText = {
   runMakeGif: 'Make GIF',
   runCompress: 'Compress',
   runTrim: 'Trim',
+  runMerge: 'Merge',
 };
 
 const hi: UiText = {
@@ -60,6 +61,7 @@ const hi: UiText = {
   runMakeGif: 'GIF बनाएँ',
   runCompress: 'कंप्रेस करें',
   runTrim: 'ट्रिम करें',
+  runMerge: 'जोड़ें',
 };
 
 const bn: UiText = {
@@ -86,6 +88,7 @@ const bn: UiText = {
   runMakeGif: 'GIF বানান',
   runCompress: 'ছোট করুন',
   runTrim: 'ছাঁটুন',
+  runMerge: 'জোড়া দিন',
 };
 
 const ptBR: UiText = {
@@ -112,6 +115,7 @@ const ptBR: UiText = {
   runMakeGif: 'Criar GIF',
   runCompress: 'Comprimir',
   runTrim: 'Cortar',
+  runMerge: 'Unir',
 };
 
 const id: UiText = {
@@ -138,6 +142,7 @@ const id: UiText = {
   runMakeGif: 'Buat GIF',
   runCompress: 'Kompres',
   runTrim: 'Potong',
+  runMerge: 'Gabungkan',
 };
 
 const ru: UiText = {
@@ -164,6 +169,7 @@ const ru: UiText = {
   runMakeGif: 'Создать GIF',
   runCompress: 'Сжать',
   runTrim: 'Обрезать',
+  runMerge: 'Объединить',
 };
 
 const de: UiText = {
@@ -190,6 +196,7 @@ const de: UiText = {
   runMakeGif: 'GIF erstellen',
   runCompress: 'Komprimieren',
   runTrim: 'Kürzen',
+  runMerge: 'Zusammenfügen',
 };
 
 const es: UiText = {
@@ -216,6 +223,7 @@ const es: UiText = {
   runMakeGif: 'Crear GIF',
   runCompress: 'Comprimir',
   runTrim: 'Recortar',
+  runMerge: 'Unir',
 };
 
 const fr: UiText = {
@@ -242,6 +250,7 @@ const fr: UiText = {
   runMakeGif: 'Créer le GIF',
   runCompress: 'Compresser',
   runTrim: 'Couper',
+  runMerge: 'Fusionner',
 };
 
 const tr: UiText = {
@@ -268,6 +277,7 @@ const tr: UiText = {
   runMakeGif: 'GIF oluştur',
   runCompress: 'Sıkıştır',
   runTrim: 'Kırp',
+  runMerge: 'Birleştir',
 };
 
 export const UI_TEXT: Readonly<Record<string, UiText>> = { en, hi, bn, 'pt-BR': ptBR, id, ru, de, es, fr, tr };

@@ -24,11 +24,29 @@ async function convert(page: Page, path: string, file: { name: string; mimeType:
   return Buffer.from(base64, 'base64');
 }
 
+/** Merge several files on a merge page: add them all, press Merge, give back the bytes of the one download. */
+async function merge(page: Page, path: string, files: { name: string; mimeType: string; buffer: Buffer }[]): Promise<Buffer> {
+  await page.goto(path);
+  await page.waitForFunction(() => document.querySelector('astro-island[client="load"]:not([ssr])') !== null);
+  await page.locator('input[type=file]').first().setInputFiles(files);
+  await expect(page.locator('#file-order li')).toHaveCount(files.length);
+  await page.getByRole('button', { name: 'Merge', exact: true }).click();
+  const link = page.locator('a[download]').first();
+  await expect(link).toBeVisible({ timeout: 300_000 });
+  const href = (await link.getAttribute('href'))!;
+  const base64 = await page.evaluate(async (url) => {
+    const bytes = new Uint8Array(await (await fetch(url)).arrayBuffer());
+    let s = '';
+    for (const b of bytes) s += String.fromCharCode(b);
+    return btoa(s);
+  }, href);
+  return Buffer.from(base64, 'base64');
+}
+
 const ascii = (b: Buffer, from: number, to: number) => b.subarray(from, to).toString('latin1');
 
 /** One second of a 440 Hz tone as a 16-bit mono WAV. */
-function wav(): Buffer {
-  const rate = 8000;
+function wav(rate = 8000): Buffer {
   const n = rate;
   const buf = Buffer.alloc(44 + n * 2);
   buf.write('RIFF', 0);
@@ -145,6 +163,57 @@ test.describe('media converters (ffmpeg.wasm)', () => {
     expect(ascii(back, 4, 8)).toBe('ftyp');
   });
 
+  test('merge audio files joins files of different sample rates in order, one at a time', async ({ page }) => {
+    const single = await convert(page, '/wav-to-mp3/', { name: 'one.wav', mimeType: 'audio/wav', buffer: wav() });
+    await page.goto('/merge-audio-files/');
+    await page.waitForFunction(() => document.querySelector('astro-island[client="load"]:not([ssr])') !== null);
+    await page.locator('input[type=file]').first().setInputFiles({ name: 'a.wav', mimeType: 'audio/wav', buffer: wav() });
+    await expect(page.getByText('Add at least two files to merge.')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Merge', exact: true })).toBeDisabled();
+    await page.locator('input[type=file]').first().setInputFiles({ name: 'b.wav', mimeType: 'audio/wav', buffer: wav(16000) });
+    await expect(page.locator('#file-order li')).toHaveCount(2);
+    await expect(page.locator('#file-order li').first()).toContainText('a.wav');
+    await page.getByRole('button', { name: 'Move b.wav up' }).click();
+    await expect(page.locator('#file-order li').first()).toContainText('b.wav');
+    await expect(page.getByRole('button', { name: 'Merge', exact: true })).toBeEnabled();
+    const out = await merge(page, '/merge-audio-files/', [
+      { name: 'a.wav', mimeType: 'audio/wav', buffer: wav() },
+      { name: 'b.wav', mimeType: 'audio/wav', buffer: wav(16000) },
+    ]);
+    expect(ascii(out, 0, 3) === 'ID3' || (out[0] === 0xff && (out[1]! & 0xe0) === 0xe0)).toBe(true);
+    expect(out.length).toBeGreaterThan(single.length * 1.6);
+    await expect(page.locator('a[download]').first()).toHaveAttribute('download', 'merged.mp3');
+  });
+
+  test('merge videos joins clips of different sizes into one MP4 the size of the first', async ({ page }) => {
+    const first = await gifVideo(page);
+    const second = await gifVideo(page, 32, 24);
+    const out = await merge(page, '/merge-videos/', [
+      { name: 'first.mp4', mimeType: 'video/mp4', buffer: first },
+      { name: 'second.mp4', mimeType: 'video/mp4', buffer: second },
+    ]);
+    expect(ascii(out, 4, 8)).toBe('ftyp');
+    const merged = await probe(page, out);
+    expect(merged.w).toBe(64);
+    expect(merged.h).toBe(48);
+    expect(merged.d).toBeGreaterThan(5.4);
+    expect(merged.d).toBeLessThan(6.6);
+    await expect(page.locator('a[download]').first()).toHaveAttribute('download', 'merged.mp4');
+  });
+
+  test('merge videos gives a silent clip silence, so a clip with sound keeps its sound', async ({ page }) => {
+    const silent = await gifVideo(page);
+    const withSound = await probe(page, mp4);
+    const out = await merge(page, '/merge-videos/', [
+      { name: 'sound.mp4', mimeType: 'video/mp4', buffer: mp4 },
+      { name: 'silent.mp4', mimeType: 'video/mp4', buffer: silent },
+    ]);
+    const merged = await probe(page, out);
+    expect(merged.w).toBe(withSound.w);
+    expect(merged.d).toBeGreaterThan(withSound.d + 2.4);
+    expect(merged.d).toBeLessThan(withSound.d + 3.6);
+  });
+
   test('Compress video and Trim video give MP4 files', async ({ page }) => {
     const small = await convert(page, '/compress-video/', { name: 'clip.mp4', mimeType: 'video/mp4', buffer: mp4 }, 'Compress');
     expect(ascii(small, 4, 8)).toBe('ftyp');
@@ -216,10 +285,10 @@ test.describe('media converters (ffmpeg.wasm)', () => {
   });
 
   /** A three-second 64 by 48 video at 10 frames a second, made from a GIF, so these tests do not depend on recording in the browser. */
-  async function gifVideo(page: Page): Promise<Buffer> {
+  async function gifVideo(page: Page, w = 64, h = 48): Promise<Buffer> {
     const encoder = GIFEncoder();
     const palette = [[255, 210, 63], [20, 20, 20], [40, 120, 220]];
-    for (let i = 0; i < 30; i++) encoder.writeFrame(new Uint8Array(64 * 48).fill(i % 3), 64, 48, { palette, delay: 100 });
+    for (let i = 0; i < 30; i++) encoder.writeFrame(new Uint8Array(w * h).fill(i % 3), w, h, { palette, delay: 100 });
     encoder.finish();
     return convert(page, '/gif-to-mp4/', { name: 'three.gif', mimeType: 'image/gif', buffer: Buffer.from(encoder.bytes()) });
   }

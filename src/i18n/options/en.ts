@@ -387,6 +387,14 @@ export const en = {
   qrLong: 'Too long for one QR code at this level. The limit is {max} bytes (one byte per English letter, more for other scripts). Shorten the text or choose a lower level.',
   qrAlt: 'Your QR code',
   qrNote: 'The code is made in your browser and nothing is sent anywhere. Scan it with a phone before you print it.',
+  mergeUp: 'Move {name} up',
+  mergeDown: 'Move {name} down',
+  mergeRemove: 'Remove {name}',
+  mergeOrder: 'The files are joined in this order:',
+  mergeNeedTwo: 'Add at least two files to merge.',
+  mergeTooMany: 'You can merge up to {max} files at a time.',
+  mergeNoteVideo: 'Every clip is fitted to the size of the first one and set to 30 frames per second, so they join cleanly. A clip with no sound gets silence. Longer clips take a few minutes.',
+  mergeNoteAudio: 'The files are brought to one sample rate and saved as a single MP3 at 192 kbit/s, with no gap between them.',
   errDetail: 'That input could not be converted. Details (in English): {message}',
 } as const;
 
