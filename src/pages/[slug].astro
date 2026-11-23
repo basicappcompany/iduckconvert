@@ -1,7 +1,7 @@
 ---
 import ToolLayout from '../components/ToolLayout.astro';
 import ToolIsland from '../components/ToolIsland.astro';
-import { PAGE_TOOLS, GROUP_EMOJI, type ToolLink } from '../lib/tools';
+import { NO_FILE_KINDS, PAGE_TOOLS, GROUP_EMOJI, type ToolLink } from '../lib/tools';
 import { UNIT_PAIRS } from '../lib/unit-pages';
 
 export function getStaticPaths() {
@@ -16,7 +16,7 @@ export function getStaticPaths() {
 const { tool, pair } = Astro.props;
 const k = tool.kind;
 const runLabel = tool.slug === 'video-to-mp3' ? 'Extract MP3' : k === 'video-gif' ? 'Make GIF' : k === 'video-compress' ? 'Compress' : k === 'video-trim' || k === 'audio-trim' ? 'Trim' : 'Convert';
-const noFiles = ['units', 'bases', 'words', 'roman', 'case', 'colour', 'timezone', 'dates', 'tokens'].includes(k);
+const noFiles = NO_FILE_KINDS.includes(k);
 ---
 
 <ToolLayout tool={tool} usesFiles={!noFiles} {...(pair ? { pair } : {})}>

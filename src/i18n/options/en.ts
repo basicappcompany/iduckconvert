@@ -61,6 +61,51 @@ export const en = {
   /** {chars} {words} {lines} */
   tokensStats: '{chars} characters, {words} words, {lines} lines',
   tokensNote: 'This is an estimate: about 4 characters, or three quarters of a word, per token in English. Other languages and code use more, and each AI model counts a little differently.',
+  // Unix timestamp
+  tsInput: 'Timestamp or date',
+  tsHint: 'A Unix timestamp in seconds, milliseconds, microseconds or nanoseconds, or a date such as 2026-03-04 10:30. A date with no time zone is read as UTC.',
+  tsNow: 'Use the current time',
+  tsBad: 'That is not a timestamp or a date. Try 1700000000 or 2026-03-04 10:30.',
+  tsReadSeconds: 'Read as seconds.',
+  tsReadMillis: 'Read as milliseconds.',
+  tsReadMicros: 'Read as microseconds.',
+  tsReadNanos: 'Read as nanoseconds.',
+  tsReadDate: 'Read as a date.',
+  tsSeconds: 'Unix time (seconds)',
+  tsMillis: 'Unix time (milliseconds)',
+  tsIso: 'ISO 8601 (UTC)',
+  tsLocal: 'Your local time',
+  tsRelative: 'Compared with now',
+  // UUID generator
+  uuidVersion: 'Version',
+  uuidV4: 'Version 4 (random)',
+  uuidV7: 'Version 7 (starts with the time)',
+  uuidCount: 'How many',
+  uuidUpper: 'Capital letters',
+  uuidHyphens: 'Keep the hyphens',
+  uuidMake: 'Make new ones',
+  uuidOut: 'Your UUIDs',
+  uuidNote: 'Made in your browser with its secure random number generator. Nothing is sent anywhere.',
+  // hash generator
+  hashCompare: 'Compare with a hash you were given',
+  hashPaste: 'Paste the hash here',
+  /** {name} */
+  hashMatch: 'It matches the {name} hash.',
+  hashNoMatch: 'It does not match any of these hashes.',
+  hashNote: 'MD5 and SHA-1 are fine for checking a download, but they are not safe for passwords or signatures.',
+  hashWaiting: 'The hashes appear here when you type or choose a file.',
+  /** {name} */
+  hashOfFile: 'File: {name}',
+  // text chunker
+  chunkOverlap: 'Overlap with the part before',
+  chunkNoOverlap: 'No overlap',
+  /** {n} */
+  chunkTokens: '{n} tokens',
+  /** {parts} {tokens} */
+  chunkSummary: 'Parts: {parts}. About {tokens} tokens in all.',
+  /** {i} {n} {t} */
+  chunkPart: 'Part {i} of {n}, about {t} tokens',
+  chunkNote: 'Parts end at a paragraph if they can, then at a sentence, then at a word. Sizes are estimates of about 4 characters per token, so leave some room under the limit of your tool.',
   // audio and video presets
   speechFormat: 'File type',
   speechMp3: 'Small MP3 (for upload)',

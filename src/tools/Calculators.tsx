@@ -1,7 +1,7 @@
 /** The converters with no file: units, number bases, words, Roman numerals, text case, colours, time zones, date formats. */
 import { useMemo, useState } from 'preact/hooks';
 import { Field } from '../components/OptionsPanel';
-import { copyText } from '../lib/clipboard';
+import { CopyButton } from '../components/CopyButton';
 import { fill, useOpts } from '../i18n/options';
 import { useLang } from '../i18n/ui';
 import { numberToWordsIn } from '../convert/words-i18n';
@@ -10,26 +10,6 @@ import { useNames } from '../i18n/names';
 import { UNIT_SETS, convertUnit, formatNumber } from '../convert/units';
 import { CASES, formatBase, fromRoman, parseBase, parseHex, parseHsl, parseRgb, rgbToHsl, toHex, toRoman, type Rgb, type WordStyle } from '../convert/numbers';
 import { CITIES, DATE_FORMATS, compareZones, parseDateInput, timeInZone, wallTimeToInstant } from '../convert/time';
-
-function CopyButton({ text }: { text: string }) {
-  const o = useOpts();
-  const [done, setDone] = useState(false);
-  return (
-    <button
-      type="button"
-      class="btn btn-sm"
-      disabled={!text}
-      onClick={() =>
-        void copyText(text).then(() => {
-          setDone(true);
-          setTimeout(() => setDone(false), 1500);
-        })
-      }
-    >
-      {done ? o.copied : o.copy}
-    </button>
-  );
-}
 
 // ---------- units ----------
 export function UnitsTool({ units, from: presetFrom, to: presetTo }: { units: string; from?: string; to?: string }) {

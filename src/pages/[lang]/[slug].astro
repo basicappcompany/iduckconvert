@@ -6,7 +6,7 @@
  */
 import LocalizedToolLayout from '../../components/LocalizedToolLayout.astro';
 import ToolIsland from '../../components/ToolIsland.astro';
-import { PAGE_TOOLS, GROUP_EMOJI, type ToolLink } from '../../lib/tools';
+import { NO_FILE_KINDS, PAGE_TOOLS, GROUP_EMOJI, type ToolLink } from '../../lib/tools';
 import { UNIT_PAIRS } from '../../lib/unit-pages';
 import { OTHER_LOCALES, localeByPath, pairHasText, runLabelFor } from '../../i18n';
 
@@ -25,7 +25,7 @@ export function getStaticPaths() {
 const { lang } = Astro.params as { lang: string };
 const { tool, pair } = Astro.props;
 const locale = localeByPath(lang)!;
-const noFiles = ['units', 'bases', 'words', 'roman', 'case', 'colour', 'timezone', 'dates', 'tokens'].includes(tool.kind);
+const noFiles = NO_FILE_KINDS.includes(tool.kind);
 ---
 
 <LocalizedToolLayout tool={tool} locale={locale.code} usesFiles={!noFiles} {...(pair ? { pair } : {})}>
