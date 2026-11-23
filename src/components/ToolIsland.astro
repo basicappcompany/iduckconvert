@@ -8,6 +8,7 @@ import { DocxTool, ExcelTool, TiffTool, WebpGifTool } from '../tools/FileTools';
 import { DataTool, EncodingTool } from '../tools/TextTools';
 import { BasesTool, CaseTool, ColourTool, DatesTool, RomanTool, TimeZoneTool, TokenTool, UnitsTool, WordsTool } from '../tools/Calculators';
 import { ChunkTool, HashTool, TimestampTool, UuidTool } from '../tools/DevTools';
+import { QrTool } from '../tools/QrTool';
 import type { ToolLink } from '../lib/tools';
 import type { UnitPair } from '../lib/unit-pages';
 
@@ -44,3 +45,4 @@ const to = tool.to ?? '';
 {k === 'uuid' && <UuidTool client:load />}
 {k === 'hash' && <HashTool client:load />}
 {k === 'chunker' && <ChunkTool client:load />}
+{k === 'qr' && <QrTool client:load />}

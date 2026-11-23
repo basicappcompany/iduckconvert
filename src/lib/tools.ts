@@ -38,6 +38,7 @@ export type ToolKind =
   | 'uuid'
   | 'hash'
   | 'chunker'
+  | 'qr'
   | 'data'
   | 'excel'
   | 'tiff'
@@ -448,6 +449,7 @@ export const TOOLS: readonly ToolLink[] = [
   { slug: 'uuid-generator', name: 'UUID generator', summary: 'Make random UUIDs, version 4 or version 7.', group: 'Numbers & text', emoji: '🆔', kind: 'uuid', quick: 'To make a UUID, open the page: one is ready already. Choose version 4 (random) or version 7 (starts with the time), pick how many you want, and copy them.', keywords: 'uuid guid generator random unique id v4 v7 identifier' },
   { slug: 'hash-generator', name: 'Hash generator', summary: 'MD5, SHA-1, SHA-256 and more for text or a file.', group: 'Numbers & text', emoji: '#️⃣', kind: 'hash', quick: 'To get a hash, paste your text or choose a file. MD5, SHA-1, SHA-256, SHA-384 and SHA-512 appear at once. Paste the hash you were given to see which one it matches.', keywords: 'hash checksum md5 sha1 sha256 sha512 digest file integrity verify' },
   { slug: 'text-chunker', name: 'Text chunker', summary: 'Split long text into parts that fit an AI tool.', group: 'Numbers & text', emoji: '✂️', kind: 'chunker', quick: 'To split long text for an AI tool, paste it and choose the largest part. Parts end at a paragraph, a sentence or a word, and you copy them one by one.', keywords: 'chunk split text tokens context window rag long document prompt limit divide' },
+  { slug: 'qr-code-generator', name: 'QR code generator', summary: 'Make a QR code for a link, text or Wi-Fi network.', group: 'Numbers & text', emoji: '🔳', kind: 'qr', quick: 'To make a QR code, type or paste your text or link, or fill in a Wi-Fi network. The code appears at once. Download it as a PNG picture or as an SVG file.', keywords: 'qr code generator barcode link url wifi wi-fi scan png svg make create' },
   { slug: 'time-zone-converter', name: 'Time zone converter', summary: 'Compare a time across cities and zones.', group: 'Time & money', emoji: '🕐', kind: 'timezone', quick: 'To convert a time between zones, pick the time and the city you start from, then add the cities you want to compare. Daylight saving is handled for you.', keywords: 'timezone time zone ist utc gmt est pst convert meeting world clock' },
   { slug: 'date-format-converter', name: 'Date format converter', summary: 'Show one date in every common format.', group: 'Time & money', emoji: '📅', kind: 'dates', quick: 'To convert a date format, pick a date and see it written as DD/MM/YYYY, MM/DD/YYYY, ISO and more. Copy the one you need.', keywords: 'date format dd/mm/yyyy mm/dd/yyyy iso 8601 convert' },
 ];
@@ -456,7 +458,7 @@ export const TOOLS: readonly ToolLink[] = [
 export const PAGE_TOOLS = TOOLS.filter((t) => t.kind !== 'link');
 
 /** The kinds that work on typed or pasted values and not on dropped files: the page says "works as you type". */
-export const NO_FILE_KINDS: readonly string[] = ['units', 'bases', 'words', 'roman', 'case', 'colour', 'timezone', 'dates', 'tokens', 'timestamp', 'uuid', 'hash', 'chunker'];
+export const NO_FILE_KINDS: readonly string[] = ['units', 'bases', 'words', 'roman', 'case', 'colour', 'timezone', 'dates', 'tokens', 'timestamp', 'uuid', 'hash', 'chunker', 'qr'];
 
 export const toolPath = (slug: string): string => `/${slug}/`;
 

@@ -381,6 +381,19 @@ function baseContent(t: ToolLink): PageContent {
           PRIVATE_FAQ('text'),
         ],
       );
+    case 'qr':
+      return simple(
+        ['Choose whether it is text or a link, or a Wi-Fi network.', 'Type your text or link, or fill in the network name and password. The code appears as you type.', 'Choose a picture size, then download the code as a PNG picture or an SVG file.'],
+        'A QR code is a square picture that holds a short piece of text, most often a web address. A phone camera reads it in an instant, so it saves typing a long link, sharing a Wi-Fi password or finding a menu.',
+        [
+          { q: 'Does the code expire?', a: 'No. The text is written into the picture itself, so the code works for as long as the page it points to does. There is no tracking link or account behind it, and nothing is sent to a server.' },
+          { q: 'Which error correction level should I choose?', a: 'Medium suits most uses. A higher level lets the code still scan when part of it is dirty or scratched, but the squares become smaller and more crowded. Choose Low for a short link on a clean screen, and High for something printed on a rough surface.' },
+          { q: 'Should I download a PNG or an SVG?', a: 'A PNG is a picture of a fixed size, good for a document or a slide. An SVG is drawn from shapes, so it stays sharp at any size and suits a poster or a sticker. Both keep the empty border a scanner needs.' },
+          { q: 'How do I make a Wi-Fi code?', a: 'Choose Wi-Fi network, type the network name and password, and pick the security type (most home networks use WPA). A phone camera offers to join the network when it scans the code. Check the password carefully, because the code cannot correct a typing mistake.' },
+          { q: 'How much text fits in one code?', a: 'More than 1,200 bytes at the highest level and more than 2,900 at the lowest. An English letter takes one byte, and a letter in Hindi, Russian or Chinese takes two or three, so the same code holds fewer of them. Shorter text gives a simpler code that scans more easily.' },
+          PRIVATE_FAQ('text'),
+        ],
+      );
     case 'audio-trim':
       return simple(
         ['Drop your recording onto the box. A video works too: only its sound is used.', 'Type the start and end time. Use seconds (90) or minutes and seconds (1:30). Leave the end empty to keep everything after the start.', 'Press Trim.', 'Download the cut part as an MP3.'],

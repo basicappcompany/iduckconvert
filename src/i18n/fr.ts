@@ -239,5 +239,6 @@ export const fr: LocaleData = {
     'uuid-generator': { name: 'Générateur d\'UUID', summary: 'Créez des UUID aléatoires, de version 4 ou de version 7.', quick: 'Pour créer un UUID, ouvrez la page : il y en a déjà un. Choisissez la version 4 (aléatoire) ou la version 7 (commence par l\'heure), indiquez combien vous en voulez et copiez-les.' },
     'hash-generator': { name: 'Générateur de hash', summary: 'MD5, SHA-1, SHA-256 et plus pour un texte ou un fichier.', quick: 'Pour obtenir un hash, collez votre texte ou choisissez un fichier. MD5, SHA-1, SHA-256, SHA-384 et SHA-512 apparaissent d\'un coup. Collez le hash qu\'on vous a donné pour voir lequel correspond.' },
     'text-chunker': { name: 'Découpeur de texte', summary: 'Découpez un long texte en parties qui tiennent dans un outil d\'IA.', quick: 'Pour découper un long texte pour un outil d\'IA, collez-le et choisissez la plus grande partie. Les parties se terminent à un paragraphe, une phrase ou un mot, et vous les copiez une par une.' },
+    'qr-code-generator': { name: 'Générateur de code QR', summary: 'Créez un code QR pour un lien, un texte ou un réseau Wi-Fi.', quick: 'Pour créer un code QR, saisissez ou collez votre texte ou votre lien, ou remplissez un réseau Wi-Fi. Le code apparaît aussitôt. Téléchargez-le en image PNG ou en fichier SVG.' },
   },
 };
