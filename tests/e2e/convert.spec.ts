@@ -1,6 +1,8 @@
 import { expect, test, type Page } from '@playwright/test';
 import JSZip from 'jszip';
 import gifenc from 'gifenc';
+import jsQR from 'jsqr';
+import { readFile } from 'node:fs/promises';
 const { GIFEncoder } = gifenc;
 
 /** Run a converter on one file and give back the bytes of its first download. */
@@ -590,6 +592,43 @@ test.describe('calculators', () => {
     const fewer = await page.locator('#chunk-out li').count();
     expect(fewer).toBeLessThan(parts.length);
     await expect(page.getByText(/Sizes are estimates of about 4 characters/)).toBeVisible();
+  });
+
+  test('QR code generator makes a code that reads back, as text and as Wi-Fi, and downloads PNG and SVG', async ({ page }) => {
+    await page.goto('/qr-code-generator/');
+    await page.waitForFunction(() => document.querySelector('astro-island[client="load"]:not([ssr])') !== null);
+    const readCanvas = async (): Promise<string | undefined> => {
+      const raw = await page.locator('#qr-canvas').evaluate((c) => {
+        const canvas = c as HTMLCanvasElement;
+        const ctx = canvas.getContext('2d')!;
+        const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        return { w: canvas.width, h: canvas.height, data: Array.from(img.data) };
+      });
+      return jsQR(new Uint8ClampedArray(raw.data), raw.w, raw.h)?.data;
+    };
+    await expect(page.getByText('Enter your text or network name')).toBeVisible();
+    await page.locator('#qr-size').selectOption('512');
+    await page.locator('#qr-text').fill('https://iduckconvert.com/ नमस्ते 🦆');
+    await expect(page.locator('#qr-canvas')).toBeVisible();
+    await expect.poll(readCanvas).toBe('https://iduckconvert.com/ नमस्ते 🦆');
+    const [png] = await Promise.all([page.waitForEvent('download'), page.locator('#qr-png').click()]);
+    expect(png.suggestedFilename()).toBe('qr-code.png');
+    const bytes = await readFile((await png.path())!);
+    expect([...bytes.subarray(0, 4)]).toEqual([0x89, 0x50, 0x4e, 0x47]);
+    const [svg] = await Promise.all([page.waitForEvent('download'), page.locator('#qr-svg').click()]);
+    expect(svg.suggestedFilename()).toBe('qr-code.svg');
+    expect((await readFile((await svg.path())!, 'utf8')).startsWith('<svg')).toBe(true);
+    await page.locator('#qr-level').selectOption('H');
+    await page.locator('#qr-size').selectOption('256');
+    await expect.poll(readCanvas).toBe('https://iduckconvert.com/ नमस्ते 🦆');
+    await page.locator('#qr-kind').selectOption('wifi');
+    await page.locator('#qr-ssid').fill('Duck Pond');
+    await page.locator('#qr-password').fill('swim;fast');
+    await expect.poll(readCanvas).toBe('WIFI:T:WPA;S:Duck Pond;P:swim\\;fast;;');
+    await page.locator('#qr-kind').selectOption('text');
+    await page.locator('#qr-text').fill('a'.repeat(1300));
+    await expect(page.locator('#qr-error')).toContainText('1,273 bytes');
+    await expect(page.locator('#qr-canvas')).toHaveCount(0);
   });
 
   test('time zone converter shows next-day rows', async ({ page }) => {

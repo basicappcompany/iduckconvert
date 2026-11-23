@@ -208,6 +208,9 @@ importers:
       preact:
         specifier: 11.2.0
         version: 11.2.0(preact-render-to-string@6.8.2)
+      qrcode-generator:
+        specifier: 2.0.4
+        version: 2.0.4
       smol-toml:
         specifier: 1.9.1
         version: 1.9.1
@@ -239,6 +242,9 @@ importers:
       eslint-plugin-astro:
         specifier: 3.2.1
         version: 3.2.1(@typescript-eslint/parser@8.72.2(eslint@10.14.0(jiti@2.7.0))(typescript@6.0.3))(eslint@10.14.0(jiti@2.7.0))(typescript-eslint@8.72.2(eslint@10.14.0(jiti@2.7.0))(typescript@6.0.3))
+      jsqr:
+        specifier: 1.4.0
+        version: 1.4.0
       prettier:
         specifier: 3.9.10
         version: 3.9.10
@@ -1923,6 +1929,9 @@ packages:
   jsonc-parser@3.3.1:
     resolution: {integrity: sha512-HUgH65KyejrUFPvHFPbqOY0rsFip3Bo5wb4ngvdi1EpCYWUQDC5V+Y7mZws+DLkr4M//zQJoanu1SP+87Dv1oQ==}
 
+  jsqr@1.4.0:
+    resolution: {integrity: sha512-dxLob7q65Xg2DvstYkRpkYtmKm2sPJ9oFhrhmudT1dZvNFFTlroai3AWSpLey/w5vMcLBXRgOJsbXpdN9HzU/A==}
+
   jszip@3.10.2:
     resolution: {integrity: sha512-3l+rb15IOWtUhU0H5MFqES/T6Kh7abYwjosBey/vD6hDt8zoEffkSC5Ws5SGtgVw3gBx2NEbhTeSW1+kWkpyTQ==}
 
@@ -2259,6 +2268,9 @@ packages:
   qified@0.10.1:
     resolution: {integrity: sha512-+Owyggi9IxT1ePKGafcI87ubSmxol6smwJ+RAHDQlx9+9cPwFWDiKFFCPuWhr9ignlGpZ9vDQLw67N4dcTVFEA==}
     engines: {node: '>=20'}
+
+  qrcode-generator@2.0.4:
+    resolution: {integrity: sha512-mZSiP6RnbHl4xL2Ap5HfkjLnmxfKcPWpWe/c+5XxCuetEenqmNFf1FH/ftXPCtFG5/TDobjsjz6sSNL0Sr8Z9g==}
 
   radix3@1.1.2:
     resolution: {integrity: sha512-b484I/7b8rDEdSDKckSSBA8knMpcdsXudlE/LNL639wFoHKwLbEkQFZHWEYwDC0wa0FKUcCY+GAF73Z7wxNVFA==}
@@ -4614,6 +4626,8 @@ snapshots:
 
   jsonc-parser@3.3.1: {}
 
+  jsqr@1.4.0: {}
+
   jszip@3.10.2:
     dependencies:
       lie: 3.3.0
@@ -4905,6 +4919,8 @@ snapshots:
   qified@0.10.1:
     dependencies:
       hookified: 2.2.0
+
+  qrcode-generator@2.0.4: {}
 
   radix3@1.1.2: {}
 

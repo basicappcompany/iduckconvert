@@ -239,5 +239,6 @@ export const id: LocaleData = {
     'uuid-generator': { name: 'Pembuat UUID', summary: 'Buat UUID acak, versi 4 atau versi 7.', quick: 'Untuk membuat UUID, buka halamannya: satu sudah siap. Pilih versi 4 (acak) atau versi 7 (diawali waktu), tentukan jumlahnya, lalu salin.' },
     'hash-generator': { name: 'Pembuat hash', summary: 'MD5, SHA-1, SHA-256, dan lainnya untuk teks atau file.', quick: 'Untuk mendapatkan hash, tempel teks Anda atau pilih file. MD5, SHA-1, SHA-256, SHA-384, dan SHA-512 muncul sekaligus. Tempel hash yang Anda terima untuk melihat mana yang cocok.' },
     'text-chunker': { name: 'Pemecah teks', summary: 'Pecah teks panjang menjadi bagian yang muat di alat AI.', quick: 'Untuk memecah teks panjang bagi alat AI, tempel teksnya dan pilih bagian terbesar. Bagian berakhir di paragraf, kalimat, atau kata, dan Anda menyalinnya satu per satu.' },
+    'qr-code-generator': { name: 'Pembuat kode QR', summary: 'Buat kode QR untuk tautan, teks, atau jaringan Wi-Fi.', quick: 'Untuk membuat kode QR, ketik atau tempel teks atau tautan Anda, atau isi jaringan Wi-Fi. Kodenya langsung muncul. Unduh sebagai gambar PNG atau berkas SVG.' },
   },
 };
