@@ -594,6 +594,40 @@ function dataContent(t: ToolLink): PageContent {
       { q: 'What else does it tidy?', a: 'Curly quotes and long dashes become plain ones, the ellipsis character becomes three dots, odd spaces become normal spaces, and invisible characters such as the zero-width space are removed. The joiners that some scripts and emoji need are kept.' },
       { q: 'Does it change what my text says?', a: 'No. Only formatting marks and odd characters change. The words, numbers and line breaks stay. Read the result before you send it, because a star or underscore that was part of your own text can be taken for formatting.' },
     ] },
+    'base64-encode': { why: 'Base64 writes any text as plain letters and digits, so it can travel safely in an email, a web address, a JSON file or a setting.', steps: PASTE_STEPS, noError: true, extra: [
+      { q: 'Is Base64 a way to keep text secret?', a: 'No. Base64 is an encoding, not encryption: anyone can decode it in a second. Never use it to hide passwords or keys.' },
+      { q: 'Why is the result longer?', a: 'Base64 turns every 3 bytes into 4 characters, so the result is about a third bigger than the original.' },
+      { q: 'Can I encode a file or a picture?', a: 'This page encodes text. A picture is not text, and the Base64 of a big file is extremely long.' },
+    ] },
+    'base64-decode': { why: 'Base64 shows up in emails, tokens, data addresses and settings files. Decoding it shows the text inside.', steps: PASTE_STEPS, extra: [
+      { q: 'Does it accept URL-safe Base64?', a: 'Yes. The - and _ characters are accepted in place of + and /, and line breaks and missing equals signs at the end are fine.' },
+      { q: 'What if it is a picture or another file?', a: 'The page tells you that the Base64 does not decode to text. Only text is shown here, because other files cannot be read as letters.' },
+      { q: 'Which text encoding is used?', a: 'UTF-8, which covers every language and emoji. Bytes that are not valid UTF-8 are reported, not shown wrongly.' },
+    ] },
+    'url-encode': { why: 'A web address can only hold a few plain characters. Anything else, such as a space, an ampersand or an accent, has to be written as a percent code.', steps: PASTE_STEPS, noError: true, extra: [
+      { q: 'Which characters are left alone?', a: "Letters, digits and - _ . ! ~ * ' ( ). Everything else, including a space, / ? & = # and non-English letters, becomes percent codes." },
+      { q: 'Should I encode a whole address?', a: 'No. Encode only the value you are putting into it, such as the text after q= in a search. Encoding a whole address would also encode its colons and slashes and break it.' },
+      { q: 'How are accents and emoji written?', a: 'As their UTF-8 bytes, each with a percent sign in front. For example ü becomes %C3%BC.' },
+    ] },
+    'url-decode': { why: 'Addresses and form data full of %20 and %C3%BC are hard to read. Decoding shows the characters they stand for.', steps: PASTE_STEPS, extra: [
+      { q: 'Does a plus sign become a space?', a: 'Yes, because forms and search addresses write a space as +. A real plus sign appears as %2B in the encoded text, and it is decoded to +.' },
+      { q: 'Can I decode a whole address?', a: 'Yes. Percent codes are decoded wherever they appear and the rest of the text stays as it is.' },
+    ] },
+    'json-formatter': { why: 'JSON from an API, a log or a chat answer often arrives as one long line. Indenting it shows the structure so you can read and check it.', steps: PASTE_STEPS, extra: [
+      { q: 'Does it check that my JSON is valid?', a: 'Yes. If it is not valid, the page shows the message from the browser itself, with the position of the problem. To repair common mistakes instead, use Fix broken JSON.' },
+      { q: 'Are my numbers and keys changed?', a: 'No. Numbers are written exactly as they were, even very large ones, and keys keep their order. Only spaces and line breaks change.' },
+      { q: 'How is it indented?', a: 'With two spaces for each level. Empty objects and arrays stay as {} and [].' },
+    ] },
+    'fix-broken-json': { why: 'Chat tools and hand-edited files often produce JSON that looks right but is not valid. This repairs the usual slips so a program can read it.', steps: PASTE_STEPS, extra: [
+      { q: 'What does it repair?', a: 'Single or curly quotes, comments, trailing commas, missing commas, keys without quotes, True, False and None, a Markdown code fence or text around the JSON, and an ending that was cut off.' },
+      { q: 'What if the answer was cut off?', a: 'Open brackets and quotes are closed at the end, so you get valid JSON, but the part that was cut off is missing. Check the result.' },
+      { q: 'Can it guess wrong?', a: 'Yes. It only repairs what is clearly a slip. A value written as a bare word, such as ok, becomes the text "ok". Read the result before you rely on it.' },
+    ] },
+    'chatgpt-to-markdown': { why: 'OpenAI lets you download your ChatGPT history as a ZIP file. The conversations.json file inside is hard to read, and this turns it into Markdown you can search and keep.', steps: PASTE_STEPS, extra: [
+      { q: 'Where do I get the file?', a: 'Ask for a data export in your ChatGPT account settings. OpenAI prepares a ZIP file for you to download. Unzip it and use the conversations.json file inside.' },
+      { q: 'What does the Markdown contain?', a: 'Each chat has its title and date as a heading, then your messages under You and the replies under ChatGPT. Code stays in code blocks and pictures are marked as [image]. System and tool messages are left out.' },
+      { q: 'Which version of a chat is used?', a: 'The branch you were reading last. If you edited a message or regenerated a reply, the other versions are not included.' },
+    ] },
     'csv-to-json': { why: 'CSV is a table in plain text. JSON is what websites and apps use to exchange data.', extra: [
       { q: 'How are the columns named?', a: 'The first row is used as the names of the keys. Empty headings become column1, column2 and so on.' },
       { q: 'Are numbers kept as numbers?', a: 'Plain numbers and true or false become real JSON values. Values like 01234 stay as text so leading zeros are not lost.' },

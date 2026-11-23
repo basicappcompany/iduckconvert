@@ -414,6 +414,35 @@ test.describe('text converters', () => {
     }
   });
 
+  test('the developer text tools work with their examples', async ({ page }) => {
+    for (const [slug, input, output, pattern] of [
+      ['base64-encode', 'text in', 'Base64 out', /^SGVsbG8sIGR1Y2shIPCfpoY=$/],
+      ['base64-decode', 'Base64 in', 'text out', /^Hello, duck! \u{1F986}$/u],
+      ['url-encode', 'text in', 'URL-encoded text out', /^name%3DAsha%20%26%20Ben%26city%3DZ%C3%BCrich/],
+      ['url-decode', 'URL-encoded text in', 'text out', /^name=Asha & Ben&city=Zürich\?q=ducks in a row$/],
+      ['json-formatter', 'JSON in', 'formatted JSON out', /^\{\n {2}"name": "Quack"[\s\S]*"big": 12345678901234567890\n\}$/],
+      ['fix-broken-json', 'broken JSON in', 'fixed JSON out', /"swims": true,\n {2}"owner": null\n\}$/],
+      ['chatgpt-to-markdown', 'ChatGPT export in', 'Markdown out', /^# Duck facts\n\n\*2023-11-14\*\n\n## You\n\nWhy do ducks float\?\n\n## ChatGPT\n\nTheir feathers/],
+    ] as const) {
+      await page.goto(`/${slug}/`);
+      await page.waitForFunction(() => document.querySelector('astro-island[client="load"]:not([ssr])') !== null);
+      await page.getByRole('button', { name: 'Try an example' }).click();
+      await expect(page.getByLabel(input, { exact: true })).not.toHaveValue('');
+      await expect(page.getByLabel(output, { exact: true })).toHaveValue(pattern);
+    }
+  });
+
+  test('a broken Base64 and a broken percent code show a message', async ({ page }) => {
+    await page.goto('/base64-decode/');
+    await page.waitForFunction(() => document.querySelector('astro-island[client="load"]:not([ssr])') !== null);
+    await page.getByLabel('Base64 in', { exact: true }).fill('not base64!');
+    await expect(page.getByRole('alert')).toContainText('not valid Base64');
+    await page.goto('/url-decode/');
+    await page.waitForFunction(() => document.querySelector('astro-island[client="load"]:not([ssr])') !== null);
+    await page.getByLabel('URL-encoded text in', { exact: true }).fill('100%');
+    await expect(page.getByRole('alert')).toContainText('hex digits');
+  });
+
   test('bad JSON shows a message', async ({ page }) => {
     await page.goto('/json-to-csv/');
     await page.waitForFunction(() => document.querySelector('astro-island[client="load"]:not([ssr])') !== null);
