@@ -26,7 +26,7 @@ const related = pair
   : relatedTools(tool).map((m) => ({ href: hrefFor(m), emoji: m.emoji, name: m.name, summary: m.summary }));
 const guide = pair ? undefined : guideForTool(tool.slug);
 const path = `/${tool.slug}/`;
-const heading = pair ? `Convert ${pairName}` : /converter|fixer|generator|chunker|^compress|^trim/i.test(tool.name) ? tool.name : `${tool.name} converter`;
+const heading = pair ? `Convert ${pairName}` : /converter|fixer|generator|chunker|^compress|^trim|^merge/i.test(tool.name) ? tool.name : `${tool.name} converter`;
 const title = pair
   ? `Convert ${pairName}: exact factor and table | iDuckConvert`
   : media

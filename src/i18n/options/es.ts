@@ -342,6 +342,14 @@ const t: OptText = {
   qrLong: 'Demasiado largo para un código QR en este nivel. El límite es de {max} bytes (un byte por letra del inglés, más en otras escrituras). Acorta el texto o elige un nivel más bajo.',
   qrAlt: 'Tu código QR',
   qrNote: 'El código se crea en tu navegador y no se envía nada a ningún sitio. Escanéalo con un móvil antes de imprimirlo.',
+  mergeUp: 'Subir {name}',
+  mergeDown: 'Bajar {name}',
+  mergeRemove: 'Quitar {name}',
+  mergeOrder: 'Los archivos se unen en este orden:',
+  mergeNeedTwo: 'Añade al menos dos archivos para unir.',
+  mergeTooMany: 'Puedes unir hasta {max} archivos a la vez.',
+  mergeNoteVideo: 'Cada clip se ajusta al tamaño del primero y se fija a 30 fotogramas por segundo, para que encajen bien. Un clip sin sonido recibe silencio. Los clips largos tardan unos minutos.',
+  mergeNoteAudio: 'Los archivos se llevan a una misma frecuencia de muestreo y se guardan como un solo MP3 a 192 kbit/s, sin huecos entre ellos.',
   errDetail: 'No se pudo convertir esa entrada. Detalles (en inglés): {message}',
 };
 export default t;

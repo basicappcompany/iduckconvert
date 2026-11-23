@@ -210,6 +210,7 @@ export interface UiText {
   runMakeGif: string;
   runCompress: string;
   runTrim: string;
+  runMerge: string;
 }
 
 /** One language: its dictionary and the text of every tool. The shared control text lives in ui.ts, which is small enough for the browser. */

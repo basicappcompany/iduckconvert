@@ -59,6 +59,7 @@ export function runLabelFor(code: string, tool: ToolLink): string {
   if (tool.kind === 'video-gif') return ui.runMakeGif;
   if (tool.kind === 'video-compress') return ui.runCompress;
   if (tool.kind === 'video-trim' || tool.kind === 'audio-trim') return ui.runTrim;
+  if (tool.kind === 'merge-video' || tool.kind === 'merge-audio') return ui.runMerge;
   return ui.runConvert;
 }
 
