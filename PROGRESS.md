@@ -16,9 +16,9 @@ Resume here in a new session. The full picture is `docs/status.html`. Base = iDu
 - [x] Step 2: overlap list (6 link cards)
 - [x] Step 3: repo created
 - [x] Shell: theme, AppShell, Ctrl K, ToolLayout, home, community pages, helper
-- [x] Converters: audio (18), video (16), images (2 built, 15 linked), data (24), units (11), numbers and text (7), time (2)
+- [x] Converters: audio (21), video (17), images (2 built, 15 linked), data (27), units (11), numbers and text (15), time (3)
 - [x] Site pages, 4 guides, sitemap, robots, canonical, OG/Twitter, og.png, favicon
-- [x] Unit tests (791 in 9 files) and browser tests (114, all passed in CI on 23 Nov; on this PC the WEBM recording test fails and its 4 dependents do not run, and a full local run can run out of memory)
+- [x] Unit tests (883 in 13 files) and browser tests (125, all passed in CI on PR #42; on this PC the WEBM recording test fails and the tests that use that clip do not run, and a full local run can run out of memory)
 - [x] Languages phase 1 (switch, hreflang, home page and every converter in 9 languages)
 - [x] Languages phase 2a: the helper in 9 languages
 - [x] Languages phase 2b: all 47 how-to guides in all nine languages
@@ -42,5 +42,6 @@ Resume here in a new session. The full picture is `docs/status.html`. Base = iDu
 - [x] Audio and video presets: trim audio, change audio volume, remove audio from video, rotate video, change video speed (11.6, merged as PR #33 on 23 Nov, live)
 - [x] Repo made public by the owner (23 Nov) for free CI minutes; CI re-run passed. History searched for keys and tokens: none
 - [ ] Turn on secret scanning, push protection and branch protection (status 10.7, owner)
-- [ ] Merge clips, extra audio formats (11.7); developer and AI-era utilities (11.8)
+- [x] Developer and AI-era utilities: Base64, URL encoding, JSON formatter, Fix broken JSON, ChatGPT export, Unix timestamp, UUID, hash, text chunker, QR code (status 11.8, PRs #36 to #38, 23 Nov, live)
+- [x] Extract a video's sound as WAV or M4A, merge videos, merge audio files (status 11.7, PRs #39 and #42, 24 Nov, live)
 - [x] Phone check of video limits (owner, reported done 22 Nov; not checked from here)
