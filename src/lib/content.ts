@@ -84,6 +84,14 @@ function mediaSections(t: ToolLink, sizeText: string): { h: string; p: string }[
   ];
 }
 
+/** How big the sound pulled out of a video is, for each target format. */
+function videoSoundSize(to: string): string {
+  const lead = 'A video has picture and sound, and the picture is most of its size. ';
+  if (to === 'wav') return `${lead}WAV is uncompressed, so the file is far bigger than the sound it came from: about ${mb(1411, 60).toFixed(0)} MB per minute, which is ${mb(1411, 600).toFixed(0)} MB for a 10-minute video, however small that video was.`;
+  if (to === 'm4a') return `${lead}An M4A made at 192 kbit/s takes about ${mb(192, 60).toFixed(1)} MB per minute and one at 96 kbit/s about ${mb(96, 60).toFixed(1)} MB, so a 10-minute video comes to about ${mb(192, 600).toFixed(0)} MB or ${mb(96, 600).toFixed(0)} MB. The sound is encoded again, so the result is a new file and not a copy.`;
+  return `${lead}A 10-minute video of 100 MB typically has about 10 MB of sound at 128 kbit/s, so a 192 kbit/s MP3 comes to about ${mb(192, 600).toFixed(0)} MB, around ${((mb(192, 600) / 100) * 100).toFixed(0)} percent of the video. Each minute of MP3 is about ${mb(192, 60).toFixed(1)} MB at 192 kbit/s and ${mb(96, 60).toFixed(1)} MB at 96 kbit/s.`;
+}
+
 function audioContent(t: ToolLink): PageContent {
   const f = FORMAT_NAMES[t.from!]!;
   const to = FORMAT_NAMES[t.to!]!;
@@ -92,7 +100,7 @@ function audioContent(t: ToolLink): PageContent {
   const verb = t.slug === 'video-to-mp3' ? 'Extract MP3' : 'Convert';
   const noQuality = ['wav', 'flac'].includes(t.to!);
   const sizeText = fromVideo
-    ? `A video has picture and sound, and the picture is most of its size. A 10-minute video of 100 MB typically has about 10 MB of sound at 128 kbit/s, so a 192 kbit/s MP3 comes to about ${mb(192, 600).toFixed(0)} MB, around ${((mb(192, 600) / 100) * 100).toFixed(0)} percent of the video. Each minute of MP3 is about ${(mb(192, 60)).toFixed(1)} MB at 192 kbit/s and ${(mb(96, 60)).toFixed(1)} MB at 96 kbit/s.`
+    ? videoSoundSize(t.to!)
     : `${sizeLine(t.from!, t.to!)} ${KBPS[t.from!] && KBPS[t.to!] && KBPS[t.to!]! > KBPS[t.from!]! ? 'The file grows because the target stores more data than the source.' : 'Choosing a lower bitrate shrinks it further; a higher one grows it.'}`;
   return {
     ...BASE,

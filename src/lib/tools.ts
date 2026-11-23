@@ -106,6 +106,8 @@ const AUDIO_PAIRS: [string, string][] = [
   ['wav', 'flac'],
   ['flac', 'wav'],
   ['m4a', 'wav'],
+  ['mp4', 'wav'],
+  ['mp4', 'm4a'],
 ];
 
 const VIDEO_PAIRS: [string, string][] = [

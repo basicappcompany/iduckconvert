@@ -209,6 +209,30 @@ export const MEDIA_PAGES: Record<string, MediaPage> = {
       { q: 'Does it keep the video?', a: 'No. Only the audio is kept. To shorten or shrink the video instead, use Trim video or Compress video.' },
     ],
   },
+  'mp4-to-wav': {
+    hook: 'uncompressed sound from a video',
+    description: 'Extract the sound of an MP4 video as an uncompressed WAV file for editing, transcription and sampling. Free, in your browser, nothing uploaded. Shows the size to expect.',
+    answer: 'To extract WAV from an MP4, choose your video, press Convert and download the WAV. It runs in your browser and nothing is uploaded. Only the sound is kept, uncompressed, so expect about 11 MB per minute however small the video was.',
+    who: 'Editors, samplers and speech tools often want plain uncompressed audio. People pull a WAV out of an MP4 to cut the soundtrack in an audio editor, to feed a transcription or analysis tool that dislikes compressed files, or to keep the sound of an interview or a screen recording as it was decoded.',
+    quality: 'The video is dropped and the sound is decoded and written as 16-bit PCM with no further loss. The soundtrack of an MP4 is usually AAC, which already lost some detail when the video was made, so the WAV is a faithful copy of that sound, not a better one.',
+    devices: 'WAV opens in every audio editor, in Windows and macOS without extra software, and in most transcription tools and CD burners. It is a poor choice for listening on a phone, because the files are large.',
+    faqs: [
+      { q: 'How big will the WAV be?', a: 'About 10 to 12 MB per minute for stereo sound, depending on the sample rate, so a 10-minute video gives a WAV of roughly 100 to 120 MB, however small the video file was.' },
+      { q: 'Should I choose WAV or M4A for a video soundtrack?', a: 'Choose WAV to edit the sound or to feed it to another tool without further loss. Choose M4A to listen or share, because it is about seven times smaller. For a small MP3 instead, use MP4 to MP3.' },
+    ],
+  },
+  'mp4-to-m4a': {
+    hook: 'the soundtrack as a small AAC file',
+    description: 'Extract the sound of an MP4 video as an M4A file for iPhones, Macs and music apps. Free, in your browser, nothing uploaded. Choose the bitrate and see the size.',
+    answer: 'To extract M4A from an MP4, choose your video, pick a bitrate, press Convert and download the M4A. It runs in your browser and nothing is uploaded. Only the sound is kept, and at 192 kbit/s it takes about 1.4 MB per minute.',
+    who: 'M4A is the audio format Apple devices and iTunes use for their own music, and it plays on Android and Windows too. People pull an M4A out of an MP4 to listen to a lecture or a recording in a music app, or to send only the sound of a video to someone with an iPhone or a Mac.',
+    quality: 'The video is dropped and the sound is encoded once as AAC inside an M4A file. MP4 soundtracks are usually AAC already, so this is a second round of compression; at 192 kbit/s the difference is hard to hear, and a higher bitrate costs only a little more size.',
+    devices: 'M4A plays in Apple Music, iTunes and QuickTime, on iPhones and Macs, on Android phones and in Windows media players. Older car stereos and some small players prefer MP3, which is the safer choice for them.',
+    faqs: [
+      { q: 'How big will the M4A be?', a: 'At 192 kbit/s, about 14 MB for a 10-minute video, and about 7 MB at 96 kbit/s. The length of the video matters, not its file size.' },
+      { q: 'Should I choose M4A or MP3?', a: 'Choose M4A for Apple devices and for the same quality at a lower bitrate. Choose MP3 when the file must play everywhere, including old car stereos and players. For uncompressed sound use MP4 to WAV.' },
+    ],
+  },
   'mp4-to-webm': {
     hook: 'small web video for your site',
     description: 'Convert MP4 to WEBM (VP8 and Vorbis) for your own website. Free, in your browser, nothing uploaded. Includes browser support, size and settings.',
